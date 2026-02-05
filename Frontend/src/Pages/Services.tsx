@@ -1,13 +1,16 @@
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Services() {
+  const { t } = useLanguage();
+  
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
       <section className="bg-white py-20">
         <div className="w-11/12 mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>Our Services</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.services.hero.title}</h1>
           <p className="text-xl max-w-2xl" style={{ color: '#64748B' }}>
-            Empowering communities with innovative civic engagement tools
+            {t.services.hero.description}
           </p>
         </div>
       </section>
@@ -17,9 +20,9 @@ export default function Services() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
             <div className="bg-white p-8 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 border border-slate-200" style={{ borderTop: '4px solid #0066CC' }}>
               <div className="text-5xl mb-6">📋</div>
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>Report Problems</h3>
+              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.services.service1.title}</h3>
               <p className="mb-6" style={{ color: '#64748B' }}>
-                Submit community issues with details, location, and evidence.
+                {t.services.service1.description}
               </p>
               <img
                 src="/home.jpg"
@@ -29,9 +32,9 @@ export default function Services() {
             </div>
             <div className="bg-white p-8 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 border border-slate-200" style={{ borderTop: '4px solid #0066CC' }}>
               <div className="text-5xl mb-6">🤖</div>
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>Smart Categorization</h3>
+              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.services.service2.title}</h3>
               <p className="mb-6" style={{ color: '#64748B' }}>
-                Intelligent logic automatically routes reports to the right department.
+                {t.services.service2.description}
               </p>
               <img
                 src="/home.jpg"
@@ -41,9 +44,9 @@ export default function Services() {
             </div>
             <div className="bg-white p-8 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 border border-slate-200" style={{ borderTop: '4px solid #0066CC' }}>
               <div className="text-5xl mb-6">📊</div>
-              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>Track & Feedback</h3>
+              <h3 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.services.service3.title}</h3>
               <p className="mb-6" style={{ color: '#64748B' }}>
-                Real-time status updates from submission to resolution.
+                {t.services.service3.description}
               </p>
               <img
                 src="/home.jpg"
@@ -60,7 +63,7 @@ export default function Services() {
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
             >
-              Report a Problem
+              {t.services.button}
             </Link>
           </div>
         </div>

@@ -1,11 +1,15 @@
+import { useLanguage } from '../contexts/LanguageContext';
+
 export default function About() {
+  const { t } = useLanguage();
+  
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
       <section className="bg-white py-20">
         <div className="w-11/12 mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>About PublicVoice</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.about.hero.title}</h1>
           <p className="text-xl max-w-2xl" style={{ color: '#64748B' }}>
-            Transforming civic engagement through technology
+            {t.about.hero.description}
           </p>
         </div>
       </section>
@@ -21,32 +25,32 @@ export default function About() {
               />
             </div>
             <div className="space-y-6">
-              <h2 className="text-3xl font-bold" style={{ color: '#1E293B' }}>Who We Are</h2>
+              <h2 className="text-3xl font-bold" style={{ color: '#1E293B' }}>{t.about.whoWeAre.title}</h2>
               <p className="leading-relaxed text-lg" style={{ color: '#64748B' }}>
-                PublicVoice is a civic-tech platform strengthening communication between citizens and local authorities through transparent, accessible channels.
+                {t.about.whoWeAre.description}
               </p>
             </div>
           </div>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
             <div className="space-y-6 order-2 lg:order-1">
-              <h2 className="text-3xl font-bold" style={{ color: '#1E293B' }}>The Problem</h2>
+              <h2 className="text-3xl font-bold" style={{ color: '#1E293B' }}>{t.about.problem.title}</h2>
               <ul className="space-y-4" style={{ color: '#64748B' }}>
                 <li className="flex items-start gap-3">
                   <span className="text-xl" style={{ color: '#0066CC' }}>✗</span>
-                  <span>Lack of accessible reporting channels</span>
+                  <span>{t.about.problem.issue1}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-xl" style={{ color: '#0066CC' }}>✗</span>
-                  <span>Reports ignored or undocumented</span>
+                  <span>{t.about.problem.issue2}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-xl" style={{ color: '#0066CC' }}>✗</span>
-                  <span>No transparency in issue resolution</span>
+                  <span>{t.about.problem.issue3}</span>
                 </li>
                 <li className="flex items-start gap-3">
                   <span className="text-xl" style={{ color: '#0066CC' }}>✗</span>
-                  <span>Limited accountability mechanisms</span>
+                  <span>{t.about.problem.issue4}</span>
                 </li>
               </ul>
             </div>
@@ -61,15 +65,15 @@ export default function About() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-white p-10 rounded-xl shadow-xl border border-slate-200" style={{ borderLeft: '4px solid #0066CC' }}>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>Our Mission</h2>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.about.mission.title}</h2>
               <p className="leading-relaxed" style={{ color: '#64748B' }}>
-                Empower citizens through technology by enabling transparent, inclusive, and accountable governance.
+                {t.about.mission.description}
               </p>
             </div>
             <div className="bg-white p-10 rounded-xl shadow-xl border border-slate-200" style={{ borderLeft: '4px solid #0066CC' }}>
-              <h2 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>Our Vision</h2>
+              <h2 className="text-2xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.about.vision.title}</h2>
               <p className="leading-relaxed" style={{ color: '#64748B' }}>
-                Communities where every voice is heard and acted upon through transparent collaboration.
+                {t.about.vision.description}
               </p>
             </div>
           </div>

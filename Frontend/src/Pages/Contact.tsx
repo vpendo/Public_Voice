@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Mail, MapPin, Send } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Contact() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -10,7 +12,7 @@ export default function Contact() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Thank you for your message! We will get back to you soon. (Note: Backend integration will be implemented in future versions.)');
+    alert(t.contact.successMessage);
     setFormData({ name: '', email: '', message: '' });
   };
 
@@ -25,9 +27,9 @@ export default function Contact() {
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
       <section className="bg-white py-20">
         <div className="w-11/12 mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>Contact Us</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.contact.hero.title}</h1>
           <p className="text-xl max-w-2xl" style={{ color: '#64748B' }}>
-            Get in touch with our team
+            {t.contact.hero.description}
           </p>
         </div>
       </section>
@@ -36,11 +38,11 @@ export default function Contact() {
         <div className="w-11/12 mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
             <div className="bg-white p-10 rounded-xl shadow-xl border border-slate-200">
-              <h2 className="text-2xl font-bold mb-8" style={{ color: '#1E293B' }}>Send Us a Message</h2>
+              <h2 className="text-2xl font-bold mb-8" style={{ color: '#1E293B' }}>{t.contact.form.title}</h2>
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                    Name
+                    {t.contact.form.name}
                   </label>
                   <input
                     type="text"
@@ -63,12 +65,12 @@ export default function Contact() {
                       e.currentTarget.style.borderColor = '#CBD5E1';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
-                    placeholder="Your full name"
+                    placeholder={t.contact.form.namePlaceholder}
                   />
                 </div>
                 <div>
                   <label htmlFor="email" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                    Email
+                    {t.contact.form.email}
                   </label>
                   <input
                     type="email"
@@ -91,12 +93,12 @@ export default function Contact() {
                       e.currentTarget.style.borderColor = '#CBD5E1';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
-                    placeholder="your.email@example.com"
+                    placeholder={t.contact.form.emailPlaceholder}
                   />
                 </div>
                 <div>
                   <label htmlFor="message" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                    Message
+                    {t.contact.form.message}
                   </label>
                   <textarea
                     id="message"
@@ -119,7 +121,7 @@ export default function Contact() {
                       e.currentTarget.style.borderColor = '#CBD5E1';
                       e.currentTarget.style.boxShadow = 'none';
                     }}
-                    placeholder="Your message here..."
+                    placeholder={t.contact.form.messagePlaceholder}
                   />
                 </div>
                 <button
@@ -130,21 +132,21 @@ export default function Contact() {
                   onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
                 >
                   <Send size={20} />
-                  Send Message
+                  {t.contact.form.button}
                 </button>
               </form>
             </div>
 
             <div className="space-y-8">
               <div className="bg-white p-8 rounded-xl shadow-lg border border-slate-200">
-                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1E293B' }}>Contact Information</h2>
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1E293B' }}>{t.contact.info.title}</h2>
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
                     <div className="p-3 rounded-lg" style={{ backgroundColor: '#0066CC' }}>
                       <Mail className="text-white" size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold mb-1" style={{ color: '#1E293B' }}>Email</h3>
+                      <h3 className="text-lg font-semibold mb-1" style={{ color: '#1E293B' }}>{t.contact.info.email}</h3>
                       <a
                         href="mailto:contact@publicvoice.org"
                         className="transition-colors"
@@ -171,8 +173,8 @@ export default function Contact() {
                       <MapPin className="text-white" size={24} />
                     </div>
                     <div>
-                      <h3 className="text-lg font-semibold mb-1" style={{ color: '#1E293B' }}>Location</h3>
-                      <p style={{ color: '#64748B' }}>Serving communities in Rwanda</p>
+                      <h3 className="text-lg font-semibold mb-1" style={{ color: '#1E293B' }}>{t.contact.info.location}</h3>
+                      <p style={{ color: '#64748B' }}>{t.contact.info.locationText}</p>
                     </div>
                   </div>
                 </div>

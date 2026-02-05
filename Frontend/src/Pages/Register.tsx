@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Register() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -11,7 +13,7 @@ export default function Register() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Registration logic will be implemented in future versions.');
+    alert(t.register.alertMessage);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -26,14 +28,14 @@ export default function Register() {
       <div className="w-11/12 max-w-md">
         <div className="bg-white rounded-xl shadow-2xl p-8 border border-slate-200">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2" style={{ color: '#1E293B' }}>Sign Up</h1>
-            <p style={{ color: '#64748B' }}>Create your PublicVoice account</p>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: '#1E293B' }}>{t.register.title}</h1>
+            <p style={{ color: '#64748B' }}>{t.register.subtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="fullName" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                Full Name
+                {t.register.fullName}
               </label>
               <input
                 type="text"
@@ -55,13 +57,13 @@ export default function Register() {
                   e.currentTarget.style.borderColor = '#CBD5E1';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
-                placeholder="Your full name"
+                placeholder={t.register.fullNamePlaceholder}
               />
             </div>
 
             <div>
               <label htmlFor="email" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                Email
+                {t.register.email}
               </label>
               <input
                 type="email"
@@ -83,13 +85,13 @@ export default function Register() {
                   e.currentTarget.style.borderColor = '#CBD5E1';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
-                placeholder="your.email@example.com"
+                placeholder={t.register.emailPlaceholder}
               />
             </div>
 
             <div>
               <label htmlFor="password" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                Password
+                {t.register.password}
               </label>
               <input
                 type="password"
@@ -111,13 +113,13 @@ export default function Register() {
                   e.currentTarget.style.borderColor = '#CBD5E1';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
-                placeholder="Create a password"
+                placeholder={t.register.passwordPlaceholder}
               />
             </div>
 
             <div>
               <label htmlFor="role" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                Role (Optional)
+                {t.register.role}
               </label>
               <select
                 id="role"
@@ -139,8 +141,8 @@ export default function Register() {
                   e.currentTarget.style.boxShadow = 'none';
                 }}
               >
-                <option value="Citizen">Citizen</option>
-                <option value="Admin">Admin</option>
+                <option value="Citizen">{t.register.roleCitizen}</option>
+                <option value="Admin">{t.register.roleAdmin}</option>
               </select>
             </div>
 
@@ -151,13 +153,13 @@ export default function Register() {
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
             >
-              Register
+              {t.register.button}
             </button>
           </form>
 
           <div className="mt-6 text-center">
             <p style={{ color: '#64748B' }}>
-              Already have an account?{' '}
+              {t.register.hasAccount}{' '}
               <Link 
                 to="/login" 
                 className="font-medium transition-colors"
@@ -171,7 +173,7 @@ export default function Register() {
                   e.currentTarget.style.textDecoration = 'none';
                 }}
               >
-                Sign in
+                {t.register.signIn}
               </Link>
             </p>
           </div>
@@ -184,7 +186,7 @@ export default function Register() {
               onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
               onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
             >
-              ← Back to Home
+              {t.register.backToHome}
             </Link>
           </div>
         </div>
