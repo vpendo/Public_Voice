@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { AlertCircle } from 'lucide-react';
 
 export default function Report() {
   const [formData, setFormData] = useState({
