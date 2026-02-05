@@ -11,7 +11,12 @@ export const content: Record<Language, any> = {
       login: "Login",
       register: "Register"
     },
-    
+    footer: {
+      tagline: "Empowering communities through transparent civic engagement.",
+      quickLinks: "Quick Links",
+      contact: "Contact Us",
+      copyright: "© PublicVoice. All rights reserved.",
+    },
   },
   Kinyarwanda: {
     nav: { 
@@ -22,6 +27,11 @@ export const content: Record<Language, any> = {
       login: "Injira",
       register: "Kwiyandikisha"
     },
-    
+    footer: {
+      tagline: "Twubaka imiryango biteye imbere kuburyo bugaragaza.",
+      quickLinks: "Amakuru",
+      contact: "Twandikire",
+      copyright: "© PublicVoice. Amategeko yose agenga.",
+    },
   },
 };
