@@ -21,11 +21,11 @@ export default function Report() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50" style={{ fontFamily: 'Poppins, sans-serif' }}>
-      <section className="bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white py-20">
+    <div className="min-h-screen bg-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
+      <section className="bg-white py-20">
         <div className="w-11/12 mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4">Report a Problem</h1>
-          <p className="text-xl text-slate-200 max-w-2xl">
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>Report a Problem</h1>
+          <p className="text-xl max-w-2xl" style={{ color: '#64748B' }}>
             Help improve your community by reporting issues
           </p>
         </div>
@@ -35,11 +35,11 @@ export default function Report() {
         <div className="w-11/12 mx-auto px-4">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
-              <div className="bg-gradient-to-br from-slate-900 to-slate-800 text-white p-10 rounded-xl shadow-xl">
-                <h2 className="text-2xl font-bold mb-6">Describe Your Issue</h2>
+              <div className="bg-white p-10 rounded-xl shadow-xl border border-slate-200">
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1E293B' }}>Describe Your Issue</h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
-                    <label htmlFor="category" className="block text-slate-200 font-medium mb-2">
+                    <label htmlFor="category" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
                       Category
                     </label>
                     <select
@@ -48,7 +48,20 @@ export default function Report() {
                       value={formData.category}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border rounded-lg transition-colors"
+                      style={{ 
+                        borderColor: '#CBD5E1',
+                        color: '#1E293B',
+                        backgroundColor: 'white'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = '#0066CC';
+                        e.currentTarget.style.boxShadow = '0 0 0 2px rgba(0, 102, 204, 0.2)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '#CBD5E1';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                     >
                       <option value="">Select a category</option>
                       <option value="roads">Roads & Infrastructure</option>
@@ -63,7 +76,7 @@ export default function Report() {
                   </div>
 
                   <div>
-                    <label htmlFor="description" className="block text-slate-200 font-medium mb-2">
+                    <label htmlFor="description" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
                       Describe Problem
                     </label>
                     <textarea
@@ -73,37 +86,53 @@ export default function Report() {
                       onChange={handleChange}
                       required
                       rows={8}
-                      className="w-full px-4 py-3 bg-slate-800 border border-slate-700 rounded-lg text-white placeholder-slate-400 focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+                      className="w-full px-4 py-3 border rounded-lg transition-colors"
+                      style={{ 
+                        borderColor: '#CBD5E1',
+                        color: '#1E293B',
+                        backgroundColor: 'white'
+                      }}
+                      onFocus={(e) => {
+                        e.currentTarget.style.borderColor = '#0066CC';
+                        e.currentTarget.style.boxShadow = '0 0 0 2px rgba(0, 102, 204, 0.2)';
+                      }}
+                      onBlur={(e) => {
+                        e.currentTarget.style.borderColor = '#CBD5E1';
+                        e.currentTarget.style.boxShadow = 'none';
+                      }}
                       placeholder="Please provide details about the issue, including location, severity, and any other relevant information..."
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full px-8 py-4 bg-orange-600 text-white font-bold rounded-lg hover:bg-orange-700 transition duration-300"
+                    className="w-full px-8 py-4 text-white font-bold rounded-lg transition duration-300"
+                    style={{ backgroundColor: '#0066CC' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
                   >
                     Submit Report
                   </button>
                 </form>
 
-               
+                
               </div>
             </div>
 
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-                <h3 className="text-lg font-bold text-slate-900 mb-4">Why Report?</h3>
-                <ul className="space-y-3 text-slate-600 text-sm">
+                <h3 className="text-lg font-bold mb-4" style={{ color: '#1E293B' }}>Why Report?</h3>
+                <ul className="space-y-3 text-sm" style={{ color: '#64748B' }}>
                   <li className="flex items-start gap-2">
-                    <span className="text-orange-600">✓</span>
+                    <span style={{ color: '#0066CC' }}>✓</span>
                     <span>Help authorities prioritize issues</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-orange-600">✓</span>
+                    <span style={{ color: '#0066CC' }}>✓</span>
                     <span>Track progress in real-time</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span className="text-orange-600">✓</span>
+                    <span style={{ color: '#0066CC' }}>✓</span>
                     <span>Improve your community</span>
                   </li>
                 </ul>
