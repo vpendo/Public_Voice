@@ -4,6 +4,7 @@ import { Navbar } from '../Components/Navbar';
 import { Footer } from '../Components/Footer';
 import { content } from '../i18n/content';
 import type { Language } from '../i18n/content';
+import { LanguageProvider } from '../contexts/LanguageContext';
 import Home from '../Pages/Home';
 import About from '../Pages/About';
 import Contact from '../Pages/Contact';
@@ -41,17 +42,19 @@ export function AppRoute() {
 
   return (
     <Router>
-      <AppLayout lang={lang} setLang={setLang}>
-        <Routes>
-          <Route path="/" element={<Home />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contact" element={<Contact />} />
-          <Route path="/services" element={<Services />} />
-          <Route path="/login" element={<Login />} />
-          <Route path="/register" element={<Register />} />
-          <Route path="/report" element={<Report />} />
-        </Routes>
-      </AppLayout>
+      <LanguageProvider lang={lang} setLang={setLang}>
+        <AppLayout lang={lang} setLang={setLang}>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/contact" element={<Contact />} />
+            <Route path="/services" element={<Services />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/report" element={<Report />} />
+          </Routes>
+        </AppLayout>
+      </LanguageProvider>
     </Router>
   );
 }

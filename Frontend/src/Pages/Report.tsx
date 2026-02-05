@@ -1,6 +1,8 @@
 import { useState } from 'react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Report() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     description: '',
     category: ''
@@ -8,7 +10,7 @@ export default function Report() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Thank you for your report! Your issue has been submitted. (Note: Backend integration will be implemented in future versions.)');
+    alert(t.report.successMessage);
     setFormData({ description: '', category: '' });
   };
 
@@ -23,9 +25,9 @@ export default function Report() {
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
       <section className="bg-white py-20">
         <div className="w-11/12 mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>Report a Problem</h1>
+          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.report.hero.title}</h1>
           <p className="text-xl max-w-2xl" style={{ color: '#64748B' }}>
-            Help improve your community by reporting issues
+            {t.report.hero.description}
           </p>
         </div>
       </section>
@@ -35,11 +37,11 @@ export default function Report() {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             <div className="lg:col-span-2">
               <div className="bg-white p-10 rounded-xl shadow-xl border border-slate-200">
-                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1E293B' }}>Describe Your Issue</h2>
+                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1E293B' }}>{t.report.form.title}</h2>
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div>
                     <label htmlFor="category" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                      Category
+                      {t.report.form.category}
                     </label>
                     <select
                       id="category"
@@ -62,21 +64,21 @@ export default function Report() {
                         e.currentTarget.style.boxShadow = 'none';
                       }}
                     >
-                      <option value="">Select a category</option>
-                      <option value="roads">Roads & Infrastructure</option>
-                      <option value="water">Water Supply</option>
-                      <option value="security">Security & Safety</option>
-                      <option value="sanitation">Sanitation & Waste</option>
-                      <option value="electricity">Electricity</option>
-                      <option value="health">Health Services</option>
-                      <option value="education">Education</option>
-                      <option value="other">Other</option>
+                      <option value="">{t.report.categories.select}</option>
+                      <option value="roads">{t.report.categories.roads}</option>
+                      <option value="water">{t.report.categories.water}</option>
+                      <option value="security">{t.report.categories.security}</option>
+                      <option value="sanitation">{t.report.categories.sanitation}</option>
+                      <option value="electricity">{t.report.categories.electricity}</option>
+                      <option value="health">{t.report.categories.health}</option>
+                      <option value="education">{t.report.categories.education}</option>
+                      <option value="other">{t.report.categories.other}</option>
                     </select>
                   </div>
 
                   <div>
                     <label htmlFor="description" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                      Describe Problem
+                      {t.report.form.description}
                     </label>
                     <textarea
                       id="description"
@@ -99,7 +101,7 @@ export default function Report() {
                         e.currentTarget.style.borderColor = '#CBD5E1';
                         e.currentTarget.style.boxShadow = 'none';
                       }}
-                      placeholder="Please provide details about the issue, including location, severity, and any other relevant information..."
+                      placeholder={t.report.form.descriptionPlaceholder}
                     />
                   </div>
 
@@ -110,7 +112,7 @@ export default function Report() {
                     onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
                     onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
                   >
-                    Submit Report
+                    {t.report.form.button}
                   </button>
                 </form>
 
@@ -120,19 +122,19 @@ export default function Report() {
 
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-                <h3 className="text-lg font-bold mb-4" style={{ color: '#1E293B' }}>Why Report?</h3>
+                <h3 className="text-lg font-bold mb-4" style={{ color: '#1E293B' }}>{t.report.whyReport.title}</h3>
                 <ul className="space-y-3 text-sm" style={{ color: '#64748B' }}>
                   <li className="flex items-start gap-2">
                     <span style={{ color: '#0066CC' }}>✓</span>
-                    <span>Help authorities prioritize issues</span>
+                    <span>{t.report.whyReport.reason1}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span style={{ color: '#0066CC' }}>✓</span>
-                    <span>Track progress in real-time</span>
+                    <span>{t.report.whyReport.reason2}</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span style={{ color: '#0066CC' }}>✓</span>
-                    <span>Improve your community</span>
+                    <span>{t.report.whyReport.reason3}</span>
                   </li>
                 </ul>
               </div>

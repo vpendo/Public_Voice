@@ -1,6 +1,9 @@
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Home() {
+  const { t } = useLanguage();
+  
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
       {/* Section 1: Hero */}
@@ -8,10 +11,10 @@ export default function Home() {
         <div className="w-11/12 mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div className="space-y-6">
             <h1 className="text-5xl md:text-6xl font-bold leading-tight" style={{ color: '#1E293B' }}>
-              PublicVoice
+              {t.home.hero.title}
             </h1>
             <p className="text-xl leading-relaxed" style={{ color: '#64748B' }}>
-              Digital civic engagement platform connecting citizens with authorities.
+              {t.home.hero.description}
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Link
@@ -21,7 +24,7 @@ export default function Home() {
                 onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
                 onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
               >
-                Explore Services
+                {t.home.hero.exploreServices}
               </Link>
               <Link
                 to="/contact"
@@ -40,7 +43,7 @@ export default function Home() {
                   e.currentTarget.style.color = '#0066CC';
                 }}
               >
-                Get In Touch
+                {t.home.hero.getInTouch}
               </Link>
             </div>
           </div>
@@ -57,30 +60,30 @@ export default function Home() {
       {/* Section 2: How PublicVoice Works */}
       <section className="py-20 bg-white">
         <div className="w-11/12 mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-4 text-slate-900">How It Works</h2>
+          <h2 className="text-4xl font-bold text-center mb-4 text-slate-900">{t.home.howItWorks.title}</h2>
           <p className="text-center text-slate-600 mb-16 max-w-2xl mx-auto text-lg">
-            Three simple steps to make your voice heard
+            {t.home.howItWorks.subtitle}
           </p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 text-center border border-slate-200" style={{ borderTop: '4px solid #0066CC' }}>
               <div className="text-6xl mb-6">📝</div>
-              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>Report Issue</h3>
+              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>{t.home.howItWorks.step1.title}</h3>
               <p style={{ color: '#64748B' }}>
-                Submit community problems with details and location.
+                {t.home.howItWorks.step1.description}
               </p>
             </div>
             <div className="bg-white p-8 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 text-center border border-slate-200" style={{ borderTop: '4px solid #0066CC' }}>
               <div className="text-6xl mb-6">🤖</div>
-              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>Auto Categorize</h3>
+              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>{t.home.howItWorks.step2.title}</h3>
               <p style={{ color: '#64748B' }}>
-                Intelligent routing to the right authorities.
+                {t.home.howItWorks.step2.description}
               </p>
             </div>
             <div className="bg-white p-8 rounded-xl shadow-xl hover:shadow-2xl transition duration-300 text-center border border-slate-200" style={{ borderTop: '4px solid #0066CC' }}>
               <div className="text-6xl mb-6">🏛</div>
-              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>Track Progress</h3>
+              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>{t.home.howItWorks.step3.title}</h3>
               <p style={{ color: '#64748B' }}>
-                Monitor status from submission to resolution.
+                {t.home.howItWorks.step3.description}
               </p>
             </div>
           </div>
@@ -90,24 +93,24 @@ export default function Home() {
       {/* Section 3: Why PublicVoice Matters */}
       <section className="py-20 bg-white">
         <div className="w-11/12 mx-auto px-4">
-          <h2 className="text-4xl font-bold text-center mb-16" style={{ color: '#1E293B' }}>Why PublicVoice Matters</h2>
+          <h2 className="text-4xl font-bold text-center mb-16" style={{ color: '#1E293B' }}>{t.home.whyMatters.title}</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
             <div className="bg-white p-8 rounded-xl shadow-xl border border-slate-200" style={{ borderLeft: '4px solid #0066CC' }}>
-              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>Transparency</h3>
+              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>{t.home.whyMatters.transparency.title}</h3>
               <p style={{ color: '#64748B' }}>
-                Every report visible to the community for accountability.
+                {t.home.whyMatters.transparency.description}
               </p>
             </div>
             <div className="bg-white p-8 rounded-xl shadow-xl border border-slate-200" style={{ borderLeft: '4px solid #0066CC' }}>
-              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>Faster Response</h3>
+              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>{t.home.whyMatters.fasterResponse.title}</h3>
               <p style={{ color: '#64748B' }}>
-                Streamlined process for quicker issue resolution.
+                {t.home.whyMatters.fasterResponse.description}
               </p>
             </div>
             <div className="bg-white p-8 rounded-xl shadow-xl border border-slate-200" style={{ borderLeft: '4px solid #0066CC' }}>
-              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>Citizen Power</h3>
+              <h3 className="text-2xl font-bold mb-3" style={{ color: '#1E293B' }}>{t.home.whyMatters.citizenPower.title}</h3>
               <p style={{ color: '#64748B' }}>
-                Empower every voice in community improvement.
+                {t.home.whyMatters.citizenPower.description}
               </p>
             </div>
           </div>
@@ -117,9 +120,9 @@ export default function Home() {
       {/* Section 4: Call to Action */}
       <section className="py-20 bg-white">
         <div className="w-11/12 mx-auto px-4 text-center">
-          <h2 className="text-4xl font-bold mb-6" style={{ color: '#1E293B' }}>Make Your Voice Heard</h2>
+          <h2 className="text-4xl font-bold mb-6" style={{ color: '#1E293B' }}>{t.home.cta.title}</h2>
           <p className="text-xl mb-8 max-w-2xl mx-auto" style={{ color: '#64748B' }}>
-            Have an issue in your community? Report it now.
+            {t.home.cta.description}
           </p>
           <Link
             to="/report"
@@ -128,7 +131,7 @@ export default function Home() {
             onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
             onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
           >
-            Report a Problem
+            {t.home.cta.button}
           </Link>
         </div>
       </section>

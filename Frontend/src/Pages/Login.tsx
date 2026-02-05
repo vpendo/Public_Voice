@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export default function Login() {
+  const { t } = useLanguage();
   const [formData, setFormData] = useState({
     email: '',
     password: ''
@@ -9,7 +11,7 @@ export default function Login() {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    alert('Authentication logic will be implemented in future versions.');
+    alert(t.login.alertMessage);
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -24,14 +26,14 @@ export default function Login() {
       <div className="w-11/12 max-w-md">
         <div className="bg-white rounded-xl shadow-2xl p-8 border border-slate-200">
           <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold mb-2" style={{ color: '#1E293B' }}>Sign In</h1>
-            <p style={{ color: '#64748B' }}>Access your PublicVoice account</p>
+            <h1 className="text-3xl font-bold mb-2" style={{ color: '#1E293B' }}>{t.login.title}</h1>
+            <p style={{ color: '#64748B' }}>{t.login.subtitle}</p>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="email" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                Email
+                {t.login.email}
               </label>
               <input
                 type="email"
@@ -53,13 +55,13 @@ export default function Login() {
                   e.currentTarget.style.borderColor = '#CBD5E1';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
-                placeholder="your.email@example.com"
+                placeholder={t.login.emailPlaceholder}
               />
             </div>
 
             <div>
               <label htmlFor="password" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                Password
+                {t.login.password}
               </label>
               <input
                 type="password"
@@ -81,7 +83,7 @@ export default function Login() {
                   e.currentTarget.style.borderColor = '#CBD5E1';
                   e.currentTarget.style.boxShadow = 'none';
                 }}
-                placeholder="Enter your password"
+                placeholder={t.login.passwordPlaceholder}
               />
             </div>
 
@@ -92,12 +94,12 @@ export default function Login() {
               onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
               onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
             >
-              Login
+              {t.login.button}
             </button>
           </form>
           <div className="mt-6 text-center">
             <p style={{ color: '#64748B' }}>
-              Don't have an account?{' '}
+              {t.login.noAccount}{' '}
               <Link 
                 to="/register" 
                 className="font-medium transition-colors"
@@ -111,7 +113,7 @@ export default function Login() {
                   e.currentTarget.style.textDecoration = 'none';
                 }}
               >
-                Sign up
+                {t.login.signUp}
               </Link>
             </p>
           </div>
@@ -124,7 +126,7 @@ export default function Login() {
               onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
               onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
             >
-              ← Back to Home
+              {t.login.backToHome}
             </Link>
           </div>
         </div>
