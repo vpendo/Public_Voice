@@ -1,68 +1,104 @@
 import { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { CheckCircle, Send } from 'lucide-react';
 
 export default function Report() {
   const { t } = useLanguage();
   const [formData, setFormData] = useState({
-    description: '',
-    category: ''
+    name: '',
+    phone: '',
+    location: '',
+    category: '',
+    description: ''
   });
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert(t.report.successMessage);
-    setFormData({ description: '', category: '' });
+    setFormData({ name: '', phone: '', location: '', category: '', description: '' });
   };
 
-  const handleChange = (e: React.ChangeEvent<HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     setFormData({
       ...formData,
       [e.target.name]: e.target.value
     });
   };
 
+  const inputClass = "w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC] transition-colors bg-white";
+  const labelClass = "block font-medium mb-2 text-slate-800";
+
   return (
     <div className="min-h-screen bg-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
-      <section className="bg-white py-20">
+      {/* Hero */}
+      <section className="relative py-20 overflow-hidden bg-gradient-to-br from-slate-50 to-blue-50/30">
         <div className="w-11/12 mx-auto px-4">
-          <h1 className="text-4xl md:text-5xl font-bold mb-4" style={{ color: '#1E293B' }}>{t.report.hero.title}</h1>
-          <p className="text-xl max-w-2xl" style={{ color: '#64748B' }}>
-            {t.report.hero.description}
-          </p>
+          <div className="max-w-3xl">
+            <h1 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900">{t.report.hero.title}</h1>
+            <p className="text-xl text-slate-600 leading-relaxed">{t.report.hero.description}</p>
+          </div>
         </div>
       </section>
 
-      <section className="py-20 bg-white">
+      {/* Form + sidebar */}
+      <section className="py-16 bg-white">
         <div className="w-11/12 mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
             <div className="lg:col-span-2">
-              <div className="bg-white p-10 rounded-xl shadow-xl border border-slate-200">
-                <h2 className="text-2xl font-bold mb-6" style={{ color: '#1E293B' }}>{t.report.form.title}</h2>
+              <div className="bg-slate-50/80 p-8 md:p-10 rounded-2xl shadow-lg border border-slate-100">
+                <h2 className="text-2xl font-bold mb-2 text-slate-900">{t.report.form.title}</h2>
+                <p className="text-slate-600 mb-8">All fields help authorities respond faster. Your data is used only for this report.</p>
                 <form onSubmit={handleSubmit} className="space-y-6">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                    <div>
+                      <label htmlFor="name" className={labelClass}>{t.report.form.name}</label>
+                      <input
+                        type="text"
+                        id="name"
+                        name="name"
+                        value={formData.name}
+                        onChange={handleChange}
+                        required
+                        className={inputClass}
+                        placeholder={t.report.form.namePlaceholder}
+                      />
+                    </div>
+                    <div>
+                      <label htmlFor="phone" className={labelClass}>{t.report.form.phone}</label>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        className={inputClass}
+                        placeholder={t.report.form.phonePlaceholder}
+                      />
+                    </div>
+                  </div>
                   <div>
-                    <label htmlFor="category" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                      {t.report.form.category}
-                    </label>
+                    <label htmlFor="location" className={labelClass}>{t.report.form.location}</label>
+                    <input
+                      type="text"
+                      id="location"
+                      name="location"
+                      value={formData.location}
+                      onChange={handleChange}
+                      required
+                      className={inputClass}
+                      placeholder={t.report.form.locationPlaceholder}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="category" className={labelClass}>{t.report.form.category}</label>
                     <select
                       id="category"
                       name="category"
                       value={formData.category}
                       onChange={handleChange}
                       required
-                      className="w-full px-4 py-3 border rounded-lg transition-colors"
-                      style={{ 
-                        borderColor: '#CBD5E1',
-                        color: '#1E293B',
-                        backgroundColor: 'white'
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.borderColor = '#0066CC';
-                        e.currentTarget.style.boxShadow = '0 0 0 2px rgba(0, 102, 204, 0.2)';
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.borderColor = '#CBD5E1';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
+                      className={inputClass}
                     >
                       <option value="">{t.report.categories.select}</option>
                       <option value="roads">{t.report.categories.roads}</option>
@@ -75,75 +111,71 @@ export default function Report() {
                       <option value="other">{t.report.categories.other}</option>
                     </select>
                   </div>
-
                   <div>
-                    <label htmlFor="description" className="block font-medium mb-2" style={{ color: '#1E293B' }}>
-                      {t.report.form.description}
-                    </label>
+                    <label htmlFor="description" className={labelClass}>{t.report.form.description}</label>
                     <textarea
                       id="description"
                       name="description"
                       value={formData.description}
                       onChange={handleChange}
                       required
-                      rows={8}
-                      className="w-full px-4 py-3 border rounded-lg transition-colors"
-                      style={{ 
-                        borderColor: '#CBD5E1',
-                        color: '#1E293B',
-                        backgroundColor: 'white'
-                      }}
-                      onFocus={(e) => {
-                        e.currentTarget.style.borderColor = '#0066CC';
-                        e.currentTarget.style.boxShadow = '0 0 0 2px rgba(0, 102, 204, 0.2)';
-                      }}
-                      onBlur={(e) => {
-                        e.currentTarget.style.borderColor = '#CBD5E1';
-                        e.currentTarget.style.boxShadow = 'none';
-                      }}
+                      rows={6}
+                      className={`${inputClass} resize-none`}
                       placeholder={t.report.form.descriptionPlaceholder}
                     />
                   </div>
-
                   <button
                     type="submit"
-                    className="w-full px-8 py-4 text-white font-bold rounded-lg transition duration-300"
+                    className="w-full px-8 py-4 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95"
                     style={{ backgroundColor: '#0066CC' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
                   >
+                    <Send size={20} />
                     {t.report.form.button}
                   </button>
                 </form>
-
-                
               </div>
             </div>
 
             <div className="space-y-6">
-              <div className="bg-white p-6 rounded-xl shadow-lg border border-slate-200">
-                <h3 className="text-lg font-bold mb-4" style={{ color: '#1E293B' }}>{t.report.whyReport.title}</h3>
-                <ul className="space-y-3 text-sm" style={{ color: '#64748B' }}>
+              <div className="bg-slate-50/80 p-6 rounded-2xl shadow-lg border border-slate-100">
+                <h3 className="text-lg font-bold mb-4 text-slate-900 flex items-center gap-2">
+                  <CheckCircle className="w-5 h-5" style={{ color: '#0066CC' }} />
+                  {t.report.whyReport.title}
+                </h3>
+                <ul className="space-y-3 text-slate-600 text-sm">
                   <li className="flex items-start gap-2">
-                    <span style={{ color: '#0066CC' }}>✓</span>
+                    <span className="text-[#0066CC] mt-0.5">•</span>
                     <span>{t.report.whyReport.reason1}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span style={{ color: '#0066CC' }}>✓</span>
+                    <span className="text-[#0066CC] mt-0.5">•</span>
                     <span>{t.report.whyReport.reason2}</span>
                   </li>
                   <li className="flex items-start gap-2">
-                    <span style={{ color: '#0066CC' }}>✓</span>
+                    <span className="text-[#0066CC] mt-0.5">•</span>
                     <span>{t.report.whyReport.reason3}</span>
                   </li>
                 </ul>
               </div>
-              <div>
-                <img
-                  src="/home.jpg"
-                  alt="Report issues"
-                  className="w-full rounded-xl shadow-lg object-cover"
-                />
+              <div className="bg-white p-6 rounded-2xl shadow-lg border border-slate-100 border-l-4" style={{ borderLeftColor: '#0066CC' }}>
+                <h3 className="text-lg font-bold mb-4 text-slate-900">{t.report.howProcess.title}</h3>
+                <ol className="space-y-3 text-slate-600 text-sm">
+                  <li className="flex gap-2">
+                    <span className="font-bold text-[#0066CC]">1.</span>
+                    <span>{t.report.howProcess.step1}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-[#0066CC]">2.</span>
+                    <span>{t.report.howProcess.step2}</span>
+                  </li>
+                  <li className="flex gap-2">
+                    <span className="font-bold text-[#0066CC]">3.</span>
+                    <span>{t.report.howProcess.step3}</span>
+                  </li>
+                </ol>
+              </div>
+              <div className="rounded-2xl overflow-hidden shadow-lg">
+                <img src="/Image/home%202.jpg" alt="Report issues in your community" className="w-full aspect-[4/3] object-cover" />
               </div>
             </div>
           </div>

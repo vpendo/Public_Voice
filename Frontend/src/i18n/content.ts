@@ -5,8 +5,9 @@ export const content: Record<Language, any> = {
   English: {
     nav: { 
       home: "Home",
+      services: "Our Services",
+      report: "Report",
       about: "About Us", 
-      services: "Our Services", 
       contact: "Contact Us", 
       login: "Login",
       register: "Register"
@@ -20,7 +21,7 @@ export const content: Record<Language, any> = {
     home: {
       hero: {
         title: "PublicVoice",
-        description: "Digital civic engagement platform connecting citizens with authorities.",
+        description: "Rwanda's civic engagement platform—connect with local authorities and make your community better.",
         exploreServices: "Explore Services",
         getInTouch: "Get In Touch"
       },
@@ -64,7 +65,7 @@ export const content: Record<Language, any> = {
     services: {
       hero: {
         title: "Our Services",
-        description: "Empowering communities with innovative civic engagement tools"
+        description: "Tools for Rwandan citizens and local authorities to report, route, and resolve community issues"
       },
       service1: {
         title: "Report Problems",
@@ -83,7 +84,11 @@ export const content: Record<Language, any> = {
     about: {
       hero: {
         title: "About PublicVoice",
-        description: "Transforming civic engagement through technology"
+        description: "Civic-tech for Rwanda—transforming how citizens and local authorities work together"
+      },
+      rwandaReach: {
+        title: "Serving All of Rwanda",
+        description: "From Kigali to every province and district. PublicVoice connects citizens with local government for faster, transparent issue resolution."
       },
       whoWeAre: {
         title: "Who We Are",
@@ -108,7 +113,7 @@ export const content: Record<Language, any> = {
     contact: {
       hero: {
         title: "Contact Us",
-        description: "Get in touch with our team"
+        description: "Reach the PublicVoice team—we serve citizens and partners across Rwanda"
       },
       form: {
         title: "Send Us a Message",
@@ -162,14 +167,20 @@ export const content: Record<Language, any> = {
     report: {
       hero: {
         title: "Report a Problem",
-        description: "Help improve your community by reporting issues"
+        description: "Report community issues across Rwanda."
       },
       form: {
-        title: "Describe Your Issue",
+        title: "Submit Your Report",
+        name: "Full Name",
+        namePlaceholder: "Your full name",
+        phone: "Phone Number",
+        phonePlaceholder: "e.g. 0781234567",
+        location: "Location",
+        locationPlaceholder: "District, sector, cell or landmark",
         category: "Category",
         categoryPlaceholder: "Select a category",
-        description: "Describe Problem",
-        descriptionPlaceholder: "Please provide details about the issue, including location, severity, and any other relevant information...",
+        description: "Describe the Problem",
+        descriptionPlaceholder: "Describe the issue in detail (what, where, when). This helps authorities respond faster.",
         button: "Submit Report"
       },
       categories: {
@@ -185,18 +196,25 @@ export const content: Record<Language, any> = {
       },
       whyReport: {
         title: "Why Report?",
-        reason1: "Help authorities prioritize issues",
-        reason2: "Track progress in real-time",
-        reason3: "Improve your community"
+        reason1: "Help local authorities prioritize and respond",
+        reason2: "Contribute to better services across Rwanda",
+        reason3: "Your report stays confidential; only admins see the dashboard"
       },
-      successMessage: "Thank you for your report! Your issue has been submitted. (Note: Backend integration will be implemented in future versions.)"
+      howProcess: {
+        title: "What Happens Next?",
+        step1: "Your report is received and categorized",
+        step2: "It is forwarded to the right authority (district, sector)",
+        step3: "Authorities work on resolution; you may be contacted if needed"
+      },
+      successMessage: "Thank you! Your report has been submitted. Authorities will review it."
     }
   },
   Kinyarwanda: {
     nav: { 
       home: "Ahabanza",
+      services: "Serivisi Zacu",
+      report: "Tanga Ikibazo",
       about: "Abo Turibo", 
-      services: "Serivisi Zacu", 
       contact: "Twandikire", 
       login: "Injira",
       register: "Kwiyandikisha"
@@ -210,7 +228,7 @@ export const content: Record<Language, any> = {
     home: {
       hero: {
         title: "PublicVoice",
-        description: "Porogaramu y'ubugenzacyaha ikunga abaturage n'abategetsi.",
+        description: "Porogaramu y'ubugenzacyaha y'u Rwanda—ihuze n'abategetsi bo hafi kandi uleteza imbere umuryango wawe.",
         exploreServices: "Reba Serivisi",
         getInTouch: "Twandikire"
       },
@@ -254,7 +272,7 @@ export const content: Record<Language, any> = {
     services: {
       hero: {
         title: "Serivisi Zacu",
-        description: "Gutanga imbaraga imiryango hamwe n'ibikoresho by'ubugenzacyaha byashya"
+        description: "Ibikoresho kubaturage b'u Rwanda n'abategetsi bo hafi kugira ngo batange, bohereze, bakanemure ibibazo by'umuryango"
       },
       service1: {
         title: "Tanga Ibibazo",
@@ -273,7 +291,11 @@ export const content: Record<Language, any> = {
     about: {
       hero: {
         title: "Ibyerekeye PublicVoice",
-        description: "Guhindura ubugenzacyaha binyuze mu ikoranabuhanga"
+        description: "Ikoranabuhanga y'ubugenzacyaha y'u Rwanda—guhindura uko abaturage n'abategetsi bo hafi bakorana"
+      },
+      rwandaReach: {
+        title: "Gusaba u Rwanda Wose",
+        description: "Kuva i Kigali kugeza k'intara n'uturere twose. PublicVoice ihuza abaturage n'ubutegetsi bwa hafi kugira ngo gukemura ibibazo vuba kandi biri k'umurongo."
       },
       whoWeAre: {
         title: "Abantu Turibo",
@@ -298,7 +320,7 @@ export const content: Record<Language, any> = {
     contact: {
       hero: {
         title: "Twandikire",
-        description: "Vugana n'itsinda ryacu"
+        description: "Fata ikigo cya PublicVoice—dufasha abaturage n'abafatanyabikorwa mu Rwanda yose"
       },
       form: {
         title: "Ohereza Ubutumwa",
@@ -352,14 +374,20 @@ export const content: Record<Language, any> = {
     report: {
       hero: {
         title: "Tanga Ikibazo",
-        description: "Gufasha guteza imbere umuryango wawe binyuze mu gutanga ibibazo"
+        description: "Tanga ibibazo by'umuryango mu Rwanda yose."
       },
       form: {
-        title: "Sobanura Ikibazo Cyawe",
+        title: "Ohereza Raporo Yawe",
+        name: "Amazina Yuzuze",
+        namePlaceholder: "Amazina yawe yuzuze",
+        phone: "Nomero y'Telefone",
+        phonePlaceholder: "urugero: 0781234567",
+        location: "Ahantu",
+        locationPlaceholder: "Akarere, umurenge, akagari cyangwa ikimenyetso",
         category: "Icyiciro",
         categoryPlaceholder: "Hitamo icyiciro",
         description: "Sobanura Ikibazo",
-        descriptionPlaceholder: "Nyamuneka tanga amakuru ku kibazo, harimo ahantu, ubukana, n'andi makuru afite agaciro...",
+        descriptionPlaceholder: "Sobanura ikibazo mu buce (iki, aha, ryari). Ibi bifasha abategetsi gusubiza vuba.",
         button: "Ohereza Raporo"
       },
       categories: {
@@ -375,11 +403,17 @@ export const content: Record<Language, any> = {
       },
       whyReport: {
         title: "Kuki Watanze Raporo?",
-        reason1: "Gufasha abategetsi guhitamo ibibazo",
-        reason2: "Kurikirana iterambere mu gihe cy'ukuri",
-        reason3: "Guteza imbere umuryango wawe"
+        reason1: "Gufasha abategetsi bo hafi guhitamo no gusubiza",
+        reason2: "Gutanga umusanzu ku serivisi ziza mu Rwanda",
+        reason3: "Raporo yawe ihari; abadereva gusa ni bo bareba dashboard"
       },
-      successMessage: "Murakoze ku raporo yawe! Ikibazo cyawe cyoherejwe. (Icyitonderwa: Gukomeza guhuza na backend bizakorwa mu mihindagurikire y'igihe kizaza.)"
+      howProcess: {
+        title: "Ni iki Gikurikira?",
+        step1: "Raporo yawe yakiriwe kandi itondekanywa",
+        step2: "Yoherezwa ku mutgetsi ukwiye (akarere, umurenge)",
+        step3: "Abategetsi bakora gukemura; washobora kuvugwa niba bikenewe"
+      },
+      successMessage: "Murakoze! Raporo yawe yoherejwe. Abategetsi bazayireba."
     }
   },
 };
