@@ -8,8 +8,14 @@ React + TypeScript frontend for the PublicVoice civic engagement platform.
 - Responsive design with Tailwind CSS
 - Multi-language support (English & Kinyarwanda)
 - React Router for navigation
-- Government-style professional UI
-- Mobile-responsive components
+- Rwanda-focused civic engagement for citizens and local authorities
+- **Report a problem**: Name, phone, location, category, and problem description (no login required)
+- **Dashboard**: For administrators only—Login/Register is used by admins to access the dashboard of all reported problems. Citizens do not need an account to submit reports.
+
+## 🔐 Authentication & access
+
+- **Citizens**: Can report problems without creating an account or logging in. The report form collects name, phone number, location, category, and problem description.
+- **Administrators**: Use **Login** (or **Register** for new admins) to access the dashboard where all reported problems are listed and managed. Only admin accounts can see the dashboard.
 
 ## 📋 Prerequisites
 

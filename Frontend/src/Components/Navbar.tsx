@@ -22,6 +22,7 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
   const navLinks = [
     { path: '/', label: t.home },
     { path: '/services', label: t.services },
+    { path: '/report', label: t.report },
     { path: '/about', label: t.about },
     { path: '/contact', label: t.contact },
   ];
