@@ -5,6 +5,7 @@ import { Footer } from '../Components/Footer';
 import { content } from '../i18n/content';
 import type { Language } from '../i18n/content';
 import { LanguageProvider } from '../contexts/LanguageContext';
+import { AuthProvider } from '../contexts/AuthContext';
 import Home from '../Pages/Home';
 import About from '../Pages/About';
 import Contact from '../Pages/Contact';
@@ -44,8 +45,9 @@ export function AppRoute() {
   return (
     <Router>
       <LanguageProvider lang={lang} setLang={setLang}>
-        <AppLayout lang={lang} setLang={setLang}>
-          <Routes>
+        <AuthProvider>
+          <AppLayout lang={lang} setLang={setLang}>
+            <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/about" element={<About />} />
             <Route path="/contact" element={<Contact />} />
@@ -55,7 +57,8 @@ export function AppRoute() {
             <Route path="/report" element={<Report />} />
             <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
-        </AppLayout>
+          </AppLayout>
+        </AuthProvider>
       </LanguageProvider>
     </Router>
   );

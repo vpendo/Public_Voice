@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { apiClient } from '../api/client';
 import { CheckCircle, Send } from 'lucide-react';
 
 export default function Report() {
@@ -12,11 +13,32 @@ export default function Report() {
     category: '',
     description: ''
   });
+  const [submitting, setSubmitting] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(t.report.successMessage);
-    setFormData({ name: '', phone: '', location: '', institution: '', category: '', description: '' });
+    setSubmitError(null);
+    setSubmitting(true);
+    try {
+      await apiClient.post('/api/reports', {
+        name: formData.name.trim(),
+        phone: formData.phone.trim(),
+        location: formData.location.trim(),
+        institution: formData.institution.trim(),
+        category: formData.category.trim(),
+        description: formData.description.trim(),
+      });
+      alert(t.report.successMessage);
+      setFormData({ name: '', phone: '', location: '', institution: '', category: '', description: '' });
+    } catch (err: unknown) {
+      const msg = err && typeof err === 'object' && 'response' in err
+        ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
+        : null;
+      setSubmitError(typeof msg === 'string' ? msg : 'Failed to submit report. Please try again.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -49,6 +71,11 @@ export default function Report() {
               <div className="bg-slate-50/80 p-8 md:p-10 rounded-2xl shadow-lg border border-slate-100">
                 <h2 className="text-2xl font-bold mb-2 text-slate-900">{t.report.form.title}</h2>
                 <p className="text-slate-600 mb-8">All fields help authorities respond faster. Your data is used only for this report.</p>
+                {submitError && (
+                  <div className="p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                    {submitError}
+                  </div>
+                )}
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                     <div>
@@ -149,11 +176,12 @@ export default function Report() {
                   </div>
                   <button
                     type="submit"
-                    className="w-full px-8 py-4 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95"
+                    disabled={submitting}
+                    className="w-full px-8 py-4 text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed"
                     style={{ backgroundColor: '#0066CC' }}
                   >
                     <Send size={20} />
-                    {t.report.form.button}
+                    {submitting ? 'Submitting...' : t.report.form.button}
                   </button>
                 </form>
               </div>

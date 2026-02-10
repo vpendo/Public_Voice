@@ -66,6 +66,16 @@ The application will be available at:
 - **Local**: http://localhost:5173
 - **Network**: Check terminal for network URL
 
+### Connecting to the backend
+
+Login and Register call the FastAPI backend at **http://127.0.0.1:8000** by default. To use a different URL, create a `.env` in the Frontend folder and set:
+
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+Ensure the backend is running (`uvicorn main:app --reload --port 8000` from the Backend folder) so you can create an account and sign in.
+
 ### Build for production
 
 ```bash
