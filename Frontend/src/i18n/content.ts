@@ -249,7 +249,10 @@ export const content: Record<Language, any> = {
       noReportsHint: "Reports submitted by citizens on the Report page will appear here. AI will structure them for easier review.",
       rawReport: "Original submission",
       structuredReport: "Structured report (AI)",
-      signOut: "Sign out"
+      signOut: "Sign out",
+      loading: "Loading reports...",
+      error: "Could not load reports.",
+      adminRequired: "Admin access required to view reports."
     }
   },
   Kinyarwanda: {
@@ -499,7 +502,10 @@ export const content: Record<Language, any> = {
       noReportsHint: "Raporo abaturage batanga ku rupapuro rwa Raporo ziraboneka hano. AI izazitura kugira ngo zisomeke neza.",
       rawReport: "Raporo y'umwimerere",
       structuredReport: "Raporo yatorewe (AI)",
-      signOut: "Sohoka"
+      signOut: "Sohoka",
+      loading: "Kuramba raporo...",
+      error: "Ntibyakunze gukurura raporo.",
+      adminRequired: "Ukeneye uburenganzira bwo kureba raporo."
     }
   },
 };
