@@ -134,21 +134,40 @@ export const content: Record<Language, any> = {
       successMessage: "Thank you for your message! We will get back to you soon. (Note: Backend integration will be implemented in future versions.)"
     },
     login: {
+      welcomeBack: "Welcome Back.",
+      welcomeSubtitle: "Access your PublicVoice account and community reports.",
+      signInHeadline: "Sign in to the admin dashboard",
+      overlayTitle: "Admin Sign In",
+      overlayTagline: "Access the dashboard to view and manage citizen reports.",
+      adminOnlyNote: "For administrators only. Citizens can report without an account.",
       title: "Sign In",
-      subtitle: "Access your PublicVoice account",
+      subtitle: "Access your PublicVoice admin dashboard",
+      step2Subtitle: "Enter your password",
       email: "Email",
       password: "Password",
       emailPlaceholder: "your.email@example.com",
       passwordPlaceholder: "Enter your password",
-      button: "Login",
+      button: "Sign In",
+      next: "Next",
+      back: "Back",
+      changeEmail: "Use a different email",
+      forgotPassword: "Forgot?",
+      passwordRequired: "Password is required",
+      rememberMe: "Remember me",
+      orContinueWith: "or continue with",
+      continueWithGoogle: "Continue with Google",
       noAccount: "Don't have an account?",
-      signUp: "Sign up",
+      signUp: "Register Now",
       backToHome: "← Back to Home",
       alertMessage: "Authentication logic will be implemented in future versions."
     },
     register: {
       title: "Sign Up",
       subtitle: "Create your PublicVoice account",
+      signUpHeadline: "Create your account to get started",
+      overlayTitle: "Admin Registration",
+      overlayTagline: "Create an admin account to access the dashboard and manage reports.",
+      adminOnlyNote: "For administrators only. Citizens submit reports from the Report page.",
       fullName: "Full Name",
       email: "Email",
       password: "Password",
@@ -177,11 +196,25 @@ export const content: Record<Language, any> = {
         phonePlaceholder: "e.g. 0781234567",
         location: "Location",
         locationPlaceholder: "District, sector, cell or landmark",
+        institution: "Tag institution where the problem is",
+        institutionPlaceholder: "Select the institution concerned",
         category: "Category",
         categoryPlaceholder: "Select a category",
         description: "Describe the Problem",
         descriptionPlaceholder: "Describe the issue in detail (what, where, when). This helps authorities respond faster.",
         button: "Submit Report"
+      },
+      institutions: {
+        select: "Select institution",
+        district: "District (Akarere)",
+        sector: "Sector (Umurenge)",
+        cell: "Cell (Akagari)",
+        village: "Village (Umudugudu)",
+        mininfra: "MININFRA (Infrastructure)",
+        mineduc: "MINEDUC (Education)",
+        minisante: "MINISANTE (Health)",
+        localGov: "Local Government",
+        other: "Other"
       },
       categories: {
         select: "Select a category",
@@ -206,7 +239,17 @@ export const content: Record<Language, any> = {
         step2: "It is forwarded to the right authority (district, sector)",
         step3: "Authorities work on resolution; you may be contacted if needed"
       },
-      successMessage: "Thank you! Your report has been submitted. Authorities will review it."
+      successMessage: "Thank you! Your report has been submitted. Authorities will review it.",
+      noAccountNeeded: "You don't need an account to report. Only admins sign in to view reports in the dashboard."
+    },
+    dashboard: {
+      title: "Admin Dashboard",
+      subtitle: "Citizen reports appear here. AI converts informal (e.g. Kinyarwanda) submissions into structured, formal reports.",
+      noReports: "No reports yet.",
+      noReportsHint: "Reports submitted by citizens on the Report page will appear here. AI will structure them for easier review.",
+      rawReport: "Original submission",
+      structuredReport: "Structured report (AI)",
+      signOut: "Sign out"
     }
   },
   Kinyarwanda: {
@@ -341,21 +384,40 @@ export const content: Record<Language, any> = {
       successMessage: "Murakoze ku butumwa bwawe! Tuzasubiza vuba. (Icyitonderwa: Gukomeza guhuza na backend bizakorwa mu mihindagurikire y'igihe kizaza.)"
     },
     login: {
+      welcomeBack: "Murakaze neza.",
+      welcomeSubtitle: "Kwinjira mu konti yawe ya PublicVoice n'amakuru y'umuryango.",
+      signInHeadline: "Injira mu dashboard y'abadereva",
+      overlayTitle: "Injira (Abadereva)",
+      overlayTagline: "Fata dashboard kugira ngo urebe ugenzure raporo z'abaturage.",
+      adminOnlyNote: "Kubadereva gusa. Abaturage batanga raporo batakeneye konti.",
       title: "Injira",
-      subtitle: "Kwinjira mu konti yawe ya PublicVoice",
+      subtitle: "Kwinjira mu dashboard ya PublicVoice",
+      step2Subtitle: "Injiza ijambobanga ryawe",
       email: "Imeyili",
       password: "Ijambobanga",
       emailPlaceholder: "imeyili.yawe@urugero.com",
       passwordPlaceholder: "Injiza ijambobanga ryawe",
       button: "Injira",
+      next: "Ibikurikira",
+      back: "Subira",
+      changeEmail: "Koresha imeyili yindi",
+      forgotPassword: "Wibagiwe?",
+      passwordRequired: "Ijambobanga birakenewe",
+      rememberMe: "Nyibuka",
+      orContinueWith: "cyangwa komeza na",
+      continueWithGoogle: "Komeza na Google",
       noAccount: "Ntugira konti?",
-      signUp: "Kwiyandikisha",
+      signUp: "Iyandikishe nonaha",
       backToHome: "← Subira ku Ntangiriro",
       alertMessage: "Inzira y'ubwiyemezi izakorwa mu mihindagurikire y'igihe kizaza."
     },
     register: {
       title: "Kwiyandikisha",
       subtitle: "Kurema konti yawe ya PublicVoice",
+      signUpHeadline: "Kurema konti yawe kugira ngo utangire",
+      overlayTitle: "Kwiyandikisha (Abadereva)",
+      overlayTagline: "Kurema konti y'umudereva kugira ngo ufate dashboard ugenzure raporo.",
+      adminOnlyNote: "Kubadereva gusa. Abaturage batanga raporo ku rupapuro rwa Raporo.",
       fullName: "Amazina Yuzuye",
       email: "Imeyili",
       password: "Ijambobanga",
@@ -384,11 +446,25 @@ export const content: Record<Language, any> = {
         phonePlaceholder: "urugero: 0781234567",
         location: "Ahantu",
         locationPlaceholder: "Akarere, umurenge, akagari cyangwa ikimenyetso",
+        institution: "Tagira ikigo aho ikibazo kiri",
+        institutionPlaceholder: "Hitamo ikigo gihuza",
         category: "Icyiciro",
         categoryPlaceholder: "Hitamo icyiciro",
         description: "Sobanura Ikibazo",
         descriptionPlaceholder: "Sobanura ikibazo mu buce (iki, aha, ryari). Ibi bifasha abategetsi gusubiza vuba.",
         button: "Ohereza Raporo"
+      },
+      institutions: {
+        select: "Hitamo ikigo",
+        district: "Akarere",
+        sector: "Umurenge",
+        cell: "Akagari",
+        village: "Umudugudu",
+        mininfra: "MININFRA (Ubwubatsi)",
+        mineduc: "MINEDUC (Uburezi)",
+        minisante: "MINISANTE (Ubuzima)",
+        localGov: "Gutegetsi bwa hafi",
+        other: "Ikindi"
       },
       categories: {
         select: "Hitamo icyiciro",
@@ -413,7 +489,17 @@ export const content: Record<Language, any> = {
         step2: "Yoherezwa ku mutgetsi ukwiye (akarere, umurenge)",
         step3: "Abategetsi bakora gukemura; washobora kuvugwa niba bikenewe"
       },
-      successMessage: "Murakoze! Raporo yawe yoherejwe. Abategetsi bazayireba."
+      successMessage: "Murakoze! Raporo yawe yoherejwe. Abategetsi bazayireba.",
+      noAccountNeeded: "Ntugira konti kugira ngo utange raporo. Abadereva gusa ni bo binjira kureba raporo mu dashboard."
+    },
+    dashboard: {
+      title: "Dashboard y'Umudereva",
+      subtitle: "Raporo z'abaturage ziraboneka hano. AI ihindura raporo z'ubucyo (urugero Kinyarwanda) zigeze kuba zirabigenza.",
+      noReports: "Nta raporo byari byageze.",
+      noReportsHint: "Raporo abaturage batanga ku rupapuro rwa Raporo ziraboneka hano. AI izazitura kugira ngo zisomeke neza.",
+      rawReport: "Raporo y'umwimerere",
+      structuredReport: "Raporo yatorewe (AI)",
+      signOut: "Sohoka"
     }
   },
 };
