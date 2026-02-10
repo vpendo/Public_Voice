@@ -8,6 +8,7 @@ export default function Report() {
     name: '',
     phone: '',
     location: '',
+    institution: '',
     category: '',
     description: ''
   });
@@ -15,7 +16,7 @@ export default function Report() {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     alert(t.report.successMessage);
-    setFormData({ name: '', phone: '', location: '', category: '', description: '' });
+    setFormData({ name: '', phone: '', location: '', institution: '', category: '', description: '' });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
@@ -89,6 +90,28 @@ export default function Report() {
                       className={inputClass}
                       placeholder={t.report.form.locationPlaceholder}
                     />
+                  </div>
+                  <div>
+                    <label htmlFor="institution" className={labelClass}>{t.report.form.institution}</label>
+                    <select
+                      id="institution"
+                      name="institution"
+                      value={formData.institution}
+                      onChange={handleChange}
+                      required
+                      className={inputClass}
+                    >
+                      <option value="">{t.report.institutions.select}</option>
+                      <option value="district">{t.report.institutions.district}</option>
+                      <option value="sector">{t.report.institutions.sector}</option>
+                      <option value="cell">{t.report.institutions.cell}</option>
+                      <option value="village">{t.report.institutions.village}</option>
+                      <option value="mininfra">{t.report.institutions.mininfra}</option>
+                      <option value="mineduc">{t.report.institutions.mineduc}</option>
+                      <option value="minisante">{t.report.institutions.minisante}</option>
+                      <option value="localGov">{t.report.institutions.localGov}</option>
+                      <option value="other">{t.report.institutions.other}</option>
+                    </select>
                   </div>
                   <div>
                     <label htmlFor="category" className={labelClass}>{t.report.form.category}</label>

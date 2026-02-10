@@ -12,10 +12,11 @@ import Services from '../Pages/Services';
 import Login from '../Pages/Login';
 import Register from '../Pages/Register';
 import Report from '../Pages/Report';
+import Dashboard from '../Pages/Dashboard/Dashboard';
 
 function AppLayout({ children, lang, setLang }: { children: React.ReactNode; lang: Language; setLang: (lang: Language) => void }) {
   const location = useLocation();
-  const hideNavFooter = location.pathname === '/login' || location.pathname === '/register';
+  const hideNavFooter = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/dashboard';
 
   if (hideNavFooter) {
     return <>{children}</>;
@@ -52,6 +53,7 @@ export function AppRoute() {
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
             <Route path="/report" element={<Report />} />
+            <Route path="/dashboard" element={<Dashboard />} />
           </Routes>
         </AppLayout>
       </LanguageProvider>
