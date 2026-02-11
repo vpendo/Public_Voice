@@ -10,10 +10,10 @@ class Settings:
     """Load settings from environment."""
 
     def __init__(self) -> None:
+        # App info
         self.APP_NAME: str = os.getenv("APP_NAME", "PublicVoice")
         self.APP_VERSION: str = os.getenv("APP_VERSION", "1.0.0")
         self.ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-
         self.DEBUG: bool = self._to_bool(os.getenv("DEBUG", "false"))
 
         # Database
@@ -32,11 +32,15 @@ class Settings:
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
         )
 
+        # Server
+        self.HOST: str = os.getenv("HOST", "127.0.0.1")
+        self.PORT: int = int(os.getenv("PORT", "8000"))
+
         # Security check
         if self.ENVIRONMENT == "production" and self.SECRET_KEY.startswith("change-me"):
             raise ValueError("SECRET_KEY must be set in production")
 
-        # CORS (stored as list)
+        # CORS
         self.CORS_ORIGINS: List[str] = [
             o.strip()
             for o in os.getenv(
@@ -49,7 +53,7 @@ class Settings:
     def _to_bool(self, value: str) -> bool:
         return value.lower() in ("true", "1", "yes")
 
-    # 🔥 IMPORTANT: property used by FastAPI main.py
+    # Property for FastAPI CORS middleware
     @property
     def cors_origin_list(self) -> List[str]:
         return self.CORS_ORIGINS

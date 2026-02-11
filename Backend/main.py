@@ -9,7 +9,7 @@ from dotenv import load_dotenv
 
 from core.config import settings
 from models.base import init_db
-from routers import auth, reports
+from routers import auth, reports, users
 
 load_dotenv()
 
@@ -39,6 +39,7 @@ app.add_middleware(
 
 app.include_router(auth.router)
 app.include_router(reports.router)
+app.include_router(users.router)
 
 
 @app.get("/")

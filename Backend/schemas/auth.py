@@ -5,15 +5,22 @@ from pydantic import BaseModel, EmailStr, Field, field_validator
 
 
 class UserRegister(BaseModel):
-    """Admin registration – validated input."""
+    """User registration – validated input."""
 
     full_name: str = Field(..., min_length=1, max_length=255, strip_whitespace=True)
     email: EmailStr
     password: str = Field(..., min_length=8, max_length=128)
 
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        """Normalize email to lowercase and strip whitespace."""
+        return v.lower().strip()
+
     @field_validator("password")
     @classmethod
     def password_strength(cls, v: str) -> str:
+        """Ensure password has at least 8 characters, one letter, and one digit."""
         if len(v) < 8:
             raise ValueError("Password must be at least 8 characters")
         if not any(c.isdigit() for c in v):
