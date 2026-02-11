@@ -1,5 +1,5 @@
 """
-FastAPI dependencies: DB session, current user (JWT).
+FastAPI dependencies: DB session, current user (JWT), admin-only.
 """
 from typing import Annotated
 
@@ -19,27 +19,31 @@ def get_current_user(
     db: Annotated[Session, Depends(get_db)],
     credentials: Annotated[HTTPAuthorizationCredentials | None, Depends(security)],
 ) -> User:
-    """Require valid JWT and return the admin user. Use for protected routes."""
+    """Require valid JWT and return the authenticated user."""
     if not credentials:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Not authenticated",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     payload = decode_access_token(credentials.credentials)
-    if not payload:
+
+    if payload is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid or expired token",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     user_id = payload.get("sub")
     if not user_id:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid token",
+            detail="Invalid token payload",
             headers={"WWW-Authenticate": "Bearer"},
         )
+
     user = db.query(User).filter(User.id == int(user_id)).first()
     if not user:
         raise HTTPException(
@@ -47,13 +51,22 @@ def get_current_user(
             detail="User not found",
             headers={"WWW-Authenticate": "Bearer"},
         )
-    if user.role != "Admin":
+
+    return user
+
+
+def get_current_admin(
+    current_user: Annotated[User, Depends(get_current_user)],
+) -> User:
+    """Require authenticated user to be an Admin."""
+    if current_user.role.lower() != "admin":
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",
         )
-    return user
+    return current_user
 
 
-# Type alias for route injection
+# Type aliases for cleaner route definitions
 CurrentUser = Annotated[User, Depends(get_current_user)]
+CurrentAdmin = Annotated[User, Depends(get_current_admin)]

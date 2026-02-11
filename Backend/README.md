@@ -68,7 +68,7 @@ python main.py
 - **Swagger**: http://localhost:8000/docs  
 - **ReDoc**: http://localhost:8000/redoc  
 
-## How to create an admin (no Django)
+
 
 **Django is not used.** This backend is FastAPI + JWT. You can create admins in two ways:
 

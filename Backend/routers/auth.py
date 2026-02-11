@@ -1,5 +1,8 @@
 """
-Auth: register (admin only), login, me.
+Auth: user registration, login, and current user info.
+- Users can self-register.
+- Admin is created manually via script.
+- Both can login and access their respective dashboards.
 """
 from typing import Annotated
 
@@ -21,7 +24,7 @@ def register(
     payload: UserRegister,
     db: Annotated[Session, Depends(get_db)],
 ) -> User:
-    """Register a new admin. Only admin role is created."""
+    """Register a new user (citizen). Role is automatically 'User'."""
     existing = db.query(User).filter(User.email == payload.email.lower()).first()
     if existing:
         raise HTTPException(
@@ -32,7 +35,7 @@ def register(
         full_name=payload.full_name.strip(),
         email=payload.email.lower().strip(),
         hashed_password=hash_password(payload.password),
-        role="Admin",
+        role="User",  # Always 'User' for self-registration
     )
     db.add(user)
     db.commit()
@@ -45,17 +48,12 @@ def login(
     payload: UserLogin,
     db: Annotated[Session, Depends(get_db)],
 ) -> TokenResponse:
-    """Login with email/password. Returns JWT access token."""
+    """Login with email/password. Returns JWT. Both Users and Admin can login."""
     user = db.query(User).filter(User.email == payload.email.lower().strip()).first()
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Invalid email or password",
-        )
-    if user.role != "Admin":
-        raise HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN,
-            detail="Admin access only",
         )
     token = create_access_token(subject=user.id)
     return TokenResponse(
@@ -67,5 +65,5 @@ def login(
 
 @router.get("/me", response_model=UserResponse)
 def me(current_user: CurrentUser) -> User:
-    """Return current authenticated admin user."""
+    """Return current authenticated user (User or Admin)."""
     return current_user

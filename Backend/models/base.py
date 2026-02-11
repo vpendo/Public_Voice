@@ -15,9 +15,11 @@ engine = create_engine(
     settings.DATABASE_URL,
     connect_args=connect_args,
     echo=settings.DEBUG,
+    pool_pre_ping=True,  # helps keep PostgreSQL connections alive
 )
 
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
 Base = declarative_base()
 
 
@@ -31,6 +33,10 @@ def get_db():
 
 
 def init_db() -> None:
-    """Create all tables. Call on startup if needed."""
-    from models import user, report  # noqa: F401 - register models
+    """
+    Create tables (development only).
+    In production, use Alembic migrations instead.
+    """
+    from models import user, report  # register models
+
     Base.metadata.create_all(bind=engine)
