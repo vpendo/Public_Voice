@@ -1,16 +1,27 @@
-import { createContext, useContext, useState, useCallback, type ReactNode } from 'react';
+import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { isAxiosError } from 'axios';
 import { apiClient } from '../api/client';
 
 const TOKEN_KEY = 'publicvoice_token';
 
+export interface UserInfo {
+  id: number;
+  full_name: string;
+  email: string;
+  role: string;
+}
+
 interface AuthContextType {
   token: string | null;
+  user: UserInfo | null;
   isAuthenticated: boolean;
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  isAdmin: boolean;
+  isLoadingUser: boolean;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; user?: UserInfo }>;
   register: (fullName: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   getToken: () => string | null;
+  refreshUser: () => Promise<UserInfo | null>;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -52,6 +63,8 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children }: AuthProviderProps) {
   const [token, setToken] = useState<string | null>(getStoredToken);
+  const [user, setUser] = useState<UserInfo | null>(null);
+  const [isLoadingUser, setIsLoadingUser] = useState(true);
 
   const persistToken = useCallback((t: string | null) => {
     setToken(t);
@@ -63,8 +76,37 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, []);
 
+  const fetchUser = useCallback(async (): Promise<UserInfo | null> => {
+    const t = getStoredToken();
+    if (!t) {
+      setUser(null);
+      setIsLoadingUser(false);
+      return null;
+    }
+    try {
+      const { data } = await apiClient.get<UserInfo>('/api/auth/me');
+      setUser(data);
+      return data;
+    } catch {
+      setUser(null);
+      persistToken(null);
+      return null;
+    } finally {
+      setIsLoadingUser(false);
+    }
+  }, [persistToken]);
+
+  useEffect(() => {
+    if (token) {
+      fetchUser();
+    } else {
+      setUser(null);
+      setIsLoadingUser(false);
+    }
+  }, [token, fetchUser]);
+
   const login = useCallback(
-    async (email: string, password: string): Promise<{ ok: boolean; error?: string }> => {
+    async (email: string, password: string): Promise<{ ok: boolean; error?: string; user?: UserInfo }> => {
       try {
         const { data } = await apiClient.post<{ access_token: string }>('/api/auth/login', {
           email: email.trim().toLowerCase(),
@@ -73,12 +115,13 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const accessToken = data.access_token;
         if (!accessToken) return { ok: false, error: 'Invalid response' };
         persistToken(accessToken);
-        return { ok: true };
+        const me = await fetchUser();
+        return { ok: true, user: me ?? undefined };
       } catch (err) {
         return { ok: false, error: getErrorMessage(err) };
       }
     },
-    [persistToken]
+    [persistToken, fetchUser]
   );
 
   const register = useCallback(
@@ -103,17 +146,22 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const logout = useCallback(() => {
     persistToken(null);
+    setUser(null);
   }, [persistToken]);
 
   const getToken = useCallback(() => getStoredToken(), []);
 
   const value: AuthContextType = {
     token,
+    user,
     isAuthenticated: !!token,
+    isAdmin: user?.role === 'Admin',
+    isLoadingUser,
     login,
     register,
     logout,
     getToken,
+    refreshUser: fetchUser,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

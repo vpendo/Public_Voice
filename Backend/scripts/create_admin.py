@@ -1,15 +1,7 @@
-"""
-Create an admin user from the command line. No Django needed.
-Usage (from Backend folder):
-  python -m scripts.create_admin
-  python scripts/create_admin.py
-Or with env vars: CREATE_ADMIN_EMAIL=admin@example.com CREATE_ADMIN_PASSWORD=secret python -m scripts.create_admin
-"""
 import getpass
 import os
 import sys
 
-# Add project root so imports work
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from dotenv import load_dotenv
@@ -24,15 +16,16 @@ def main() -> None:
     init_db()
     db = SessionLocal()
 
+    # Check if admin already exists
+    existing_admin = db.query(User).filter(User.role == "Admin").first()
+    if existing_admin:
+        print(f"Admin already exists: id={existing_admin.id}, email={existing_admin.email}")
+        db.close()
+        sys.exit(0)
+
     email = os.getenv("CREATE_ADMIN_EMAIL") or input("Admin email: ").strip().lower()
     if not email:
         print("Email is required.")
-        sys.exit(1)
-
-    existing = db.query(User).filter(User.email == email).first()
-    if existing:
-        print(f"User with email {email} already exists.")
-        db.close()
         sys.exit(1)
 
     full_name = os.getenv("CREATE_ADMIN_FULL_NAME") or input("Full name: ").strip()
@@ -41,17 +34,16 @@ def main() -> None:
 
     password = os.getenv("CREATE_ADMIN_PASSWORD")
     if not password:
-        password = getpass.getpass("Password (min 8 chars, 1 letter, 1 digit): ")
-        password2 = getpass.getpass("Confirm password: ")
-        if password != password2:
-            print("Passwords do not match.")
-            sys.exit(1)
-    if len(password) < 8:
-        print("Password must be at least 8 characters.")
-        sys.exit(1)
-    if not any(c.isdigit() for c in password) or not any(c.isalpha() for c in password):
-        print("Password must contain at least one letter and one digit.")
-        sys.exit(1)
+        while True:
+            password = getpass.getpass("Password (min 8 chars, 1 letter, 1 digit): ")
+            password2 = getpass.getpass("Confirm password: ")
+            if password != password2:
+                print("Passwords do not match.")
+                continue
+            if len(password) < 8 or not any(c.isdigit() for c in password) or not any(c.isalpha() for c in password):
+                print("Password must be at least 8 characters and include at least one letter and one digit.")
+                continue
+            break
 
     user = User(
         full_name=full_name,

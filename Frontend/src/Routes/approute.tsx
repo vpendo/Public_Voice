@@ -1,7 +1,8 @@
-import { BrowserRouter as Router, Routes, Route, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { Navbar } from '../Components/Navbar';
 import { Footer } from '../Components/Footer';
+import { ProtectedRoute } from '../Components/ProtectedRoute';
 import { content } from '../i18n/content';
 import type { Language } from '../i18n/content';
 import { LanguageProvider } from '../contexts/LanguageContext';
@@ -13,11 +14,27 @@ import Services from '../Pages/Services';
 import Login from '../Pages/Login';
 import Register from '../Pages/Register';
 import Report from '../Pages/Report';
-import Dashboard from '../Pages/Dashboard/Dashboard';
+import { UserDashboardLayout } from '../Pages/Dashboard/user/UserDashboardLayout';
+import { UserDashboard } from '../Pages/Dashboard/user/UserDashboard';
+import { SubmitIssue } from '../Pages/Dashboard/user/SubmitIssue';
+import { MyIssues } from '../Pages/Dashboard/user/MyIssues';
+import { IssueDetail } from '../Pages/Dashboard/user/IssueDetail';
+import { Profile } from '../Pages/Dashboard/user/Profile';
+import { AdminDashboardLayout } from '../Pages/Dashboard/admin/AdminDashboardLayout';
+import { AdminDashboard } from '../Pages/Dashboard/admin/AdminDashboard';
+import { AllIssues } from '../Pages/Dashboard/admin/AllIssues';
+import { RespondList } from '../Pages/Dashboard/admin/RespondList';
+import { Respond } from '../Pages/Dashboard/admin/Respond';
+import { Users } from '../Pages/Dashboard/admin/Users';
 
 function AppLayout({ children, lang, setLang }: { children: React.ReactNode; lang: Language; setLang: (lang: Language) => void }) {
   const location = useLocation();
-  const hideNavFooter = location.pathname === '/login' || location.pathname === '/register' || location.pathname === '/dashboard';
+  const path = location.pathname;
+  const hideNavFooter =
+    path === '/login' ||
+    path === '/register' ||
+    path.startsWith('/user/') ||
+    path.startsWith('/admin/');
 
   if (hideNavFooter) {
     return <>{children}</>;
@@ -48,15 +65,54 @@ export function AppRoute() {
         <AuthProvider>
           <AppLayout lang={lang} setLang={setLang}>
             <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/about" element={<About />} />
-            <Route path="/contact" element={<Contact />} />
-            <Route path="/services" element={<Services />} />
-            <Route path="/login" element={<Login />} />
-            <Route path="/register" element={<Register />} />
-            <Route path="/report" element={<Report />} />
-            <Route path="/dashboard" element={<Dashboard />} />
-          </Routes>
+              <Route path="/" element={<Home />} />
+              <Route path="/about" element={<About />} />
+              <Route path="/contact" element={<Contact />} />
+              <Route path="/services" element={<Services />} />
+              <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
+              <Route
+                path="/report"
+                element={
+                  <ProtectedRoute>
+                    <Report />
+                  </ProtectedRoute>
+                }
+              />
+              <Route path="/dashboard" element={<Navigate to="/user/dashboard" replace />} />
+              {/* User dashboard */}
+              <Route
+                path="/user"
+                element={
+                  <ProtectedRoute>
+                    <UserDashboardLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="/user/dashboard" replace />} />
+                <Route path="dashboard" element={<UserDashboard />} />
+                <Route path="submit" element={<SubmitIssue />} />
+                <Route path="issues" element={<MyIssues />} />
+                <Route path="issues/:id" element={<IssueDetail />} />
+                <Route path="profile" element={<Profile />} />
+              </Route>
+              {/* Admin dashboard */}
+              <Route
+                path="/admin"
+                element={
+                  <ProtectedRoute requireAdmin>
+                    <AdminDashboardLayout />
+                  </ProtectedRoute>
+                }
+              >
+                <Route index element={<Navigate to="/admin/dashboard" replace />} />
+                <Route path="dashboard" element={<AdminDashboard />} />
+                <Route path="issues" element={<AllIssues />} />
+                <Route path="respond" element={<RespondList />} />
+                <Route path="respond/:id" element={<Respond />} />
+                <Route path="users" element={<Users />} />
+              </Route>
+            </Routes>
           </AppLayout>
         </AuthProvider>
       </LanguageProvider>

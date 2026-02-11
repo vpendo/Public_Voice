@@ -1,10 +1,12 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
+import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../api/client';
 import { CheckCircle, Send } from 'lucide-react';
 
 export default function Report() {
   const { t } = useLanguage();
+  const { user } = useAuth();
   const [formData, setFormData] = useState({
     name: '',
     phone: '',
@@ -13,6 +15,12 @@ export default function Report() {
     category: '',
     description: ''
   });
+
+  useEffect(() => {
+    if (user?.full_name) {
+      setFormData((prev) => ({ ...prev, name: user.full_name }));
+    }
+  }, [user?.full_name]);
   const [submitting, setSubmitting] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 

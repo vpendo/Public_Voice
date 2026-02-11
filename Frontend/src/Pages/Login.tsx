@@ -4,15 +4,6 @@ import { Lock, Eye, EyeOff, ArrowRight, Mail, ArrowLeft, Megaphone } from 'lucid
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 
-const PRIMARY = '#0066CC';
-const PRIMARY_HOVER = '#0052A3';
-const SLATE_900 = '#1E293B';
-const SLATE_500 = '#64748B';
-const SLATE_100 = '#F1F5F9';
-const BORDER = '#E2E8F0';
-const ERROR = '#DC2626';
-const SUCCESS = '#16A34A';
-
 const LOGIN_IMAGE = '/Image/home%203.jpg';
 
 export default function Login() {
@@ -31,10 +22,8 @@ export default function Login() {
   const passwordError = passwordTouched && !formData.password.trim();
 
   useEffect(() => {
-    // Show success message if redirected from registration
     if (location.state?.message) {
       setSuccess(location.state.message);
-      // Clear the state so message doesn't persist on refresh
       window.history.replaceState({}, document.title);
     }
   }, [location.state]);
@@ -49,7 +38,12 @@ export default function Login() {
     const result = await login(formData.email, formData.password);
     setLoading(false);
     if (result.ok) {
-      navigate('/dashboard');
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+      if (from && (from.startsWith('/user') || from.startsWith('/admin') || from === '/report')) {
+        navigate(from, { replace: true });
+      } else {
+        navigate(result.user?.role === 'Admin' ? '/admin/dashboard' : '/user/dashboard', { replace: true });
+      }
     } else {
       setError(result.error ?? 'Login failed');
     }
@@ -61,13 +55,18 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col lg:flex-row" style={{ fontFamily: 'Poppins, sans-serif' }}>
+    <div className="min-h-screen flex flex-col lg:flex-row font-poppins">
       {/* Left panel */}
       <div className="lg:w-[48%] relative min-h-[40vh] lg:min-h-screen overflow-hidden order-2 lg:order-1">
-        <img src={LOGIN_IMAGE} alt="Public Voice - Community and civic engagement" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-8 lg:px-12"
-          style={{ background: `linear-gradient(135deg, ${PRIMARY}88 0%, ${SLATE_900}99 50%, #0F172Aee 100%)` }}>
-          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg" style={{ backgroundColor: 'rgba(255,255,255,0.2)' }}>
+        <img
+          src={LOGIN_IMAGE}
+          alt="Public Voice - Community and civic engagement"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        <div
+          className="absolute inset-0 flex flex-col justify-center items-center text-center px-8 lg:px-12 bg-gradient-to-br from-blue-600/50 via-slate-900/60 to-slate-900/90"
+        >
+          <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg bg-white/20">
             <Megaphone className="w-8 h-8 text-white" />
           </div>
           <h2 className="text-3xl xl:text-4xl font-bold text-white mb-3">{t.login.overlayTitle}</h2>
@@ -79,94 +78,128 @@ export default function Login() {
       <div className="flex-1 flex flex-col bg-white lg:min-h-screen order-1 lg:order-2">
         <div className="flex-1 flex items-center justify-center py-10 px-6 lg:px-14">
           <div className="w-full max-w-md">
-            <Link to="/" className="inline-flex items-center gap-2 text-sm font-medium mb-8 transition-colors"
-              style={{ color: SLATE_500 }}
-              onMouseEnter={(e) => { e.currentTarget.style.color = PRIMARY; }}
-              onMouseLeave={(e) => { e.currentTarget.style.color = SLATE_500; }}>
+            {/* Back to home link */}
+            <Link
+              to="/"
+              className="inline-flex items-center gap-2 text-sm font-medium mb-8 text-slate-500 hover:text-blue-600 transition-colors"
+            >
               <ArrowLeft size={18} />
               {t.login.backToHome.replace('← ', '')}
             </Link>
 
+            {/* Logo */}
             <Link to="/" className="inline-block mb-1">
-              <span className="text-2xl font-bold" style={{ color: SLATE_900 }}>Public</span>
-              <span className="text-2xl font-bold" style={{ color: PRIMARY }}>Voice</span>
-              <span className="block h-0.5 rounded-full mt-0.5" style={{ width: '100%', backgroundColor: PRIMARY }} />
+              <span className="text-2xl font-bold text-slate-900">Public</span>
+              <span className="text-2xl font-bold text-blue-600">Voice</span>
+              <span className="block h-0.5 rounded-full mt-0.5 w-full bg-blue-600" />
             </Link>
 
-            <p className="text-sm mt-4 mb-8" style={{ color: SLATE_500 }}>{t.login.signInHeadline}</p>
+            {/* Headline */}
+            <p className="text-sm mt-4 mb-8 text-slate-500">{t.login.signInHeadline}</p>
 
-            {/* Show success message if exists */}
+            {/* Success & Error messages */}
             {success && (
-              <div className="mb-4 p-3 rounded-xl text-sm bg-green-50 border border-green-200" style={{ color: SUCCESS }}>
+              <div className="mb-4 p-3 rounded-xl text-sm bg-green-50 border border-green-200 text-green-600">
                 {success}
               </div>
             )}
-
             {error && (
-              <div className="mb-4 p-3 rounded-xl text-sm bg-red-50 border border-red-200" style={{ color: ERROR }}>
+              <div className="mb-4 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600">
                 {error}
               </div>
             )}
 
+            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Email input */}
+              {/* Email */}
               <div>
-                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2" style={{ color: SLATE_500 }}>
+                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
                   {t.login.email}
                 </label>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Mail size={18} /></span>
-                  <input type="email" id="email" name="email" value={formData.email} onChange={handleChange} required
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC]"
-                    style={{ borderColor: BORDER, color: SLATE_900 }} placeholder={t.login.emailPlaceholder} />
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <Mail size={18} />
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 text-slate-900"
+                    placeholder={t.login.emailPlaceholder}
+                  />
                 </div>
               </div>
 
-              {/* Password input */}
+              {/* Password */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider" style={{ color: SLATE_500 }}>
+                  <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
                     {t.login.password}
                   </label>
-                  <button type="button" className="text-sm font-medium" style={{ color: PRIMARY }}>
+                  <button type="button" className="text-sm font-medium text-blue-600">
                     {t.login.forgotPassword}
                   </button>
                 </div>
                 <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"><Lock size={18} /></span>
-                  <input type={showPassword ? 'text' : 'password'} id="password" name="password" value={formData.password} onChange={handleChange} onBlur={() => setPasswordTouched(true)} required
-                    className="w-full pl-11 pr-12 py-3.5 rounded-xl border bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 focus:border-[#0066CC]"
-                    style={{ borderColor: passwordError ? ERROR : BORDER, color: SLATE_900 }}
-                    placeholder={t.login.passwordPlaceholder} />
-                  <button type="button" onClick={() => setShowPassword(!showPassword)}
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <Lock size={18} />
+                  </span>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    onBlur={() => setPasswordTouched(true)}
+                    required
+                    className={`w-full pl-11 pr-12 py-3.5 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 ${
+                      passwordError ? 'border-red-600' : 'border-slate-200'
+                    } text-slate-900 bg-slate-50/80`}
+                    placeholder={t.login.passwordPlaceholder}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
                     className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}>
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
-                {passwordError && <p className="mt-1.5 text-sm" style={{ color: ERROR }}>{t.login.passwordRequired}</p>}
+                {passwordError && <p className="mt-1.5 text-sm text-red-600">{t.login.passwordRequired}</p>}
               </div>
 
               {/* Remember Me */}
               <label className="flex items-center gap-2 cursor-pointer">
-                <input type="checkbox" checked={rememberMe} onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-[#0066CC] focus:ring-[#0066CC]" />
-                <span className="text-sm" style={{ color: SLATE_900 }}>{t.login.rememberMe}</span>
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-600"
+                />
+                <span className="text-sm text-slate-900">{t.login.rememberMe}</span>
               </label>
 
-              {/* Submit button */}
-              <button type="submit" disabled={loading} className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-white font-semibold rounded-xl transition-colors disabled:opacity-70"
-                style={{ backgroundColor: PRIMARY }}
-                onMouseEnter={(e) => { if (!loading) e.currentTarget.style.backgroundColor = PRIMARY_HOVER; }}
-                onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = PRIMARY; }}>
+              {/* Submit */}
+              <button
+                type="submit"
+                disabled={loading}
+                className={`w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-white font-semibold rounded-xl transition-colors ${
+                  loading ? 'bg-blue-600 opacity-70' : 'bg-blue-600 hover:bg-blue-700'
+                }`}
+              >
                 {loading ? '...' : t.login.button}
                 {!loading && <ArrowRight size={18} className="text-white" />}
               </button>
             </form>
 
-            <p className="mt-8 text-center text-sm" style={{ color: SLATE_500 }}>
+            {/* Sign Up */}
+            <p className="mt-8 text-center text-sm text-slate-500">
               {t.login.noAccount}{' '}
-              <Link to="/register" className="font-semibold" style={{ color: PRIMARY }}>
+              <Link to="/register" className="font-semibold text-blue-600">
                 {t.login.signUp}
               </Link>
             </p>
