@@ -1,8 +1,9 @@
-import { Globe, ChevronDown, UserPlus, LogIn, Menu, X } from 'lucide-react';
+import { Globe, ChevronDown, UserPlus, LogIn, Menu, X, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import type { Language } from '../i18n/content';
 import { content } from '../i18n/content';
+import { useAuth } from '../contexts/AuthContext';
 
 interface NavbarProps {
   currentLang: Language;
@@ -13,6 +14,7 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
   const [isLangOpen, setIsLangOpen] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const location = useLocation();
+  const { isAuthenticated, isAdmin } = useAuth();
   const t = content[currentLang].nav;
 
   const languages: Language[] = ['English', 'Kinyarwanda'];
@@ -133,24 +135,40 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
           
           {/* Auth Buttons - Desktop */}
           <div className="hidden md:flex items-center gap-2">
-            <Link
-              to="/login"
-              className="flex items-center gap-2 text-sm font-medium transition-colors px-3 py-2"
-              style={{ color: '#64748B' }}
-              onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
-              onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
-            >
-              <LogIn size={18} /> {t.login}
-            </Link>
-            <Link
-              to="/register"
-              className="flex items-center gap-2 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition-all"
-              style={{ backgroundColor: '#0066CC' }}
-              onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
-              onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
-            >
-              <UserPlus size={18} /> {t.register}
-            </Link>
+            {isAuthenticated ? (
+              <>
+                <Link
+                  to={isAdmin ? '/admin/dashboard' : '/user/dashboard'}
+                  className="flex items-center gap-2 text-sm font-medium transition-colors px-3 py-2"
+                  style={{ color: '#64748B' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+                >
+                  <LayoutDashboard size={18} /> Dashboard
+                </Link>
+              </>
+            ) : (
+              <>
+                <Link
+                  to="/login"
+                  className="flex items-center gap-2 text-sm font-medium transition-colors px-3 py-2"
+                  style={{ color: '#64748B' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+                >
+                  <LogIn size={18} /> {t.login}
+                </Link>
+                <Link
+                  to="/register"
+                  className="flex items-center gap-2 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition-all"
+                  style={{ backgroundColor: '#0066CC' }}
+                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
+                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
+                >
+                  <UserPlus size={18} /> {t.register}
+                </Link>
+              </>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -198,26 +216,41 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
               </Link>
             ))}
             <div className="pt-4 border-t border-slate-100 space-y-3">
-              <Link
-                to="/login"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 transition-colors"
-                style={{ color: '#64748B' }}
-                onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
-                onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
-              >
-                <LogIn size={18} /> {t.login}
-              </Link>
-              <Link
-                to="/register"
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="flex items-center gap-2 px-4 py-2 text-white rounded-lg font-medium transition-colors"
-                style={{ backgroundColor: '#0066CC' }}
-                onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
-                onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
-              >
-                <UserPlus size={18} /> {t.register}
-              </Link>
+              {isAuthenticated ? (
+                <Link
+                  to={isAdmin ? '/admin/dashboard' : '/user/dashboard'}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center gap-2 px-4 py-2 transition-colors"
+                  style={{ color: '#64748B' }}
+                  onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
+                  onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+                >
+                  <LayoutDashboard size={18} /> Dashboard
+                </Link>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 transition-colors"
+                    style={{ color: '#64748B' }}
+                    onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
+                    onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+                  >
+                    <LogIn size={18} /> {t.login}
+                  </Link>
+                  <Link
+                    to="/register"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center gap-2 px-4 py-2 text-white rounded-lg font-medium transition-colors"
+                    style={{ backgroundColor: '#0066CC' }}
+                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
+                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
+                  >
+                    <UserPlus size={18} /> {t.register}
+                  </Link>
+                </>
+              )}
             </div>
           </div>
         </div>
