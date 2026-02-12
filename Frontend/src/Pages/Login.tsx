@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Lock, Eye, EyeOff, ArrowRight, Mail, ArrowLeft, Megaphone } from 'lucide-react';
+import { LanguageSwitcher } from '../Components/LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -75,18 +76,12 @@ export default function Login() {
       </div>
 
       {/* Right panel - Login form */}
-      <div className="flex-1 flex flex-col bg-white lg:min-h-screen order-1 lg:order-2">
+      <div className="flex-1 flex flex-col bg-white lg:min-h-screen order-1 lg:order-2 relative">
+        <div className="absolute top-6 right-6 z-10">
+          <LanguageSwitcher />
+        </div>
         <div className="flex-1 flex items-center justify-center py-10 px-6 lg:px-14">
           <div className="w-full max-w-md">
-            {/* Back to home link */}
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-sm font-medium mb-8 text-slate-500 hover:text-blue-600 transition-colors"
-            >
-              <ArrowLeft size={18} />
-              {t.login.backToHome.replace('← ', '')}
-            </Link>
-
             {/* Logo */}
             <Link to="/" className="inline-block mb-1">
               <span className="text-2xl font-bold text-slate-900">Public</span>
@@ -201,6 +196,17 @@ export default function Login() {
               {t.login.noAccount}{' '}
               <Link to="/register" className="font-semibold text-blue-600">
                 {t.login.signUp}
+              </Link>
+            </p>
+
+            {/* Back to home - bottom */}
+            <p className="mt-6 text-center">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-blue-600 transition-colors"
+              >
+                <ArrowLeft size={14} />
+                {t.login.backToHome.replace('← ', '')}
               </Link>
             </p>
           </div>
