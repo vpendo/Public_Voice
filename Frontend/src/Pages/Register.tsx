@@ -20,14 +20,24 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
+  const validatePassword = (p: string): string | null => {
+    if (p.length < 8) return 'Password must be at least 8 characters';
+    if (!/\d/.test(p)) return 'Password must contain at least one number';
+    if (!/[a-zA-Z]/.test(p)) return 'Password must contain at least one letter';
+    return null;
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    const pwdError = validatePassword(formData.password);
+    if (pwdError) {
+      setError(pwdError);
+      return;
+    }
     setLoading(true);
-
     const result = await registerUser(formData.fullName, formData.email, formData.password);
     setLoading(false);
-
     if (result.ok) {
       navigate('/login', { state: { message: 'Registration successful. Please login.' } });
     } else {
@@ -161,6 +171,7 @@ export default function Register() {
                     {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+                <p className="mt-1.5 text-xs text-slate-400">At least 8 characters, one letter and one number.</p>
               </div>
 
               {/* Submit */}
