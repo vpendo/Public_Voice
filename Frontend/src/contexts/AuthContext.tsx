@@ -39,12 +39,14 @@ function getErrorMessage(err: unknown): string {
     if (err.code === 'ECONNREFUSED' || err.message === 'Network Error') {
       return 'Cannot reach server. Is the backend running at http://127.0.0.1:8000?';
     }
-    if (err.response?.data?.detail) {
+    if (err.response?.data?.detail !== undefined) {
       const detail = err.response.data.detail;
+      if (typeof detail === 'string') return detail;
       if (Array.isArray(detail)) {
-        return detail.map((x: { msg?: string }) => x.msg).filter(Boolean).join(', ') || 'Request failed';
+        const msg = detail.map((x: { msg?: string }) => x?.msg).filter(Boolean).join(', ');
+        return msg || 'Invalid request';
       }
-      return typeof detail === 'string' ? detail : String(detail);
+      return String(detail);
     }
     return err.response?.status === 401 ? 'Invalid email or password' : err.message || 'Request failed';
   }
