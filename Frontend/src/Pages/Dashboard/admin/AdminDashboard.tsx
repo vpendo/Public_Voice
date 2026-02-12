@@ -1,14 +1,49 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { Card } from '../../../Components/Card';
 import { apiClient } from '../../../api/client';
-import { Users, FileText, Clock, CheckCircle } from 'lucide-react';
+import {
+  Users,
+  FileText,
+  Clock,
+  CheckCircle,
+  ArrowRight,
+  AlertCircle,
+  BarChart3,
+  PieChart,
+} from 'lucide-react';
+
+interface ReportItem {
+  id: number;
+  status: string;
+  category: string;
+  created_at: string;
+}
 
 interface Counts {
   users: number;
   totalReports: number;
   pendingReports: number;
   resolvedReports: number;
+  rejectedReports: number;
+}
+
+const CATEGORY_LABELS: Record<string, string> = {
+  roads: 'Roads & Infrastructure',
+  water: 'Water',
+  security: 'Security',
+  sanitation: 'Sanitation',
+  electricity: 'Electricity',
+  health: 'Health',
+  education: 'Education',
+  other: 'Other',
+};
+
+function formatDate(iso: string) {
+  try {
+    return new Date(iso).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' });
+  } catch {
+    return iso;
+  }
 }
 
 export function AdminDashboard() {
@@ -17,63 +52,344 @@ export function AdminDashboard() {
     totalReports: 0,
     pendingReports: 0,
     resolvedReports: 0,
+    rejectedReports: 0,
   });
+  const [reports, setReports] = useState<ReportItem[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
-    async function fetchCounts() {
+    async function fetchData() {
       try {
         const [usersRes, reportsRes] = await Promise.all([
           apiClient.get<{ id: number }[]>('/api/users'),
-          apiClient.get<{ id: number; status: string }[]>('/api/reports'),
+          apiClient.get<ReportItem[]>('/api/reports'),
         ]);
         if (cancelled) return;
-        const users = Array.isArray(usersRes.data) ? usersRes.data : [];
-        const reports = Array.isArray(reportsRes.data) ? reportsRes.data : [];
-        const pending = reports.filter((r) => r.status === 'pending' || r.status === 'new').length;
-        const resolved = reports.filter((r) => r.status === 'resolved').length;
+        const usersList = Array.isArray(usersRes.data) ? usersRes.data : [];
+        const reportsList = Array.isArray(reportsRes.data) ? reportsRes.data : [];
+        const pending = reportsList.filter((r) => r.status === 'pending' || r.status === 'new').length;
+        const resolved = reportsList.filter((r) => r.status === 'resolved').length;
+        const rejected = reportsList.filter((r) => r.status === 'rejected').length;
         setCounts({
-          users: users.length,
-          totalReports: reports.length,
+          users: usersList.length,
+          totalReports: reportsList.length,
           pendingReports: pending,
           resolvedReports: resolved,
+          rejectedReports: rejected,
         });
+        setReports(reportsList);
       } catch {
-        if (!cancelled) setCounts({ users: 0, totalReports: 0, pendingReports: 0, resolvedReports: 0 });
+        if (!cancelled)
+          setCounts({
+            users: 0,
+            totalReports: 0,
+            pendingReports: 0,
+            resolvedReports: 0,
+            rejectedReports: 0,
+          });
+      } finally {
+        if (!cancelled) setLoading(false);
       }
     }
-    fetchCounts();
+    fetchData();
     return () => { cancelled = true; };
   }, []);
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-2">Admin Dashboard</h1>
-      <p className="text-slate-500 mb-8">Overview of users and reports.</p>
+  // Group by category for bar chart
+  const byCategory = reports.reduce<Record<string, number>>((acc, r) => {
+    const cat = r.category || 'other';
+    acc[cat] = (acc[cat] || 0) + 1;
+    return acc;
+  }, {});
+  const categoryData = Object.entries(byCategory)
+    .map(([key, value]) => ({ name: CATEGORY_LABELS[key] || key, value, key }))
+    .sort((a, b) => b.value - a.value)
+    .slice(0, 8);
+  const maxCategory = Math.max(1, ...categoryData.map((d) => d.value));
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-        <Card title="Total users" value={counts.users} icon={<Users size={28} />} />
-        <Card title="Total reports" value={counts.totalReports} icon={<FileText size={28} />} />
-        <Card title="Pending reports" value={counts.pendingReports} icon={<Clock size={28} />} />
-        <Card title="Resolved reports" value={counts.resolvedReports} icon={<CheckCircle size={28} />} />
+  // Status for donut-style breakdown (Tailwind classes for stroke and legend dot)
+  const statusData = [
+    { label: 'Pending', value: counts.pendingReports, strokeClass: 'stroke-amber-500', dotClass: 'bg-amber-500' },
+    { label: 'Resolved', value: counts.resolvedReports, strokeClass: 'stroke-emerald-500', dotClass: 'bg-emerald-500' },
+    { label: 'Rejected', value: counts.rejectedReports, strokeClass: 'stroke-red-500', dotClass: 'bg-red-500' },
+  ].filter((d) => d.value > 0);
+  const totalStatus = statusData.reduce((s, d) => s + d.value, 0) || 1;
+
+  // Recent reports (last 5)
+  const recentReports = [...reports]
+    .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+    .slice(0, 5);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[400px]">
+        <div className="animate-pulse text-slate-400">Loading dashboard...</div>
       </div>
+    );
+  }
 
-      <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-2">Quick actions</h2>
-        <div className="flex flex-wrap gap-3">
+  return (
+    <div className="space-y-8 font-sans">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+          <p className="text-slate-500 mt-0.5">
+            {formatDate(new Date().toISOString())} · Overview of reports and users
+          </p>
+        </div>
+        <div className="flex gap-2">
           <Link
             to="/admin/issues"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium text-white hover:opacity-90"
-            style={{ backgroundColor: '#0066CC' }}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[var(--color-primary)] hover:opacity-95 transition-opacity shadow-sm"
           >
             View all issues
+            <ArrowRight size={16} />
           </Link>
-          <Link
-            to="/admin/respond"
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium border border-slate-200 text-slate-700 hover:bg-slate-50"
-          >
-            Respond to issues
-          </Link>
+        </div>
+      </div>
+
+      {/* Stat cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Total users</p>
+              <p className="mt-1 text-3xl font-bold text-slate-900">{counts.users}</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--color-primary-light)] text-[var(--color-primary)]">
+              <Users size={24} />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Total reports</p>
+              <p className="mt-1 text-3xl font-bold text-slate-900">{counts.totalReports}</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600">
+              <FileText size={24} />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Pending</p>
+              <p className="mt-1 text-3xl font-bold text-amber-600">{counts.pendingReports}</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-50 text-amber-600">
+              <Clock size={24} />
+            </div>
+          </div>
+        </div>
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between">
+            <div>
+              <p className="text-sm font-medium text-slate-500">Resolved</p>
+              <p className="mt-1 text-3xl font-bold text-emerald-600">{counts.resolvedReports}</p>
+            </div>
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600">
+              <CheckCircle size={24} />
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Charts row */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Status breakdown (donut-style) */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <PieChart size={20} className="text-slate-500" />
+            <h2 className="text-lg font-semibold text-slate-900">Reports by status</h2>
+          </div>
+          {statusData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+              <AlertCircle size={40} className="mb-2" />
+              <p className="text-sm">No report data yet</p>
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-6">
+              <div className="relative w-40 h-40 mx-auto flex-shrink-0">
+                <svg viewBox="0 0 36 36" className="w-full h-full -rotate-90">
+                  {statusData.map((d, i) => {
+                    const pct = (d.value / totalStatus) * 100;
+                    const dash = (pct / 100) * 100;
+                    const offset = statusData
+                      .slice(0, i)
+                      .reduce((s, x) => s + (x.value / totalStatus) * 100, 0);
+                    return (
+                      <circle
+                        key={d.label}
+                        cx="18"
+                        cy="18"
+                        r="15.9"
+                        fill="none"
+                        className={d.strokeClass}
+                        strokeWidth="3"
+                        strokeDasharray={`${dash} ${100 - dash}`}
+                        strokeDashoffset={-offset}
+                      />
+                    );
+                  })}
+                </svg>
+              </div>
+              <div className="flex-1 min-w-0 space-y-3">
+                {statusData.map((d) => (
+                  <div key={d.label} className="flex items-center gap-3">
+                    <span className={`w-3 h-3 rounded-full flex-shrink-0 ${d.dotClass}`} />
+                    <span className="text-sm text-slate-600">{d.label}</span>
+                    <span className="text-sm font-semibold text-slate-900 ml-auto">{d.value}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Category bar chart (CSS) */}
+        <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+          <div className="flex items-center gap-2 mb-6">
+            <BarChart3 size={20} className="text-slate-500" />
+            <h2 className="text-lg font-semibold text-slate-900">Reports by category</h2>
+          </div>
+          {categoryData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-slate-400">
+              <BarChart3 size={40} className="mb-2" />
+              <p className="text-sm">No categories yet</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {categoryData.map((d) => (
+                <div key={d.key}>
+                  <div className="flex justify-between text-sm mb-1">
+                    <span className="text-slate-700 font-medium">{d.name}</span>
+                    <span className="text-slate-500">{d.value}</span>
+                  </div>
+                  <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-[var(--color-primary)] transition-all duration-500"
+                      style={{ width: `${(d.value / maxCategory) * 100}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Recent reports + Quick actions */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
+          <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-slate-900">Recent reports</h2>
+            <Link
+              to="/admin/issues"
+              className="text-sm font-medium text-[var(--color-primary)] hover:underline"
+            >
+              View all
+            </Link>
+          </div>
+          <div className="overflow-x-auto">
+            {recentReports.length === 0 ? (
+              <div className="px-6 py-12 text-center text-slate-500 text-sm">No reports yet</div>
+            ) : (
+              <table className="w-full text-left">
+                <thead>
+                  <tr className="bg-slate-50/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                    <th className="px-6 py-3">ID</th>
+                    <th className="px-6 py-3">Category</th>
+                    <th className="px-6 py-3">Status</th>
+                    <th className="px-6 py-3">Date</th>
+                    <th className="px-6 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {recentReports.map((r) => (
+                    <tr key={r.id} className="border-t border-slate-100 hover:bg-slate-50/50">
+                      <td className="px-6 py-3 font-medium text-slate-900">#{r.id}</td>
+                      <td className="px-6 py-3 text-slate-600">
+                        {CATEGORY_LABELS[r.category] || r.category}
+                      </td>
+                      <td className="px-6 py-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                            r.status === 'resolved'
+                              ? 'bg-emerald-100 text-emerald-800'
+                              : r.status === 'rejected'
+                                ? 'bg-red-100 text-red-800'
+                                : 'bg-amber-100 text-amber-800'
+                          }`}
+                        >
+                          {r.status}
+                        </span>
+                      </td>
+                      <td className="px-6 py-3 text-slate-500 text-sm">{formatDate(r.created_at)}</td>
+                      <td className="px-6 py-3">
+                        <Link
+                          to={`/admin/respond/${r.id}`}
+                          className="text-sm font-medium text-[var(--color-primary)] hover:underline"
+                        >
+                          Respond
+                        </Link>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            )}
+          </div>
+        </div>
+
+        <div className="space-y-4">
+          <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">Quick actions</h2>
+            <div className="space-y-2">
+              <Link
+                to="/admin/respond"
+                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
+                  <Clock size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-900">Respond to issues</p>
+                  <p className="text-xs text-slate-500">{counts.pendingReports} pending</p>
+                </div>
+                <ArrowRight size={18} className="text-slate-400" />
+              </Link>
+              <Link
+                to="/admin/issues"
+                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-slate-100 flex items-center justify-center text-slate-600">
+                  <FileText size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-900">All issues</p>
+                  <p className="text-xs text-slate-500">{counts.totalReports} total</p>
+                </div>
+                <ArrowRight size={18} className="text-slate-400" />
+              </Link>
+              <Link
+                to="/admin/users"
+                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+              >
+                <div className="w-10 h-10 rounded-lg bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
+                  <Users size={20} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <p className="font-medium text-slate-900">Users</p>
+                  <p className="text-xs text-slate-500">{counts.users} registered</p>
+                </div>
+                <ArrowRight size={18} className="text-slate-400" />
+              </Link>
+            </div>
+          </div>
         </div>
       </div>
     </div>

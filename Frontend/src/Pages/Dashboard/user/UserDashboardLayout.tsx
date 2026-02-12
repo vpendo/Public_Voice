@@ -20,9 +20,9 @@ export function UserDashboardLayout() {
   };
 
   return (
-    <div className="min-h-screen flex bg-slate-50" style={{ fontFamily: 'Poppins, sans-serif' }}>
+    <div className="min-h-screen flex bg-slate-50 font-sans">
       <Sidebar items={sidebarItems} onLogout={handleLogout} />
-      <main className="flex-1 overflow-auto p-8">
+      <main className="flex-1 overflow-auto p-6 md:p-8">
         <Outlet />
       </main>
     </div>
