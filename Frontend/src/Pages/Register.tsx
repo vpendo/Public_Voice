@@ -14,7 +14,6 @@ export default function Register() {
     fullName: '',
     email: '',
     password: '',
-    role: 'Admin'
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
