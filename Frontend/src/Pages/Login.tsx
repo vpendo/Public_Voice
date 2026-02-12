@@ -34,9 +34,18 @@ export default function Login() {
     setError(null);
     setSuccess(null);
     setPasswordTouched(true);
-    if (!formData.password.trim()) return;
+    const email = formData.email.trim();
+    const password = formData.password;
+    if (!email || !password) {
+      setError('Please enter both email and password.');
+      return;
+    }
+    if (!email.includes('@') || !email.includes('.')) {
+      setError('Please enter a valid email address.');
+      return;
+    }
     setLoading(true);
-    const result = await login(formData.email, formData.password);
+    const result = await login(email, password);
     setLoading(false);
     if (result.ok) {
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
