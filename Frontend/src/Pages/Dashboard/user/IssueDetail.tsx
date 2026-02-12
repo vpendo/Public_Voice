@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../../../api/client';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Tag, MapPin, Calendar, MessageSquare } from 'lucide-react';
 
 interface ReportItem {
   id: number;
@@ -20,6 +20,21 @@ function formatDate(iso: string) {
   } catch {
     return iso;
   }
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const s = status.toLowerCase();
+  const classes =
+    s === 'resolved'
+      ? 'bg-emerald-100 text-emerald-800'
+      : s === 'rejected'
+        ? 'bg-red-100 text-red-800'
+        : 'bg-amber-100 text-amber-800';
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${classes}`}>
+      {status}
+    </span>
+  );
 }
 
 export function IssueDetail() {
@@ -45,58 +60,81 @@ export function IssueDetail() {
     return () => { cancelled = true; };
   }, [id]);
 
-  if (loading) return <p className="text-slate-500">Loading...</p>;
-  if (error || !report) return <p className="text-red-600">{error || 'Not found'}</p>;
-
-  const statusClass =
-    report.status === 'resolved'
-      ? 'bg-green-100 text-green-800'
-      : report.status === 'rejected'
-        ? 'bg-red-100 text-red-800'
-        : 'bg-amber-100 text-amber-800';
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-pulse text-slate-400 text-sm">Loading issue...</div>
+      </div>
+    );
+  }
+  if (error || !report) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-700">
+        {error || 'Not found'}
+      </div>
+    );
+  }
 
   return (
-    <div>
+    <div className="space-y-6 font-sans">
       <Link
         to="/user/issues"
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#0066CC] mb-6"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--color-primary)] transition-colors"
       >
         <ArrowLeft size={18} />
         Back to My Issues
       </Link>
-      <h1 className="text-2xl font-bold text-slate-900 mb-2">
-        {report.title || `Issue #${report.id}`}
-      </h1>
-      <p className="text-slate-500 mb-8">Submitted {formatDate(report.created_at)}</p>
 
-      <div className="space-y-6">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">
-            Description
-          </h2>
-          <p className="text-slate-800 whitespace-pre-wrap">{report.raw_description}</p>
-          <p className="mt-2 text-sm text-slate-500">Category: {report.category}</p>
-          {report.location && (
-            <p className="text-sm text-slate-500">Location: {report.location}</p>
-          )}
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">
+            {report.title || `Issue #${report.id}`}
+          </h1>
+          <p className="text-slate-500 mt-0.5">Submitted {formatDate(report.created_at)}</p>
         </div>
+        <StatusBadge status={report.status} />
+      </div>
 
-        <div className="flex items-center gap-2">
-          <span className="text-sm font-medium text-slate-600">Status:</span>
-          <span className={`text-sm font-medium px-2 py-1 rounded-full ${statusClass}`}>
-            {report.status}
+      <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
+        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <Tag size={16} />
+          Your report
+        </h2>
+        <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{report.raw_description}</p>
+        <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
+          <span className="flex items-center gap-1.5">
+            <Tag size={14} />
+            {report.category}
+          </span>
+          {report.location && (
+            <span className="flex items-center gap-1.5">
+              <MapPin size={14} />
+              {report.location}
+            </span>
+          )}
+          <span className="flex items-center gap-1.5">
+            <Calendar size={14} />
+            {formatDate(report.created_at)}
           </span>
         </div>
-
-        {report.admin_response && (
-          <div className="bg-blue-50 rounded-2xl border border-blue-100 p-6">
-            <h2 className="text-sm font-semibold text-[#0066CC] uppercase tracking-wider mb-2">
-              Response from authorities
-            </h2>
-            <p className="text-slate-800 whitespace-pre-wrap">{report.admin_response}</p>
-          </div>
-        )}
       </div>
+
+      {report.admin_response ? (
+        <div className="rounded-2xl border-l-4 border-l-[var(--color-primary)] border border-slate-200 bg-[var(--color-primary-light)]/30 p-6">
+          <h2 className="text-sm font-semibold text-[var(--color-primary)] uppercase tracking-wider mb-3 flex items-center gap-2">
+            <MessageSquare size={16} />
+            Response from authorities
+          </h2>
+          <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{report.admin_response}</p>
+        </div>
+      ) : (
+        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
+          <p className="text-slate-500 text-sm flex items-center gap-2">
+            <MessageSquare size={18} className="text-slate-400" />
+            No response yet. Authorities will review your report and respond here.
+          </p>
+        </div>
+      )}
     </div>
   );
 }

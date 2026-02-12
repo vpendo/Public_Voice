@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { apiClient } from '../../../api/client';
-import { Users as UsersIcon } from 'lucide-react';
+import { Users as UsersIcon, Mail, Shield, User } from 'lucide-react';
 
 interface UserItem {
   id: number;
@@ -30,44 +30,91 @@ export function Users() {
     return () => { cancelled = true; };
   }, []);
 
-  return (
-    <div>
-      <h1 className="text-2xl font-bold text-slate-900 mb-2">Users</h1>
-      <p className="text-slate-500 mb-8">List of registered users.</p>
+  const adminCount = users.filter((u) => u.role === 'Admin').length;
+  const userCount = users.filter((u) => u.role === 'User').length;
 
-      {loading && <p className="text-slate-500">Loading...</p>}
-      {error && <p className="text-red-600">{error}</p>}
+  return (
+    <div className="space-y-6 font-sans">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Users</h1>
+          <p className="text-slate-500 mt-0.5">
+            List of registered users · {users.length} total ({adminCount} admin, {userCount} citizens)
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-primary-light)] text-[var(--color-primary)] text-sm font-medium">
+            <Shield size={16} />
+            {adminCount} Admin
+          </span>
+          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-slate-100 text-slate-700 text-sm font-medium">
+            <User size={16} />
+            {userCount} Citizens
+          </span>
+        </div>
+      </div>
+
+      {loading && (
+        <div className="flex items-center justify-center py-20">
+          <div className="animate-pulse text-slate-400 text-sm">Loading users...</div>
+        </div>
+      )}
+
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
 
       {!loading && !error && users.length === 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-12 text-center">
-          <UsersIcon className="w-16 h-16 mx-auto mb-4 text-[#0066CC]" />
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-16 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-6">
+            <UsersIcon size={40} className="text-slate-400" />
+          </div>
           <h2 className="text-xl font-semibold text-slate-900 mb-2">No users yet</h2>
-          <p className="text-slate-500">Registered users will appear here.</p>
+          <p className="text-slate-500 max-w-sm mx-auto">
+            Registered users will appear here. Citizens can sign up from the public site.
+          </p>
         </div>
       )}
 
       {!loading && !error && users.length > 0 && (
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
             <table className="w-full text-left">
               <thead>
                 <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-700">Name</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-700">Email</th>
-                  <th className="px-6 py-4 text-sm font-semibold text-slate-700">Role</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Name</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Email</th>
+                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Role</th>
                 </tr>
               </thead>
               <tbody>
                 {users.map((u) => (
-                  <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50/50">
-                    <td className="px-6 py-4 font-medium text-slate-900">{u.full_name}</td>
-                    <td className="px-6 py-4 text-slate-600">{u.email}</td>
+                  <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
+                    <td className="px-6 py-4">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-full bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
+                          <User size={18} />
+                        </div>
+                        <span className="font-medium text-slate-900">{u.full_name}</span>
+                      </div>
+                    </td>
+                    <td className="px-6 py-4">
+                      <span className="flex items-center gap-2 text-slate-600">
+                        <Mail size={14} className="text-slate-400" />
+                        {u.email}
+                      </span>
+                    </td>
                     <td className="px-6 py-4">
                       <span
-                        className={`text-xs font-medium px-2 py-1 rounded-full ${
-                          u.role === 'Admin' ? 'bg-blue-100 text-blue-800' : 'bg-slate-100 text-slate-700'
+                        className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
+                          u.role === 'Admin'
+                            ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
+                            : 'bg-slate-100 text-slate-700'
                         }`}
                       >
+                        {u.role === 'Admin' ? <Shield size={12} /> : <User size={12} />}
                         {u.role}
                       </span>
                     </td>

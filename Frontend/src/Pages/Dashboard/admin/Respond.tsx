@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../../../api/client';
-import { ArrowLeft, Send } from 'lucide-react';
+import { ArrowLeft, Send, MapPin, Tag, Calendar } from 'lucide-react';
 
 interface ReportItem {
   id: number;
@@ -21,6 +21,21 @@ function formatDate(iso: string) {
   } catch {
     return iso;
   }
+}
+
+function StatusBadge({ status }: { status: string }) {
+  const s = status.toLowerCase();
+  const classes =
+    s === 'resolved'
+      ? 'bg-emerald-100 text-emerald-800'
+      : s === 'rejected'
+        ? 'bg-red-100 text-red-800'
+        : 'bg-amber-100 text-amber-800';
+  return (
+    <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${classes}`}>
+      {status}
+    </span>
+  );
 }
 
 export function Respond() {
@@ -75,86 +90,117 @@ export function Respond() {
     }
   };
 
-  if (loading) return <p className="text-slate-500">Loading...</p>;
-  if (error && !report) return <p className="text-red-600">{error}</p>;
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="animate-pulse text-slate-400 text-sm">Loading report...</div>
+      </div>
+    );
+  }
+  if (error && !report) {
+    return (
+      <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-700">
+        {error}
+      </div>
+    );
+  }
   if (!report) return null;
 
   return (
-    <div>
+    <div className="space-y-6 font-sans">
       <Link
         to="/admin/issues"
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[#0066CC] mb-6"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--color-primary)] transition-colors"
       >
         <ArrowLeft size={18} />
         Back to All Issues
       </Link>
-      <h1 className="text-2xl font-bold text-slate-900 mb-2">Respond to Issue</h1>
-      <p className="text-slate-500 mb-8">
-        {report.title || `Report #${report.id}`} · {report.name}
-      </p>
 
-      <div className="space-y-6">
-        <div className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-2">
-            Citizen report
-          </h2>
-          <p className="text-slate-800 whitespace-pre-wrap">{report.raw_description}</p>
-          <p className="mt-2 text-sm text-slate-500">Category: {report.category}</p>
-          {report.location && (
-            <p className="text-sm text-slate-500">Location: {report.location}</p>
-          )}
-          <p className="text-sm text-slate-500">Submitted: {formatDate(report.created_at)}</p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Respond to Issue</h1>
+          <p className="text-slate-500 mt-0.5">
+            {report.title || `Report #${report.id}`} · {report.name}
+          </p>
         </div>
-
-        <form onSubmit={handleSubmit} className="bg-white rounded-2xl border border-slate-200 shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-4">Your response</h2>
-          {success && (
-            <p className="mb-4 p-3 rounded-xl bg-green-50 text-green-800 text-sm">Response saved.</p>
-          )}
-          {error && (
-            <p className="mb-4 p-3 rounded-xl bg-red-50 text-red-700 text-sm">{error}</p>
-          )}
-          <div className="space-y-4">
-            <div>
-              <label htmlFor="status" className="block text-sm font-medium text-slate-700 mb-1">
-                Status
-              </label>
-              <select
-                id="status"
-                value={status}
-                onChange={(e) => setStatus(e.target.value)}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30"
-              >
-                <option value="pending">Pending</option>
-                <option value="resolved">Resolved</option>
-                <option value="rejected">Rejected</option>
-              </select>
-            </div>
-            <div>
-              <label htmlFor="response" className="block text-sm font-medium text-slate-700 mb-1">
-                Response to citizen
-              </label>
-              <textarea
-                id="response"
-                value={response}
-                onChange={(e) => setResponse(e.target.value)}
-                rows={5}
-                className="w-full px-4 py-2 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[#0066CC]/30 resize-none"
-                placeholder="Write your response to the citizen..."
-              />
-            </div>
-            <button
-              type="submit"
-              disabled={submitting}
-              className="inline-flex items-center gap-2 px-6 py-3 text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-70"
-              style={{ backgroundColor: '#0066CC' }}
-            >
-              <Send size={18} />
-              {submitting ? 'Saving...' : 'Save response'}
-            </button>
-          </div>
-        </form>
+        <StatusBadge status={report.status} />
       </div>
+
+      <div className="rounded-2xl border-l-4 border-l-[var(--color-primary)] border border-slate-200 bg-white shadow-sm p-6">
+        <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
+          <Tag size={16} />
+          Citizen report
+        </h2>
+        <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{report.raw_description}</p>
+        <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
+          <span className="flex items-center gap-1.5">
+            <Tag size={14} />
+            {report.category}
+          </span>
+          {report.location && (
+            <span className="flex items-center gap-1.5">
+              <MapPin size={14} />
+              {report.location}
+            </span>
+          )}
+          <span className="flex items-center gap-1.5">
+            <Calendar size={14} />
+            {formatDate(report.created_at)}
+          </span>
+        </div>
+      </div>
+
+      <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4">Your response</h2>
+        {success && (
+          <div className="mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+            Response saved successfully.
+          </div>
+        )}
+        {error && (
+          <div className="mb-4 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+            {error}
+          </div>
+        )}
+        <div className="space-y-4">
+          <div>
+            <label htmlFor="status" className="block text-sm font-medium text-slate-700 mb-1.5">
+              Status
+            </label>
+            <select
+              id="status"
+              value={status}
+              onChange={(e) => setStatus(e.target.value)}
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] bg-white"
+            >
+              <option value="pending">Pending</option>
+              <option value="resolved">Resolved</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          <div>
+            <label htmlFor="response" className="block text-sm font-medium text-slate-700 mb-1.5">
+              Response to citizen
+            </label>
+            <textarea
+              id="response"
+              value={response}
+              onChange={(e) => setResponse(e.target.value)}
+              rows={5}
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] resize-none bg-white"
+              placeholder="Write your response to the citizen..."
+            />
+          </div>
+          <button
+            type="submit"
+            disabled={submitting}
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-70 transition-opacity"
+          >
+            <Send size={18} />
+            {submitting ? 'Saving...' : 'Save response'}
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
