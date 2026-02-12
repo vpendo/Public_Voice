@@ -32,9 +32,7 @@ class Report(Base):
     admin_response = Column(Text, nullable=True)
 
     status = Column(String(50), nullable=False, default="pending")
-    priority = Column(String(50), default="normal")
 
     created_at = Column(DateTime(timezone=True), server_default=func.now())
-    updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
 
     user = relationship("User", back_populates="reports")
