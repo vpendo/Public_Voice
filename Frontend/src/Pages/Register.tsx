@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, ArrowLeft, User, Megaphone } from 'lucide-react';
+import { Lock, Mail, ArrowRight, ArrowLeft, User, Megaphone, Eye, EyeOff, Home } from 'lucide-react';
+import { LanguageSwitcher } from '../Components/LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 
@@ -15,6 +16,7 @@ export default function Register() {
     email: '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -52,19 +54,23 @@ export default function Register() {
       </div>
 
       {/* Right panel - Form */}
-      <div className="flex-1 flex flex-col bg-white lg:min-h-screen order-1 lg:order-2">
+      <div className="flex-1 flex flex-col bg-white lg:min-h-screen order-1 lg:order-2 relative">
+        {/* Language + Home - top right */}
+        <div className="absolute top-6 right-6 flex items-center gap-3">
+          <LanguageSwitcher />
+          <Link
+            to="/"
+            className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors"
+            aria-label="Back to home"
+          >
+            <Home size={18} />
+            Home
+          </Link>
+        </div>
+
         <div className="flex-1 flex items-center justify-center py-10 px-6 lg:px-14">
           <div className="w-full max-w-md">
-            {/* Back to home link */}
-            <Link
-              to="/"
-              className="inline-flex items-center gap-2 text-sm font-medium mb-8 text-slate-500 hover:text-blue-600 transition-colors"
-            >
-              <ArrowLeft size={18} />
-              {t.register.backToHome.replace('← ', '')}
-            </Link>
-
-            {/* Logo */}
+            {/* Logo - click to go home */}
             <Link to="/" className="inline-block mb-1">
               <span className="text-2xl font-bold text-slate-900">Public</span>
               <span className="text-2xl font-bold text-blue-600">Voice</span>
@@ -137,15 +143,23 @@ export default function Register() {
                     <Lock size={18} />
                   </span>
                   <input
-                    type="password"
+                    type={showPassword ? 'text' : 'password'}
                     id="password"
                     name="password"
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 text-slate-900"
+                    className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 text-slate-900"
                     placeholder={t.register.passwordPlaceholder}
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
                 </div>
               </div>
 
@@ -167,6 +181,17 @@ export default function Register() {
               {t.register.hasAccount}{' '}
               <Link to="/login" className="font-semibold text-blue-600">
                 {t.register.signIn}
+              </Link>
+            </p>
+
+            {/* Back to home - second way at bottom */}
+            <p className="mt-6 text-center">
+              <Link
+                to="/"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-blue-600 transition-colors"
+              >
+                <ArrowLeft size={14} />
+                {t.register.backToHome.replace('← ', '')}
               </Link>
             </p>
           </div>
