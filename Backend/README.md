@@ -1,42 +1,45 @@
 # PublicVoice Backend
 
-FastAPI backend with **JWT authentication** and **validation** for the PublicVoice civic engagement platform. Aligned with the frontend: admin-only auth, public report submission, protected report listing.
+## Description
 
-## Features
+FastAPI backend for **PublicVoice**, a civic engagement platform. Provides JWT auth (register citizens, login for User and Admin), report APIs (submit, list mine, list all for admin, update status and response), and user listing for admins. Uses SQLite in dev and PostgreSQL in production.
 
-- **JWT security**: Access tokens (HS256), password hashing with bcrypt
-- **Auth**: Register (citizen/User only), Login (User + Admin), `GET /api/auth/me` (protected)
-- **Reports**: `POST /api/reports` (auth required), `GET /api/reports/mine` (user), `GET /api/reports` (admin only)
-- **Validation**: Pydantic schemas for all inputs; password strength rules
-- **Database**: SQLite by default (dev), PostgreSQL via `DATABASE_URL`
-- **CORS**: Configurable for frontend (e.g. `http://localhost:5173`)
+**Tools:** Python 3.10+, FastAPI, SQLAlchemy, JWT (HS256), bcrypt, Pydantic. Optional: PostgreSQL.
 
-## Prerequisites
+---
+
+## GitHub Repository
+
+- **Repo:** [Add your GitHub repo link here]  
+  Example: `https://github.com/your-username/Public_Voice`
+
+---
+
+## How to Set Up the Environment and the Project
+
+### Prerequisites
 
 - Python 3.10+
-- pip
+- pip  
+- PostgreSQL (optional; SQLite used if `DATABASE_URL` is not set)
 
-PostgreSQL is optional; the app uses SQLite if `DATABASE_URL` is not set.
-
-## Installation
+### Setup
 
 ```bash
 cd Public_Voice/Backend
-python3 -m venv venv
+python -m venv venv
+```
 
-# Windows
-source venv/Scripts/activate
+**Activate venv:**
 
+- Windows: `venv\Scripts\activate`
+- macOS/Linux: `source venv/bin/activate`
 
-# macOS/Linux
-source venv/bin/activate
-
+```bash
 pip install -r requirements.txt
 ```
 
-## Configuration
-
-1. Copy env example and edit:
+### Configuration
 
 ```bash
 # Windows
@@ -45,119 +48,63 @@ copy env.example .env
 cp env.example .env
 ```
 
-2. In **production** set a strong `SECRET_KEY` (min 32 chars):
+Edit `.env`:
 
-```bash
-# Example: generate key
-openssl rand -hex 32
-```
+- **SECRET_KEY** – required; use a long random string (e.g. `openssl rand -hex 32`).
+- **DATABASE_URL** – optional; if set, use PostgreSQL. If not set, SQLite is used (`./publicvoice.db`).
+- **CORS_ORIGINS** – allowed frontend origins (e.g. `http://localhost:5173` for dev).
 
-3. Optional: use PostgreSQL by setting `DATABASE_URL` in `.env`. Otherwise SQLite is used (`./publicvoice.db`).
+### Create admin user
 
-## Running
-
-```bash
-# Development (reload on file change)
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-
-# Or
-python main.py
-```
-
-- **API**: http://localhost:8000  
-- **Swagger**: http://localhost:8000/docs  
-- **ReDoc**: http://localhost:8000/redoc  
-
-
-
-**Django is not used.** This backend is FastAPI + JWT.
-
-- **Users (citizens)** register on the frontend Register page and can log in to submit and track issues.
-- **Admins** do **not** register on the site. Create admin email and password using the script below. Admins only **log in** with those credentials.
-
-### Create Admin (email + password)
-
-From the `Backend` folder with your venv activated:
+Admins do not register via the app. Create one from the Backend folder with venv activated:
 
 ```bash
 python -m scripts.create_admin
 ```
 
-You will be prompted for **email**, **full name**, and **password** (password is hidden). The script creates the database tables if needed, then creates one Admin user.
-
-With environment variables (no prompts):
+Enter email, full name, and password when prompted. Or use env vars:
 
 ```bash
 # Windows PowerShell
 $env:CREATE_ADMIN_EMAIL="admin@example.com"; $env:CREATE_ADMIN_PASSWORD="YourSecurePass1"; python -m scripts.create_admin
 
-# Windows CMD
-set CREATE_ADMIN_EMAIL=admin@example.com
-set CREATE_ADMIN_PASSWORD=YourSecurePass1
-python -m scripts.create_admin
-
 # macOS/Linux
 CREATE_ADMIN_EMAIL=admin@example.com CREATE_ADMIN_PASSWORD=YourSecurePass1 python -m scripts.create_admin
 ```
 
-Password rules (same as API): at least 8 characters, at least one letter and one digit.
+Password rules: at least 8 characters, one letter and one digit.
 
-## API Summary
+### Run
 
-| Method | Endpoint | Auth | Description |
-|--------|----------|------|-------------|
-| POST | `/api/auth/register` | No | Register **citizen** (full_name, email, password) → User role only |
-| POST | `/api/auth/login` | No | Login (User or Admin) → `{ "access_token", "token_type", "expires_in_minutes" }` |
-| GET | `/api/auth/me` | Bearer | Current user info (id, full_name, email, role) |
-| POST | `/api/reports` | Bearer | Submit report (auth required) |
-| GET | `/api/reports/mine` | Bearer | List current user's reports |
-| GET | `/api/reports` | Bearer (Admin) | List all reports |
-| GET | `/api/reports/{id}` | Bearer | One report |
-| PATCH | `/api/reports/{id}` | Bearer (Admin) | Update status and admin_response |
-| GET | `/api/users` | Bearer (Admin) | List users |
-
-**Protected routes**: send header `Authorization: Bearer <access_token>`.
-
-## Project Structure
-
-```
-Backend/
-├── core/
-│   ├── config.py      # Settings from env
-│   ├── security.py    # JWT + password hashing
-│   └── deps.py        # get_current_user (JWT), get_db
-├── models/
-│   ├── base.py        # Engine, Session, init_db
-│   ├── user.py        # User (admin)
-│   └── report.py      # Report
-├── schemas/
-│   ├── auth.py        # UserRegister, UserLogin, TokenResponse, UserResponse
-│   └── report.py      # ReportCreate, ReportResponse
-├── routers/
-│   ├── auth.py        # register, login, me
-│   └── reports.py     # create, list, get by id
-├── main.py            # App, CORS, lifespan, routers
-├── requirements.txt
-├── env.example
-└── README.md
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-## Security
+- **API:** http://localhost:8000  
+- **Swagger:** http://localhost:8000/docs  
 
-- **Passwords**: bcrypt, never stored in plain text
-- **JWT**: Signed with `SECRET_KEY`; set a long random key in production
-- **Validation**: Pydantic on all request bodies; password must have length, letter, digit
-- **Roles**: Register creates **User** (citizen) only; Admin is created via script. Report list/all and PATCH require Admin.
-- **CORS**: Restrict `CORS_ORIGINS` in production to your frontend domain
+---
 
-## Frontend Integration
+## Designs
 
-- **Base URL**: `http://localhost:8000` (or your backend URL)
-- **Register (citizens)**: `POST /api/auth/register` with `{ "full_name", "email", "password" }` → User role
-- **Login**: `POST /api/auth/login` with `{ "email", "password" }` → store `access_token`; use `/api/auth/me` to get role and redirect to user or admin dashboard
-- **Report submit**: `POST /api/reports` with Bearer token and body `{ "name", "phone", "location", "institution", "category", "description" }`
-- **Admin**: Create with `python -m scripts.create_admin` (or env vars). Admins log in only; they do not register on the site.
+- **Figma mockups / wireframes:** [Add link or path, e.g. repo root `docs/wireframes/`]
+- **Screenshots of app interfaces:** [Add path or images; backend is API-only; screenshots refer to the frontend that consumes this API]
 
-## License
+API design: REST; auth via JWT Bearer; endpoints documented at `/docs`.
 
-Part of the PublicVoice capstone project.
+---
+
+## Deployment Plan (Render)
+
+1. Create a **Web Service** on **Render**; connect the GitHub repo.
+2. **Root directory:** `Backend` (if repo root is above Backend).
+3. **Build command:** `pip install -r requirements.txt`
+4. **Start command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`  
+   (Render sets `PORT`; use `$PORT` in the command.)
+5. **Environment variables (required):**
+   - `SECRET_KEY` – long random string (e.g. from `openssl rand -hex 32`).
+   - `DATABASE_URL` – PostgreSQL connection string (use Render’s PostgreSQL add-on or external DB).
+   - `CORS_ORIGINS` – frontend origin(s), e.g. `https://your-app.netlify.app` (no trailing slash).
+6. **Database:** Add a PostgreSQL database on Render; use its internal URL as `DATABASE_URL`. Tables are created on first startup via `init_db()`. Create an admin with `python -m scripts.create_admin` (run locally with prod `DATABASE_URL` or via a one-off job if you add it).
+
+After deploy, use the Render service URL (e.g. `https://your-app.onrender.com`) as the frontend `VITE_API_URL`.

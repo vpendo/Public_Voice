@@ -31,9 +31,9 @@ class UserRegister(BaseModel):
 
 
 class UserLogin(BaseModel):
-    """Login – email + password."""
+    """Login – email + password. Accept any non-empty string for email to avoid 422 from strict EmailStr."""
 
-    email: EmailStr
+    email: str = Field(..., min_length=1, strip_whitespace=True)
     password: str = Field(..., min_length=1)
 
 
