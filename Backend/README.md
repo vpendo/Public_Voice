@@ -5,8 +5,8 @@ FastAPI backend with **JWT authentication** and **validation** for the PublicVoi
 ## Features
 
 - **JWT security**: Access tokens (HS256), password hashing with bcrypt
-- **Auth**: Register (admin only), Login, `GET /api/auth/me` (protected)
-- **Reports**: `POST /api/reports` (public), `GET /api/reports` and `GET /api/reports/{id}` (admin only)
+- **Auth**: Register (citizen/User only), Login (User + Admin), `GET /api/auth/me` (protected)
+- **Reports**: `POST /api/reports` (auth required), `GET /api/reports/mine` (user), `GET /api/reports` (admin only)
 - **Validation**: Pydantic schemas for all inputs; password strength rules
 - **Database**: SQLite by default (dev), PostgreSQL via `DATABASE_URL`
 - **CORS**: Configurable for frontend (e.g. `http://localhost:5173`)
@@ -22,7 +22,7 @@ PostgreSQL is optional; the app uses SQLite if `DATABASE_URL` is not set.
 
 ```bash
 cd Public_Voice/Backend
-python -m venv venv
+python3 -m venv venv
 
 # Windows
 source venv/Scripts/activate
@@ -70,15 +70,12 @@ python main.py
 
 
 
-**Django is not used.** This backend is FastAPI + JWT. You can create admins in two ways:
+**Django is not used.** This backend is FastAPI + JWT.
 
-### Option 1: From the frontend
+- **Users (citizens)** register on the frontend Register page and can log in to submit and track issues.
+- **Admins** do **not** register on the site. Create admin email and password using the script below. Admins only **log in** with those credentials.
 
-1. Start the backend and frontend.
-2. Open the **Register** page and sign up with name, email, and password.  
-   That user is stored as **Admin** and can log in and use the dashboard.
-
-### Option 2: Command-line script (first admin)
+### Create Admin (email + password)
 
 From the `Backend` folder with your venv activated:
 
@@ -109,12 +106,15 @@ Password rules (same as API): at least 8 characters, at least one letter and one
 
 | Method | Endpoint | Auth | Description |
 |--------|----------|------|-------------|
-| POST | `/api/auth/register` | No | Register admin (full_name, email, password) |
-| POST | `/api/auth/login` | No | Login → `{ "access_token", "token_type", "expires_in_minutes" }` |
-| GET | `/api/auth/me` | Bearer | Current user info |
-| POST | `/api/reports` | No | Citizen submits report (name, phone, location, institution, category, description) |
-| GET | `/api/reports` | Bearer | List reports (admin) |
-| GET | `/api/reports/{id}` | Bearer | One report (admin) |
+| POST | `/api/auth/register` | No | Register **citizen** (full_name, email, password) → User role only |
+| POST | `/api/auth/login` | No | Login (User or Admin) → `{ "access_token", "token_type", "expires_in_minutes" }` |
+| GET | `/api/auth/me` | Bearer | Current user info (id, full_name, email, role) |
+| POST | `/api/reports` | Bearer | Submit report (auth required) |
+| GET | `/api/reports/mine` | Bearer | List current user's reports |
+| GET | `/api/reports` | Bearer (Admin) | List all reports |
+| GET | `/api/reports/{id}` | Bearer | One report |
+| PATCH | `/api/reports/{id}` | Bearer (Admin) | Update status and admin_response |
+| GET | `/api/users` | Bearer (Admin) | List users |
 
 **Protected routes**: send header `Authorization: Bearer <access_token>`.
 
@@ -147,16 +147,16 @@ Backend/
 - **Passwords**: bcrypt, never stored in plain text
 - **JWT**: Signed with `SECRET_KEY`; set a long random key in production
 - **Validation**: Pydantic on all request bodies; password must have length, letter, digit
-- **Admin-only**: Register creates only Admin role; report list/detail require valid JWT and Admin role
+- **Roles**: Register creates **User** (citizen) only; Admin is created via script. Report list/all and PATCH require Admin.
 - **CORS**: Restrict `CORS_ORIGINS` in production to your frontend domain
 
 ## Frontend Integration
 
 - **Base URL**: `http://localhost:8000` (or your backend URL)
-- **Register**: `POST /api/auth/register` with `{ "full_name", "email", "password" }`
-- **Login**: `POST /api/auth/login` with `{ "email", "password" }` → store `access_token`
-- **Report submit**: `POST /api/reports` with `{ "name", "phone", "location", "institution", "category", "description" }`
-- **Dashboard**: `GET /api/reports` with header `Authorization: Bearer <access_token>`
+- **Register (citizens)**: `POST /api/auth/register` with `{ "full_name", "email", "password" }` → User role
+- **Login**: `POST /api/auth/login` with `{ "email", "password" }` → store `access_token`; use `/api/auth/me` to get role and redirect to user or admin dashboard
+- **Report submit**: `POST /api/reports` with Bearer token and body `{ "name", "phone", "location", "institution", "category", "description" }`
+- **Admin**: Create with `python -m scripts.create_admin` (or env vars). Admins log in only; they do not register on the site.
 
 ## License
 
