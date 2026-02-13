@@ -21,44 +21,49 @@ export const content: Record<Language, any> = {
     home: {
       hero: {
         title: "PublicVoice",
-        description: "Rwanda's civic engagement platform—connect with local authorities and make your community better.",
+        description: "Connect with local authorities. Report issues, track responses, and help improve your neighbourhood—across Rwanda.",
         exploreServices: "Explore Services",
         getInTouch: "Get In Touch"
       },
+      forCitizens: {
+        title: "For Rwandan Citizens",
+        body: "From Kigali to every district: report roads, water, security, sanitation, and other local issues. Your report goes to the right department and you can follow its status until resolution.",
+        reportCta: "Submit a Report"
+      },
       howItWorks: {
         title: "How It Works",
-        subtitle: "Three simple steps to make your voice heard",
+        subtitle: "Three steps from report to resolution",
         step1: {
           title: "Report Issue",
-          description: "Submit community problems with details and location."
+          description: "Submit with details, location, and category. No account required to report."
         },
         step2: {
           title: "Auto Categorize",
-          description: "Intelligent routing to the right authorities."
+          description: "Reports are routed to the right authority automatically."
         },
         step3: {
           title: "Track Progress",
-          description: "Monitor status from submission to resolution."
+          description: "See status and official responses in one place."
         }
       },
       whyMatters: {
-        title: "Why PublicVoice Matters",
+        title: "Why It Matters",
         transparency: {
           title: "Transparency",
-          description: "Every report visible to the community for accountability."
+          description: "Clear process and visibility so outcomes are accountable."
         },
         fasterResponse: {
           title: "Faster Response",
-          description: "Streamlined process for quicker issue resolution."
+          description: "Structured workflow so issues reach the right desk quickly."
         },
         citizenPower: {
           title: "Citizen Power",
-          description: "Empower every voice in community improvement."
+          description: "One platform for all Rwandans to participate in local governance."
         }
       },
       cta: {
-        title: "Make Your Voice Heard",
-        description: "Have an issue in your community? Report it now.",
+        title: "Report an Issue in Your Area",
+        description: "Submit your report in a few steps. We route it to the right department and keep you updated.",
         button: "Report a Problem"
       }
     },
@@ -276,44 +281,49 @@ export const content: Record<Language, any> = {
     home: {
       hero: {
         title: "PublicVoice",
-        description: "Porogaramu y'ubugenzacyaha y'u Rwanda—ihuze n'abategetsi bo hafi kandi uleteza imbere umuryango wawe.",
+        description: "Ihuze n'abategetsi bo hafi. Tanga ibibazo, kurikirana ibisubizo, kandi ufate umugabane mu guteza imbere umudugudu wawe—mu Rwanda wose.",
         exploreServices: "Reba Serivisi",
         getInTouch: "Twandikire"
       },
+      forCitizens: {
+        title: "Kubaturage b'u Rwanda",
+        body: "Kuva i Kigali kugeza kuri buri karere: tanga ibibazo by'inzira, amazi, umutekano, isuku, n'ibindi. Raporo yawe igeza kuri serivisi iyo ari yo y'ibanze kandi ushobora kurikirana imiterere yayo kugeza ku gukemura.",
+        reportCta: "Tanga Raporo"
+      },
       howItWorks: {
         title: "Uko Ikora",
-        subtitle: "Intambwe zitatu zoroheje zo gukoresha ijwi ryawe",
+        subtitle: "Intambwe zitatu kuva kuri raporo kugeza ku gukemura",
         step1: {
           title: "Tanga Ikibazo",
-          description: "Ohereza ibibazo by'umuryango hamwe n'amakuru n'ahantu."
+          description: "Ohereza hamwe n'amakuru, ahantu, n'itsinda. Nta konti bisabwa kugira ngo utange raporo."
         },
         step2: {
           title: "Gutondekanya mu Buryo Bw'Ubwenge",
-          description: "Guhaguruka mu buryo bw'ubwenge ku bantu b'ibanze."
+          description: "Raporo zoherezwa mu buryo bwikora ku bantu b'ibanze."
         },
         step3: {
           title: "Kurikirana Iterambere",
-          description: "Kurikirana imiterere kuva kuherezwa kugeza ku gukemura."
+          description: "Raba imiterere n'ibisubizo by'ofisi mu gace kimwe."
         }
       },
       whyMatters: {
-        title: "Kuki PublicVoice Ifite Agaciro",
+        title: "Kuki Bifite Agaciro",
         transparency: {
           title: "Kugaragaza",
-          description: "Raporo yose iboneka ku muryango wose kugirango haboneke ibyangombwa."
+          description: "Inzira isobanutse kandi iboneka kugirango ibyavuye bibe ngombwa."
         },
         fasterResponse: {
           title: "Gusubiza Vuba",
-          description: "Inzira yoroshye yo gukemura ibibazo vuba."
+          description: "Inzira yoroshye kugira ngo ibibazo bigeze vuba kuri bureau iracyo."
         },
         citizenPower: {
           title: "Imbaraga z'Abaturage",
-          description: "Gutanga imbaraga ku ijwi ryose mu guteza imbere umuryango."
+          description: "Plateforme imwe kubaturage b'u Rwanda bose kugira ngo bafate umugabane mu guteza imbere abategetsi bo hafi."
         }
       },
       cta: {
-        title: "Koresha IJwi Ryawe",
-        description: "Ufite ikibazo mu muryango wawe? Ohereza ubu.",
+        title: "Tanga Ikibazo mu Gace Wawe",
+        description: "Ohereza raporo yawe mu ntambwe nkeya. Tuzohereza kuri departimenti iracyo kandi turabamenyesha.",
         button: "Tanga Ikibazo"
       }
     },

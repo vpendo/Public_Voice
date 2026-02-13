@@ -4,6 +4,20 @@
   --color-primary: #0066CC;
   --color-primary-hover: #0052A3;
   --color-primary-light: rgba(0, 102, 204, 0.1);
+  /* Rwanda flag–inspired accents (peace, development, prosperity) */
+  --rwanda-blue: #2063d5;
+  --rwanda-blue-light: rgba(32, 99, 213, 0.12);
+  --rwanda-yellow: #e5ac00;
+  --rwanda-yellow-light: rgba(229, 172, 0, 0.12);
+  --rwanda-green: #00a651;
+  --rwanda-green-light: rgba(0, 166, 81, 0.12);
+  /* General accents */
+  --color-accent-teal: #0d9488;
+  --color-accent-teal-light: rgba(13, 148, 136, 0.12);
+  --color-accent-amber: #d97706;
+  --color-accent-amber-light: rgba(217, 119, 6, 0.12);
+  --color-accent-emerald: #059669;
+  --color-accent-emerald-light: rgba(5, 150, 105, 0.12);
 }
 
 @keyframes slow-zoom {

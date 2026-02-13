@@ -1,8 +1,5 @@
 # PublicVoice
 
-**Initial Software Demo – Capstone Submission**
-
----
 
 ## Description
 
