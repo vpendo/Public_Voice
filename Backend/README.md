@@ -55,6 +55,11 @@ Edit `.env`:
 - **SECRET_KEY** – required; use a long random string (e.g. `openssl rand -hex 32`).
 - **DATABASE_URL** – optional; if set, use PostgreSQL. If not set, SQLite is used (`./publicvoice.db`).
 - **CORS_ORIGINS** – allowed frontend origins (e.g. `http://localhost:5173` for dev).
+- **OPENAI_API_KEY** – optional but required for **AI/NLP report processing**. When set, citizen report text (e.g. Kinyarwanda or informal English) is sent to the API for:
+  - **Translation** (Kinyarwanda → English)
+  - **Formal rewriting** (informal → formal)
+  - **Structuring** (title, category, institution)
+  The result is stored as `structured_description` and shown to admins in the dashboard. Without this key, only the raw submission is stored. Get an API key from [OpenAI](https://platform.openai.com/api-keys). Example: `OPENAI_API_KEY=sk-your-key-here`
 
 ### Create admin user
 
