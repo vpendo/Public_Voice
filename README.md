@@ -126,22 +126,47 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 ## Designs and Screenshots
 
-This section includes design references and screenshots of the app interfaces. Add your own images to the `docs/screenshots/` folder and ensure the filenames below match (or update the paths in this README).
+Screenshots of the app interface from `Screenshots/`. Images show directly below.
 
-### Screenshots of the app interface
+### Homepage
+Landing page, hero section, and services overview.
 
-| Screen            | Description                              | Screenshot |
-|-------------------|------------------------------------------|------------|
-| **Homepage**      | Landing page, hero, services, CTA        | ![Homepage](docs/screenshots/homepage.png) |
-| **Services**      | Our Services – report, categorize, track | ![Services](docs/screenshots/services.png) |
-| **About**         | About PublicVoice, mission, vision       | ![About](docs/screenshots/about.png) |
-| **Contact**       | Contact form and information             | ![Contact](docs/screenshots/contact.png) |
-| **Register**      | Citizen registration with language switch| ![Register](docs/screenshots/register.png) |
-| **Login**         | Sign in (citizens and admins), EN/RW      | ![Login](docs/screenshots/login.png) |
-| **User Dashboard**| Overview, Submit Issue, My Issues        | ![User Dashboard](docs/screenshots/user-dashboard.png) |
-| **Admin Dashboard**| Stats, charts, recent reports, respond  | ![Admin Dashboard](docs/screenshots/admin-dashboard.png) |
+![Homepage](Screenshots/homepage.png)
 
-**Adding screenshots:** Place PNG or JPG files in `Public_Voice/docs/screenshots/` with the names above (e.g. `homepage.png`, `services.png`). If you use different names, update the image paths in the table.
+### Services
+Our Services – report problems, smart categorization, track & feedback.
+
+![Services](Screenshots/services.png)
+
+### About
+About PublicVoice, mission, and vision.
+
+![About](Screenshots/about.png)
+
+### Contact
+Contact form and information.
+
+![Contact](Screenshots/contact.png)
+
+### Register
+Citizen registration with language switch (EN/RW).
+
+![Register](Screenshots/register.png)
+
+### Login
+Sign in for citizens and admins, with language switch.
+
+![Login](Screenshots/login.png)
+
+### User Dashboard
+Overview, Submit Issue, and My Issues.
+
+![User Dashboard](Screenshots/user-dashboard.png)
+
+### Admin Dashboard
+Stats, charts, recent reports, and respond to issues.
+
+![Admin Dashboard](Screenshots/admin-dashboard.png)
 
 ---
 
@@ -186,8 +211,7 @@ This section includes design references and screenshots of the app interfaces. A
 ```
 Public_Voice/
 ├── README.md           # This file
-├── docs/
-│   └── screenshots/   # Add app screenshots here (homepage, services, about, etc.)
+├── Screenshots/        # App screenshots (homepage.png, services.png, etc.)
 ├── Frontend/
 │   ├── public/        # Static assets (e.g. Image/)
 │   ├── src/
