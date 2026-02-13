@@ -126,47 +126,50 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 ## Designs and Screenshots
 
-Screenshots of the app interface from `Screenshots/`. Images show directly below.
-
 ### Homepage
 Landing page, hero section, and services overview.
 
-![Homepage](Screenshots/homepage.png)
+![Homepage](Screenshots/home.png)
 
 ### Services
 Our Services – report problems, smart categorization, track & feedback.
 
-[Services](Screenshots/services.png)
+![Services](Screenshots/services.png)
 
 ### About
 About PublicVoice, mission, and vision.
 
-[About](Screenshots/about.png)
+![About](Screenshots/about.png)
 
 ### Contact
 Contact form and information.
 
-[Contact](Screenshots/contact.png)
+![Contact](Screenshots/Contact%20(2).png)
 
 ### Register
 Citizen registration with language switch (EN/RW).
 
-[Register](Screenshots/register.png)
+![Register](Screenshots/register.png)
 
 ### Login
 Sign in for citizens and admins, with language switch.
 
-[Login](Screenshots/login.png)
+![Login](Screenshots/login.png)
 
 ### User Dashboard
 Overview, Submit Issue, and My Issues.
 
-![User Dashboard](Screenshots/user-dashboard.png)
+![User Dashboard](Screenshots/User%20Dasboard.png)
 
 ### Admin Dashboard
 Stats, charts, recent reports, and respond to issues.
 
-[Admin Dashboard](Screenshots/admin-dashboard.png)
+![Admin Dashboard](Screenshots/Admin%20Dashboard.png)
+
+### Report
+Submit an issue (with language switch and optional AI structuring).
+
+![Report](Screenshots/Report.png)
 
 ---
 
