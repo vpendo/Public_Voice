@@ -1,93 +1,174 @@
+import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';
-import { Target, Eye, CheckCircle } from 'lucide-react';
+import { Target, Eye, CheckCircle2, MapPin, ArrowRight } from 'lucide-react';
 
 const IMG = {
-  community: '/Image/home.jpg',
-  challenge: '/Image/home%202.jpg',
+  hero: '/Image/home.jpg',
+  whoWeAre: '/Image/home1.jpg',
+  problem: '/Image/home%202.jpg',
 };
 
 export default function About() {
   const { t } = useLanguage();
 
   return (
-    <div className="min-h-screen bg-white" style={{ fontFamily: 'Poppins, sans-serif' }}>
-      {/* Hero with image */}
-      <section className="relative py-24 overflow-hidden">
-        <div className="absolute inset-0 bg-slate-50" />
-        <div className="relative z-10 w-11/12 mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div>
-              <h1 className="text-4xl md:text-5xl font-bold mb-4 text-slate-900">{t.about.hero.title}</h1>
-              <p className="text-xl text-slate-600 max-w-xl leading-relaxed">{t.about.hero.description}</p>
-            </div>
-            <div className="rounded-2xl overflow-hidden shadow-2xl">
-              <img src={IMG.community} alt="Community engagement" className="w-full aspect-[16/10] object-cover" />
-            </div>
+    <div className="min-h-screen bg-white font-sans">
+      {/* Hero - Rwanda colors */}
+      <section className="relative bg-gradient-to-br from-[var(--rwanda-blue)] via-slate-800 to-[var(--rwanda-green)] text-white overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28">
+          <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75 mb-4">
+            Rwanda · Civic-tech
+          </p>
+          <h1 className="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight max-w-3xl">
+            {t.about.hero.title}
+          </h1>
+          <p className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
+            {t.about.hero.description}
+          </p>
+        </div>
+        <div className="absolute bottom-0 left-0 right-0 z-10 h-2 flex pointer-events-none">
+          <div className="flex-1 bg-[var(--rwanda-blue)]" />
+          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
+          <div className="flex-1 bg-[var(--rwanda-green)]" />
+        </div>
+      </section>
+
+      {/* Hero image strip */}
+      <section className="relative -mt-1 bg-white">
+        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+          <div className="rounded-2xl overflow-hidden shadow-xl -translate-y-0 ring-2 ring-slate-200/50">
+            <img src={IMG.hero} alt="" className="w-full aspect-[21/9] object-cover" />
           </div>
         </div>
       </section>
 
       {/* Serving all of Rwanda */}
-      <section className="py-16 bg-[#0066CC]/5 border-y border-slate-100">
-        <div className="w-11/12 mx-auto px-4 text-center max-w-3xl mx-auto">
-          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">{t.about.rwandaReach.title}</h2>
-          <p className="text-lg text-slate-600 leading-relaxed">{t.about.rwandaReach.description}</p>
+      <section className="py-16 md:py-20 bg-[var(--rwanda-blue)]/5 border-y border-slate-200/80">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <div className="inline-flex items-center gap-2 text-[var(--rwanda-blue)] font-semibold text-sm uppercase tracking-wider mb-4">
+            <MapPin className="w-4 h-4" />
+            <span>Nationwide</span>
+          </div>
+          <h2 className="text-2xl md:text-3xl font-bold text-slate-900 mb-4">
+            {t.about.rwandaReach.title}
+          </h2>
+          <p className="text-lg text-slate-600 leading-relaxed">
+            {t.about.rwandaReach.description}
+          </p>
         </div>
       </section>
 
       {/* Who we are + image */}
-      <section className="py-20 bg-white">
-        <div className="w-11/12 mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
-            <div className="order-2 lg:order-1">
-              <img src="/Image/home1.jpg" alt="Who we are" className="w-full rounded-2xl shadow-xl object-cover aspect-[4/3]" />
-            </div>
-            <div className="space-y-6 order-1 lg:order-2">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900">{t.about.whoWeAre.title}</h2>
-              <p className="leading-relaxed text-lg text-slate-600">{t.about.whoWeAre.description}</p>
-            </div>
-          </div>
-
-          {/* Problem we solve */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-16 items-center mt-24">
-            <div className="space-y-6">
-              <h2 className="text-3xl md:text-4xl font-bold text-slate-900">{t.about.problem.title}</h2>
-              <ul className="space-y-4 text-slate-600">
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: '#0066CC' }} />
-                  <span>{t.about.problem.issue1}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: '#0066CC' }} />
-                  <span>{t.about.problem.issue2}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: '#0066CC' }} />
-                  <span>{t.about.problem.issue3}</span>
-                </li>
-                <li className="flex items-start gap-3">
-                  <CheckCircle className="w-6 h-6 flex-shrink-0 mt-0.5" style={{ color: '#0066CC' }} />
-                  <span>{t.about.problem.issue4}</span>
-                </li>
-              </ul>
+      <section className="py-20 md:py-28 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[4/3] lg:aspect-auto lg:min-h-[360px]">
+              <img src={IMG.whoWeAre} alt="" className="w-full h-full object-cover" />
+              <div className="absolute inset-0 ring-4 ring-inset ring-[var(--rwanda-blue)]/20 rounded-2xl pointer-events-none" />
             </div>
             <div>
-              <img src={IMG.challenge} alt="Community challenges" className="w-full rounded-2xl shadow-xl object-cover aspect-[4/3]" />
+              <p className="text-sm font-semibold uppercase tracking-widest text-[var(--rwanda-blue)] mb-3">
+                Our story
+              </p>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
+                {t.about.whoWeAre.title}
+              </h2>
+              <p className="text-lg text-slate-600 leading-relaxed">
+                {t.about.whoWeAre.description}
+              </p>
             </div>
           </div>
+        </div>
+      </section>
 
-          {/* Mission & Vision */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mt-24">
-            <div className="bg-slate-50 p-10 rounded-2xl shadow-lg border-l-4" style={{ borderLeftColor: '#0066CC' }}>
-              <Target className="w-12 h-12 mb-4" style={{ color: '#0066CC' }} />
-              <h2 className="text-2xl font-bold mb-4 text-slate-900">{t.about.mission.title}</h2>
-              <p className="leading-relaxed text-slate-600">{t.about.mission.description}</p>
+      {/* The problem we solve + image */}
+      <section className="py-20 md:py-28 bg-slate-50 relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%2300a651\' fill-opacity=\'0.04\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M0 40L40 0H20L0 20M40 20V40H20M20 20h20v20\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
+        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
+            <div>
+              <p className="text-sm font-semibold uppercase tracking-widest text-[var(--rwanda-green)] mb-3">
+                Why we exist
+              </p>
+              <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8">
+                {t.about.problem.title}
+              </h2>
+              <ul className="space-y-4">
+                {[
+                  t.about.problem.issue1,
+                  t.about.problem.issue2,
+                  t.about.problem.issue3,
+                  t.about.problem.issue4,
+                ].map((text, i) => (
+                  <li key={i} className="flex items-start gap-3">
+                    <CheckCircle2 className="w-6 h-6 flex-shrink-0 mt-0.5 text-[var(--rwanda-green)]" />
+                    <span className="text-slate-600 leading-relaxed">{text}</span>
+                  </li>
+                ))}
+              </ul>
             </div>
-            <div className="bg-slate-50 p-10 rounded-2xl shadow-lg border-l-4" style={{ borderLeftColor: '#0066CC' }}>
-              <Eye className="w-12 h-12 mb-4" style={{ color: '#0066CC' }} />
-              <h2 className="text-2xl font-bold mb-4 text-slate-900">{t.about.vision.title}</h2>
-              <p className="leading-relaxed text-slate-600">{t.about.vision.description}</p>
+            <div className="rounded-2xl overflow-hidden shadow-xl">
+              <img src={IMG.problem} alt="" className="w-full aspect-[4/3] object-cover" />
             </div>
+          </div>
+        </div>
+      </section>
+
+      {/* Mission & Vision - Rwanda blue & green */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
+            <div className="bg-slate-50 p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--rwanda-blue)] hover:shadow-lg transition-shadow">
+              <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
+                <Target className="w-10 h-10" />
+              </div>
+              <h2 className="text-2xl font-bold mb-4 text-slate-900">
+                {t.about.mission.title}
+              </h2>
+              <p className="leading-relaxed text-slate-600">
+                {t.about.mission.description}
+              </p>
+            </div>
+            <div className="bg-slate-50 p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--rwanda-green)] hover:shadow-lg transition-shadow">
+              <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]">
+                <Eye className="w-10 h-10" />
+              </div>
+              <h2 className="text-2xl font-bold mb-4 text-slate-900">
+                {t.about.vision.title}
+              </h2>
+              <p className="leading-relaxed text-slate-600">
+                {t.about.vision.description}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      {/* CTA - Rwanda green */}
+      <section className="py-20 md:py-28 bg-[var(--rwanda-green)] text-white relative overflow-hidden">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
+        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+            Ready to make an impact?
+          </h2>
+          <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+            Report an issue in your area or get in touch with our team.
+          </p>
+          <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <Link
+              to="/report"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[var(--rwanda-green)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
+            >
+              Report a problem
+              <ArrowRight className="w-5 h-5" />
+            </Link>
+            <Link
+              to="/contact"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/80 text-white font-semibold rounded-xl hover:bg-white/10 transition-colors"
+            >
+              Contact us
+            </Link>
           </div>
         </div>
       </section>
