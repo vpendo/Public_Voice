@@ -55,3 +55,12 @@ class UserResponse(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class LoginResponse(BaseModel):
+    """Login: token + user so frontend can redirect Admin vs User without a second request."""
+
+    access_token: str
+    token_type: str = "bearer"
+    expires_in_minutes: int
+    user: UserResponse

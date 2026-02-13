@@ -52,7 +52,7 @@ export default function Login() {
       if (from && (from.startsWith('/user') || from.startsWith('/admin') || from === '/report')) {
         navigate(from, { replace: true });
       } else {
-        navigate(result.user?.role === 'Admin' ? '/admin/dashboard' : '/user/dashboard', { replace: true });
+        navigate((result.user?.role ?? '').toLowerCase() === 'admin' ? '/admin/dashboard' : '/user/dashboard', { replace: true });
       }
     } else {
       setError(result.error ?? 'Login failed');

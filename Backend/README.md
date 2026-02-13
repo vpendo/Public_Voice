@@ -74,6 +74,18 @@ CREATE_ADMIN_EMAIL=admin@example.com CREATE_ADMIN_PASSWORD=YourSecurePass1 pytho
 
 Password rules: at least 8 characters, one letter and one digit.
 
+### See your admin account (which email to use for admin login)
+
+To see which account is the admin (e.g. if you forgot the email you used):
+
+```bash
+python -m scripts.show_admin
+```
+
+This prints the admin user’s **ID**, **email**, and **name**. Use that email and the password you set when you ran `create_admin` to log in as admin in the app.
+
+You can also run `python -m scripts.create_admin` again: if an admin already exists, it will print that admin’s id and email and exit without creating a new one.
+
 ### Run
 
 ```bash
