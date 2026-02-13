@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../../../api/client';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import { ArrowLeft, Send, MapPin, Tag, Calendar, Shield, MessageSquare } from 'lucide-react';
 
 interface ReportItem {
@@ -23,7 +24,13 @@ function formatDate(iso: string) {
   }
 }
 
-function StatusBadge({ status }: { status: string }) {
+function StatusBadge({
+  status,
+  labels,
+}: {
+  status: string;
+  labels: { pending: string; resolved: string; rejected: string };
+}) {
   const s = status.toLowerCase();
   const classes =
     s === 'resolved'
@@ -31,15 +38,25 @@ function StatusBadge({ status }: { status: string }) {
       : s === 'rejected'
         ? 'bg-red-100 text-red-800'
         : 'bg-amber-100 text-amber-800';
+  const label =
+    s === 'resolved' ? labels.resolved : s === 'rejected' ? labels.rejected : labels.pending;
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${classes}`}>
-      {status}
+      {label}
     </span>
   );
 }
 
 export function Respond() {
   const { id } = useParams<{ id: string }>();
+  const { t } = useLanguage();
+  const p = t.admin.respondPage;
+  const statusLabels = {
+    pending: t.admin.statusPending,
+    resolved: t.admin.statusResolved,
+    rejected: t.admin.statusRejected,
+  };
+  const categoryLabels = t.admin.categories;
   const [report, setReport] = useState<ReportItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -60,7 +77,7 @@ export function Respond() {
           setStatus(data.status);
         }
       } catch {
-        if (!cancelled) setError('Could not load this report.');
+        if (!cancelled) setError(p.errorLoad);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -84,7 +101,7 @@ export function Respond() {
         prev ? { ...prev, status, admin_response: response.trim() || null } : null
       );
     } catch {
-      setError('Failed to update report.');
+      setError(p.errorUpdate);
     } finally {
       setSubmitting(false);
     }
@@ -94,7 +111,7 @@ export function Respond() {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
         <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
-        <p className="text-slate-500 text-sm">Loading report...</p>
+        <p className="text-slate-500 text-sm">{p.loading}</p>
       </div>
     );
   }
@@ -114,33 +131,33 @@ export function Respond() {
         className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--rwanda-blue)] transition-colors"
       >
         <ArrowLeft size={18} />
-        Back to Respond list
+        {p.backToList}
       </Link>
 
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
             <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
-            <span>Admin</span>
+            <span>{t.admin.adminLabel}</span>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Respond to Issue</h1>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{p.title}</h1>
           <p className="text-slate-500 mt-0.5">
             {report.title || `Report #${report.id}`} · {report.name}
           </p>
         </div>
-        <StatusBadge status={report.status} />
+        <StatusBadge status={report.status} labels={statusLabels} />
       </div>
 
       <div className="rounded-2xl border-l-4 border-l-[var(--rwanda-blue)] border border-slate-200/80 bg-white shadow-sm p-6">
         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
           <Tag size={16} />
-          Citizen report
+          {p.citizenReport}
         </h2>
         <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{report.raw_description}</p>
         <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
           <span className="flex items-center gap-1.5">
             <Tag size={14} />
-            {report.category}
+            {categoryLabels[report.category] || report.category}
           </span>
           {report.location && (
             <span className="flex items-center gap-1.5">
@@ -158,11 +175,11 @@ export function Respond() {
       <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6 md:p-8">
         <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
           <MessageSquare size={20} className="text-[var(--rwanda-blue)]" />
-          Your response
+          {p.yourResponse}
         </h2>
         {success && (
           <div className="mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
-            Response saved successfully.
+            {p.responseSaved}
           </div>
         )}
         {error && (
@@ -173,7 +190,7 @@ export function Respond() {
         <div className="space-y-4">
           <div>
             <label htmlFor="status" className="block text-sm font-medium text-slate-700 mb-1.5">
-              Status
+              {p.statusLabel}
             </label>
             <select
               id="status"
@@ -181,14 +198,14 @@ export function Respond() {
               onChange={(e) => setStatus(e.target.value)}
               className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] bg-white"
             >
-              <option value="pending">Pending</option>
-              <option value="resolved">Resolved</option>
-              <option value="rejected">Rejected</option>
+              <option value="pending">{t.admin.statusPending}</option>
+              <option value="resolved">{t.admin.statusResolved}</option>
+              <option value="rejected">{t.admin.statusRejected}</option>
             </select>
           </div>
           <div>
             <label htmlFor="response" className="block text-sm font-medium text-slate-700 mb-1.5">
-              Response to citizen
+              {p.responseToCitizen}
             </label>
             <textarea
               id="response"
@@ -196,7 +213,7 @@ export function Respond() {
               onChange={(e) => setResponse(e.target.value)}
               rows={5}
               className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] resize-none bg-white"
-              placeholder="Write your response to the citizen..."
+              placeholder={p.responsePlaceholder}
             />
           </div>
           <button
@@ -205,7 +222,7 @@ export function Respond() {
             className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 disabled:opacity-70 transition-opacity shadow-md"
           >
             <Send size={18} />
-            {submitting ? 'Saving...' : 'Save response'}
+            {submitting ? p.saving : p.saveResponse}
           </button>
         </div>
       </form>
