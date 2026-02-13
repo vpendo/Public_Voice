@@ -136,27 +136,27 @@ Landing page, hero section, and services overview.
 ### Services
 Our Services – report problems, smart categorization, track & feedback.
 
-![Services](Screenshots/services.png)
+[Services](Screenshots/services.png)
 
 ### About
 About PublicVoice, mission, and vision.
 
-![About](Screenshots/about.png)
+[About](Screenshots/about.png)
 
 ### Contact
 Contact form and information.
 
-![Contact](Screenshots/contact.png)
+[Contact](Screenshots/contact.png)
 
 ### Register
 Citizen registration with language switch (EN/RW).
 
-![Register](Screenshots/register.png)
+[Register](Screenshots/register.png)
 
 ### Login
 Sign in for citizens and admins, with language switch.
 
-![Login](Screenshots/login.png)
+[Login](Screenshots/login.png)
 
 ### User Dashboard
 Overview, Submit Issue, and My Issues.
@@ -166,7 +166,7 @@ Overview, Submit Issue, and My Issues.
 ### Admin Dashboard
 Stats, charts, recent reports, and respond to issues.
 
-![Admin Dashboard](Screenshots/admin-dashboard.png)
+[Admin Dashboard](Screenshots/admin-dashboard.png)
 
 ---
 
