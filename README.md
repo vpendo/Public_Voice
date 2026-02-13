@@ -179,7 +179,7 @@ The application uses two main tables (SQLite in development, PostgreSQL in produ
 ### Homepage
 Landing page, hero section, and services overview.
 
-![Homepage](Screenshots/Home.png)
+![Homepage](Screenshots/home.png)
 
 ### Services
 Our Services – report problems, smart categorization, track & feedback.
