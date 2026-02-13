@@ -64,3 +64,4 @@ class LoginResponse(BaseModel):
     token_type: str = "bearer"
     expires_in_minutes: int
     user: UserResponse
+    is_admin: bool = False  # True when user.role is Admin – frontend uses this for redirect

@@ -1,8 +1,10 @@
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useState } from 'react';
+import { useAuth } from '../contexts/AuthContext';
 import { Navbar } from '../Components/Navbar';
 import { Footer } from '../Components/Footer';
 import { ProtectedRoute } from '../Components/ProtectedRoute';
+import { RedirectAdminToAdmin } from '../Components/RedirectAdminToAdmin';
 import { content } from '../i18n/content';
 import type { Language } from '../i18n/content';
 import { LanguageProvider } from '../contexts/LanguageContext';
@@ -26,6 +28,12 @@ import { AllIssues } from '../Pages/Dashboard/admin/AllIssues';
 import { RespondList } from '../Pages/Dashboard/admin/RespondList';
 import { Respond } from '../Pages/Dashboard/admin/Respond';
 import { Users } from '../Pages/Dashboard/admin/Users';
+
+function DashboardRedirect() {
+  const { isAdmin, isLoadingUser } = useAuth();
+  if (isLoadingUser) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-slate-500">Loading...</p></div>;
+  return <Navigate to={isAdmin ? '/admin/dashboard' : '/user/dashboard'} replace />;
+}
 
 function AppLayout({ children, lang, setLang }: { children: React.ReactNode; lang: Language; setLang: (lang: Language) => void }) {
   const location = useLocation();
@@ -79,13 +87,15 @@ export function AppRoute() {
                   </ProtectedRoute>
                 }
               />
-              <Route path="/dashboard" element={<Navigate to="/user/dashboard" replace />} />
-              {/* User dashboard */}
+              <Route path="/dashboard" element={<DashboardRedirect />} />
+              {/* User dashboard – admins are redirected to /admin/dashboard */}
               <Route
                 path="/user"
                 element={
                   <ProtectedRoute>
-                    <UserDashboardLayout />
+                    <RedirectAdminToAdmin>
+                      <UserDashboardLayout />
+                    </RedirectAdminToAdmin>
                   </ProtectedRoute>
                 }
               >

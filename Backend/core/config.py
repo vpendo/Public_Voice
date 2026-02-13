@@ -3,7 +3,7 @@ Application configuration from environment variables.
 Never commit .env; use env.example as template.
 """
 import os
-from typing import List
+from typing import List, Optional
 
 
 class Settings:
@@ -31,6 +31,11 @@ class Settings:
         self.ACCESS_TOKEN_EXPIRE_MINUTES: int = int(
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
         )
+
+        # AI / NLP processing (OpenAI or compatible API)
+        self.OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
+        self.OPENAI_API_BASE: Optional[str] = (os.getenv("OPENAI_API_BASE", "").strip() or None)  # e.g. Azure
+        self.OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
         # Security check
         if self.ENVIRONMENT == "production" and self.SECRET_KEY.startswith("change-me"):

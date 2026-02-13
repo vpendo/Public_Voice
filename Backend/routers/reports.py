@@ -7,6 +7,7 @@ from core.deps import get_current_user, get_current_admin, CurrentUser, CurrentA
 from models.base import get_db
 from models.report import Report
 from schemas.report import ReportCreate, ReportResponse, ReportUpdate
+from services.ai_processor import process_issue_text
 
 router = APIRouter(prefix="/api/reports", tags=["reports"])
 
@@ -18,16 +19,33 @@ def create_report(
     db: Annotated[Session, Depends(get_db)],
     current_user: CurrentUser,
 ) -> ReportResponse:
-    """Submit a report. Auth required (user or admin)."""
+    """Submit a report. Auth required (user or admin). Raw text is sent to AI for translation, formal rewriting, and structuring; result stored as structured_description."""
+    raw_description = payload.description
+    structured_description = None
+    title = payload.title or None
+    institution = payload.institution
+    category = payload.category
+
+    ai_result = process_issue_text(raw_description)
+    if ai_result:
+        structured_description = ai_result.get("structured_description")
+        if ai_result.get("suggested_title"):
+            title = ai_result["suggested_title"]
+        if ai_result.get("suggested_institution"):
+            institution = ai_result["suggested_institution"]
+        if ai_result.get("suggested_category"):
+            category = ai_result["suggested_category"]
+
     report = Report(
         user_id=current_user.id,
-        title=payload.title or None,
+        title=title,
         name=payload.name,
         phone=payload.phone,
         location=payload.location,
-        institution=payload.institution,
-        category=payload.category,
-        raw_description=payload.description,
+        institution=institution,
+        category=category,
+        raw_description=raw_description,
+        structured_description=structured_description,
         status="pending",
     )
     db.add(report)

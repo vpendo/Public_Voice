@@ -56,15 +56,29 @@ def login(
             detail="Invalid email or password",
         )
     token = create_access_token(subject=user.id)
+    role = (user.role or "User").strip()
+    is_admin = role.lower() == "admin"
+    user_payload = UserResponse(
+        id=user.id,
+        full_name=user.full_name,
+        email=user.email,
+        role=role,
+    )
     return LoginResponse(
         access_token=token,
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
-        user=user,
+        user=user_payload,
+        is_admin=is_admin,
     )
 
 
 @router.get("/me", response_model=UserResponse)
-def me(current_user: CurrentUser) -> User:
-    """Return current authenticated user (User or Admin)."""
-    return current_user
+def me(current_user: CurrentUser) -> UserResponse:
+    """Return current authenticated user (User or Admin). Explicit payload so role is always included."""
+    return UserResponse(
+        id=current_user.id,
+        full_name=current_user.full_name,
+        email=current_user.email,
+        role=current_user.role or "User",
+    )

@@ -9,7 +9,7 @@ const LOGIN_IMAGE = '/Image/home%203.jpg';
 
 export default function Login() {
   const { t } = useLanguage();
-  const { login } = useAuth();
+  const { login, refreshUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
@@ -46,17 +46,28 @@ export default function Login() {
     }
     setLoading(true);
     const result = await login(email, password);
-    setLoading(false);
-    if (result.ok) {
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-      if (from && (from.startsWith('/user') || from.startsWith('/admin') || from === '/report')) {
-        navigate(from, { replace: true });
-      } else {
-        navigate((result.user?.role ?? '').toLowerCase() === 'admin' ? '/admin/dashboard' : '/user/dashboard', { replace: true });
-      }
-    } else {
+    if (!result.ok) {
+      setLoading(false);
       setError(result.error ?? 'Login failed');
+      return;
     }
+    // Always fetch /me so context has the correct user/role before we navigate (backend is source of truth)
+    const me = await refreshUser();
+    const user = me ?? result.user;
+    setLoading(false);
+    const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+    // Use is_admin from login response first, then role from user (backend sends is_admin for redirect)
+    const isAdmin = result.is_admin === true || (user?.role ?? '').trim().toLowerCase() === 'admin';
+    const targetPath =
+      from && (from.startsWith('/user') || from.startsWith('/admin') || from === '/report')
+        ? from
+        : isAdmin
+          ? '/admin/dashboard'
+          : '/user/dashboard';
+    if (isAdmin) {
+      sessionStorage.setItem('publicvoice_redirect_to_admin', '1');
+    }
+    navigate(targetPath, { replace: true });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
