@@ -124,6 +124,54 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 
 ---
 
+## Design Process and User Interface
+
+- **Design considerations:** The UI prioritizes clarity and accessibility for citizens and admins. Public pages (Home, Services, About, Contact) use a consistent navbar and footer; citizen and admin areas use dedicated layouts (sidebar navigation, role-based routes).
+- **Responsive design:** Layouts are built with Tailwind CSS: responsive breakpoints, flexible grids, and mobile-friendly navigation so the app works on phones and desktops.
+- **Style guide:** Tailwind utility classes for spacing, typography, and colors; shared components (Navbar, Footer, Card, LanguageSwitcher) keep the look consistent. Multi-language (English / Kinyarwanda) is supported via a central i18n content file.
+
+
+---
+
+## Database Schema
+
+The application uses two main tables (SQLite in development, PostgreSQL in production).
+
+| Table    | Purpose |
+|----------|---------|
+| **users** | Citizens and admins: auth (email, hashed password), role (User/Admin), profile. |
+| **reports** | Issue reports: title, contact (name, phone, location), institution, category, raw_description, structured_description (AI), admin_response, status (pending/resolved/rejected). |
+
+**users**
+
+| Column           | Type        | Notes |
+|-----------------|-------------|--------|
+| id              | Integer     | Primary key |
+| full_name       | String(255) | Not null |
+| email           | String(255) | Unique, not null |
+| hashed_password | String(255) | Not null |
+| role            | String(50)  | `User` or `Admin` |
+| created_at      | DateTime    | Server default |
+
+**reports**
+
+| Column                 | Type        | Notes |
+|------------------------|-------------|--------|
+| id                     | Integer     | Primary key |
+| user_id                | Integer     | FK → users.id (nullable for anonymous-style flow) |
+| title                  | String(255) | Optional |
+| name, phone, location  | String      | Required |
+| institution, category  | String      | Required; category enum: roads, water, security, sanitation, etc. |
+| raw_description        | Text        | User’s original text |
+| structured_description | Text        | AI-processed (translated/formal) version, optional |
+| admin_response         | Text        | Admin reply, optional |
+| status                 | String(50)  | `pending`, `resolved`, `rejected` |
+| created_at             | DateTime    | Server default |
+
+---
+
+
+
 ## Designs and Screenshots
 
 ### Homepage
@@ -236,8 +284,6 @@ Public_Voice/
     ├── requirements.txt
     └── env.example
 ```
-
----
 
 ## License
 
