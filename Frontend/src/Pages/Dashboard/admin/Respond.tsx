@@ -9,6 +9,7 @@ interface ReportItem {
   name: string;
   title: string | null;
   raw_description: string;
+  structured_description: string | null;
   category: string;
   status: string;
   created_at: string;
@@ -154,6 +155,16 @@ export function Respond() {
           {p.citizenReport}
         </h2>
         <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{report.raw_description}</p>
+        {report.structured_description && (
+          <div className="mt-6 pt-4 border-t border-slate-200">
+            <h3 className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-2">
+              {t.dashboard?.structuredReport || 'Structured report (AI)'}
+            </h3>
+            <p className="text-slate-700 whitespace-pre-wrap leading-relaxed bg-slate-50 rounded-lg p-4">
+              {report.structured_description}
+            </p>
+          </div>
+        )}
         <div className="mt-4 flex flex-wrap gap-4 text-sm text-slate-500">
           <span className="flex items-center gap-1.5">
             <Tag size={14} />

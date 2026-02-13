@@ -1,6 +1,9 @@
 """
-PublicVoice API – FastAPI app with JWT auth and report endpoints.
+PublicVoice API – JWT auth and report endpoints. AI/NLP processes citizen text when OPENAI_API_KEY is set.
 """
+from dotenv import load_dotenv
+load_dotenv()  # Load .env before config so OPENAI_API_KEY etc. are available
+
 import logging
 from contextlib import asynccontextmanager
 
@@ -10,19 +13,20 @@ logger = logging.getLogger(__name__)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
-from dotenv import load_dotenv
 
 from core.config import settings
 from models.base import init_db
 from routers import auth, reports, users
 
-load_dotenv()
-
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create DB tables on startup."""
+    """Create DB tables on startup; log AI/NLP status."""
     init_db()
+    if getattr(settings, "OPENAI_API_KEY", None) and settings.OPENAI_API_KEY.strip():
+        logger.info("AI/NLP enabled: citizen reports will be translated, rewritten formally, and structured (set OPENAI_API_KEY in .env).")
+    else:
+        logger.info("AI/NLP disabled: set OPENAI_API_KEY in .env to enable (Kinyarwanda → English, formal rewriting, structuring).")
     yield
     # shutdown: nothing to close for SQLite/PSQL with current setup
 

@@ -60,7 +60,10 @@ def process_issue_text(raw_text: str) -> Optional[dict[str, Any]]:
     Returns None if AI is disabled, API key missing, or the request fails.
     """
     if not getattr(settings, "OPENAI_API_KEY", None) or not settings.OPENAI_API_KEY.strip():
-        logger.debug("OPENAI_API_KEY not set; skipping AI processing")
+        logger.info(
+            "AI/NLP skipped: OPENAI_API_KEY not set. Set it in .env to enable translation, "
+            "formal rewriting, and structuring of citizen reports (e.g. Kinyarwanda → English)."
+        )
         return None
 
     try:
