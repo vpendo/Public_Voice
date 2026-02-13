@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import { apiClient } from '../../../api/client';
 import {
   FileText,
@@ -27,6 +28,7 @@ function formatDate(iso: string) {
 
 export function UserDashboard() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const [stats, setStats] = useState({ total: 0, pending: 0, resolved: 0 });
 
   useEffect(() => {
@@ -51,92 +53,110 @@ export function UserDashboard() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* Welcome header */}
-      <div className="rounded-2xl bg-gradient-to-br from-[var(--color-primary)] to-[var(--color-primary-hover)] p-6 md:p-8 text-white shadow-lg">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-          <div>
-            <p className="text-white/90 text-sm font-medium flex items-center gap-2 mb-1">
-              <Sparkles size={16} />
-              {formatDate(new Date().toISOString())}
-            </p>
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Hello, {firstName}</h1>
-            <p className="text-white/90 mt-1 max-w-md">
-              Use your voice. Report community issues and track how authorities respond.
-            </p>
-          </div>
-          <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-white/20 flex items-center justify-center">
-            <Megaphone size={32} />
+      {/* Welcome header – Rwanda identity */}
+      <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+        <div className="h-1.5 flex">
+          <div className="flex-1 bg-[var(--rwanda-blue)]" />
+          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
+          <div className="flex-1 bg-[var(--rwanda-green)]" />
+        </div>
+        <div className="p-6 md:p-8">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div>
+              <p className="text-slate-500 text-sm font-medium flex items-center gap-2 mb-1">
+                <Sparkles size={16} className="text-[var(--rwanda-blue)]" />
+                {formatDate(new Date().toISOString())}
+              </p>
+              <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+                {t.user.dashboard.hello}, {firstName}
+              </h1>
+              <p className="text-slate-600 mt-1 max-w-md">
+                {t.user.dashboard.tagline}
+              </p>
+            </div>
+            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-[var(--rwanda-blue-light)] flex items-center justify-center text-[var(--rwanda-blue)]">
+              <Megaphone size={32} />
+            </div>
           </div>
         </div>
       </div>
 
-      {/* Stat cards */}
+      {/* Stat cards – Rwanda blue, yellow, green */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:shadow-md transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Total reports</p>
+              <p className="text-sm font-medium text-slate-500">{t.user.dashboard.totalReports}</p>
               <p className="mt-1 text-3xl font-bold text-slate-900">{stats.total}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
+            <div className="w-12 h-12 rounded-xl bg-[var(--rwanda-blue-light)] flex items-center justify-center text-[var(--rwanda-blue)]">
               <FileText size={24} />
             </div>
           </div>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:shadow-md transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Pending</p>
-              <p className="mt-1 text-3xl font-bold text-amber-600">{stats.pending}</p>
+              <p className="text-sm font-medium text-slate-500">{t.user.dashboard.pending}</p>
+              <p className="mt-1 text-3xl font-bold text-[var(--rwanda-yellow)]">{stats.pending}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-amber-600">
+            <div className="w-12 h-12 rounded-xl bg-[var(--rwanda-yellow-light)] flex items-center justify-center text-[var(--rwanda-yellow)]">
               <Clock size={24} />
             </div>
           </div>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6 hover:shadow-md transition-shadow">
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Resolved</p>
-              <p className="mt-1 text-3xl font-bold text-emerald-600">{stats.resolved}</p>
+              <p className="text-sm font-medium text-slate-500">{t.user.dashboard.resolved}</p>
+              <p className="mt-1 text-3xl font-bold text-[var(--rwanda-green)]">{stats.resolved}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-emerald-50 flex items-center justify-center text-emerald-600">
+            <div className="w-12 h-12 rounded-xl bg-[var(--rwanda-green-light)] flex items-center justify-center text-[var(--rwanda-green)]">
               <CheckCircle size={24} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Quick action + tip */}
+      {/* Quick action + How it works */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
-          <h2 className="text-lg font-semibold text-slate-900 mb-2">Quick action</h2>
+        <div className="lg:col-span-2 rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6">
+          <h2 className="text-lg font-semibold text-slate-900 mb-2">{t.user.dashboard.quickAction}</h2>
           <p className="text-slate-500 text-sm mb-4">
-            Spotted a problem in your community? Submit a report so authorities can take action.
+            {t.user.dashboard.quickActionDesc}
           </p>
           <Link
             to="/user/submit"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-90 transition-opacity shadow-sm"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 transition-opacity shadow-md"
           >
             <PlusCircle size={20} />
-            Submit a new issue
+            {t.user.dashboard.submitNewIssue}
             <ArrowRight size={18} />
           </Link>
         </div>
-        <div className="rounded-2xl border border-slate-200 bg-slate-50 p-6">
-          <h3 className="text-sm font-semibold text-slate-700 mb-2">How it works</h3>
-          <ol className="space-y-2 text-sm text-slate-600">
-            <li className="flex gap-2">
-              <span className="font-bold text-[var(--color-primary)]">1.</span>
-              Submit your issue with details and location.
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6">
+          <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
+            <span className="w-1 h-5 rounded-full bg-[var(--rwanda-blue)]" />
+            {t.user.dashboard.howItWorks}
+          </h3>
+          <ol className="space-y-4 text-sm text-slate-600">
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)] font-bold flex items-center justify-center text-xs">
+                1
+              </span>
+              <span>{t.user.dashboard.step1}</span>
             </li>
-            <li className="flex gap-2">
-              <span className="font-bold text-[var(--color-primary)]">2.</span>
-              Authorities review and may contact you.
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--rwanda-yellow-light)] text-[var(--rwanda-yellow)] font-bold flex items-center justify-center text-xs">
+                2
+              </span>
+              <span>{t.user.dashboard.step2}</span>
             </li>
-            <li className="flex gap-2">
-              <span className="font-bold text-[var(--color-primary)]">3.</span>
-              Track status and read responses here.
+            <li className="flex gap-3">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)] font-bold flex items-center justify-center text-xs">
+                3
+              </span>
+              <span>{t.user.dashboard.step3}</span>
             </li>
           </ol>
         </div>
@@ -144,13 +164,13 @@ export function UserDashboard() {
 
       {/* Link to My Issues when they have reports */}
       {stats.total > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-4 flex items-center justify-between">
-          <p className="text-slate-600 text-sm">View and track all your submitted issues.</p>
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-4 sm:p-5 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+          <p className="text-slate-600 text-sm">{t.user.dashboard.viewMyIssues}</p>
           <Link
             to="/user/issues"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
           >
-            My Issues
+            {t.user.dashboard.myIssues}
             <ArrowRight size={16} />
           </Link>
         </div>
