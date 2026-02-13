@@ -110,13 +110,21 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const login = useCallback(
     async (email: string, password: string): Promise<{ ok: boolean; error?: string; user?: UserInfo }> => {
       try {
-        const { data } = await apiClient.post<{ access_token: string }>('/api/auth/login', {
+        const { data } = await apiClient.post<{
+          access_token: string;
+          user?: UserInfo;
+        }>('/api/auth/login', {
           email: email.trim().toLowerCase(),
           password,
         });
         const accessToken = data.access_token;
         if (!accessToken) return { ok: false, error: 'Invalid response' };
         persistToken(accessToken);
+        // Backend returns user (with role) in login response so we can redirect Admin vs User correctly
+        if (data.user) {
+          setUser(data.user);
+          return { ok: true, user: data.user };
+        }
         const me = await fetchUser();
         return { ok: true, user: me ?? undefined };
       } catch (err) {
@@ -157,7 +165,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     token,
     user,
     isAuthenticated: !!token,
-    isAdmin: user?.role === 'Admin',
+    isAdmin: (user?.role ?? '').toLowerCase() === 'admin',
     isLoadingUser,
     login,
     register,

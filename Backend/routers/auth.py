@@ -14,7 +14,7 @@ from core.security import hash_password, verify_password, create_access_token
 from core.deps import get_current_user, CurrentUser
 from models.base import get_db
 from models.user import User
-from schemas.auth import UserRegister, UserLogin, TokenResponse, UserResponse
+from schemas.auth import UserRegister, UserLogin, LoginResponse, UserResponse
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
 
@@ -43,12 +43,12 @@ def register(
     return user
 
 
-@router.post("/login", response_model=TokenResponse)
+@router.post("/login", response_model=LoginResponse)
 def login(
     payload: UserLogin,
     db: Annotated[Session, Depends(get_db)],
-) -> TokenResponse:
-    """Login with email/password. Returns JWT. Both Users and Admin can login."""
+) -> LoginResponse:
+    """Login with email/password. Returns JWT and user (including role) so frontend can redirect Admin vs User."""
     user = db.query(User).filter(User.email == payload.email.lower().strip()).first()
     if not user or not verify_password(payload.password, user.hashed_password):
         raise HTTPException(
@@ -56,10 +56,11 @@ def login(
             detail="Invalid email or password",
         )
     token = create_access_token(subject=user.id)
-    return TokenResponse(
+    return LoginResponse(
         access_token=token,
         token_type="bearer",
         expires_in_minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES,
+        user=user,
     )
 
 
