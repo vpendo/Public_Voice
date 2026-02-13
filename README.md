@@ -1,5 +1,7 @@
 # PublicVoice
 
+- **DEMO of Public Voice:** [https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing](https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing)
+
 ## Description
 
 **PublicVoice** is a civic engagement platform for Rwanda that connects citizens with local authorities. Citizens can report community issues (e.g. roads, water, security, sanitation) in **English or Kinyarwanda**; the platform uses **AI/NLP** to translate, rewrite into formal English, and structure reports so admins see clear, actionable content. It promotes transparency, accountability, and data-driven governance.
