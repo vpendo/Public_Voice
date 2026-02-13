@@ -1,56 +1,41 @@
 # PublicVoice
 
-
 ## Description
 
-**PublicVoice** is a civic engagement platform that enables citizens in Rwanda to report community problems and allows local authorities to receive, categorize, and respond to those reports. It strengthens transparency, accountability, and data-driven governance.
+**PublicVoice** is a civic engagement platform for Rwanda that connects citizens with local authorities. Citizens can report community issues (e.g. roads, water, security, sanitation) in **English or Kinyarwanda**; the platform uses **AI/NLP** to translate, rewrite into formal English, and structure reports so admins see clear, actionable content. It promotes transparency, accountability, and data-driven governance.
 
-### Features
+### What it does
 
-- **Citizens (Users)**  
-  - Register and log in  
-  - Submit issues (name, phone, location, institution, category, description)  
-  - View and track their submitted issues (My Issues)  
-  - View admin responses and status (pending / resolved / rejected)  
-  - Profile and language switch (English / Kinyarwanda)
+- **Citizens** – Register, submit issues (with optional language switch EN/RW), track status, and read admin responses.
+- **Admins** – Log in to a dedicated dashboard, view stats and all reports, respond to issues, and manage users. AI-processed reports show both the original submission and the structured (translated/formal) version.
+- **Public** – Home, Services, About, Contact; report a problem; multi-language UI (English / Kinyarwanda).
 
-- **Administrators (Admins)**  
-  - Log in only (no public registration; admins are created via backend script)  
-  - Dashboard with statistics, charts, and recent reports  
-  - List all reports and users  
-  - Update report status and add admin responses  
-  - Respond list and per-issue response workflow  
+---
 
-- **Public**  
-  - Home, Services, About, Contact  
-  - Report a problem (optional auth; name can be pre-filled when logged in)  
-  - Multi-language UI (English, Kinyarwanda)  
-
-### Tech Stack
+## Technology Used
 
 | Layer    | Technology |
 |----------|------------|
-| Frontend | React 19, TypeScript, Vite, Tailwind CSS, React Router, Axios |
-| Backend  | FastAPI, Python 3.10+, JWT (HS256), bcrypt |
-| Database | SQLite (dev) or PostgreSQL (production) |
+| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, React Router, Axios |
+| **Backend**  | FastAPI, Python 3.10+, JWT (HS256), bcrypt, Pydantic |
+| **Database** | SQLite (development) or PostgreSQL (production) |
+| **AI/NLP**   | OpenAI API (optional): translation Kinyarwanda → English, formal rewriting, structuring into JSON fields |
 
 ---
 
 ## GitHub Repository
 
-- **Repository:** [https://github.com/vpendo/Public_Voice.git]  
-  
+- **Repository:** [https://github.com/vpendo/Public_Voice](https://github.com/vpendo/Public_Voice)
 
 ---
 
-## How to Set Up the Environment and Project
+## How to Set Up the Environment and the Project
 
 ### Prerequisites
 
-- **Node.js** 18+ (for frontend)
-- **pnpm** or **npm** (frontend)
+- **Node.js** 18+ and **pnpm** or **npm** (frontend)
 - **Python** 3.10+ and **pip** (backend)
-- **PostgreSQL** (optional; app uses SQLite if `DATABASE_URL` is not set)
+- **PostgreSQL** (optional; SQLite used if `DATABASE_URL` is not set)
 
 ### 1. Clone the repository
 
@@ -59,32 +44,67 @@ git clone https://github.com/vpendo/Public_Voice.git
 cd Public_Voice
 ```
 
-### 2. Backend setup
+### 2. Frontend setup
 
 ```bash
-cd Backend
-python -m venv venv
-# Windows:
-venv\Scripts\activate
-# macOS/Linux:
-# source venv/bin/activate
+cd Frontend
+pnpm install
+# Or: npm install
+```
 
+Create a `.env` file (optional; for local backend URL):
+
+```env
+VITE_API_URL=http://127.0.0.1:8000
+```
+
+Run the frontend:
+
+```bash
+pnpm dev
+# Or: npm run dev
+```
+
+- **App:** http://localhost:5173
+
+### 3. Backend setup
+
+Open a new terminal:
+
+```bash
+cd Public_Voice/Backend
+python -m venv venv
+```
+
+**Activate the virtual environment:**
+
+- **Windows:** `venv\Scripts\activate`
+- **macOS/Linux:** `source venv/bin/activate`
+
+```bash
 pip install -r requirements.txt
-copy env.example .env   # Windows
-# cp env.example .env   # macOS/Linux
+```
+
+Copy environment file and edit:
+
+```bash
+# Windows
+copy env.example .env
+# macOS/Linux
+cp env.example .env
 ```
 
 Edit `.env`:
 
-- Set `SECRET_KEY` (e.g. generate with `openssl rand -hex 32`)
-- Optionally set `DATABASE_URL` for PostgreSQL; otherwise SQLite is used
+- **SECRET_KEY** – required (e.g. `openssl rand -hex 32`)
+- **DATABASE_URL** – optional; omit for SQLite
+- **CORS_ORIGINS** – e.g. `http://localhost:5173`
+- **OPENAI_API_KEY** – optional; set for AI/NLP (translation, formal rewriting, structuring of reports)
 
-Create an admin user (admins log in only; they do not use Register):
+Create an admin user (admins do not use Register; they log in only):
 
 ```bash
 python -m scripts.create_admin
-# Or with env vars (Windows PowerShell):
-# $env:CREATE_ADMIN_EMAIL="admin@example.com"; $env:CREATE_ADMIN_PASSWORD="YourSecurePass1"; python -m scripts.create_admin
 ```
 
 Run the API:
@@ -93,135 +113,105 @@ Run the API:
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-- API: http://localhost:8000  
-- Swagger: http://localhost:8000/docs  
-
-### 3. Frontend setup
-
-Open a new terminal:
-
-```bash
-cd Public_Voice/Frontend
-pnpm install
-# Or: npm install
-```
-
-Optional: create `.env` and set backend URL:
-
-```env
-VITE_API_URL=http://127.0.0.1:8000
-```
-
-Run the app:
-
-```bash
-pnpm dev
-# Or: npm run dev
-```
-
-- App: http://localhost:5173  
+- **API:** http://localhost:8000  
+- **Swagger:** http://localhost:8000/docs  
 
 ### 4. Verify
 
-- Register a citizen account on the frontend, then log in → User dashboard.  
-- Log in with the admin account created above → Admin dashboard.  
-- Submit an issue as a user; respond as admin.
+- Register a citizen account → User dashboard.
+- Log in with the admin account → Admin dashboard.
+- Submit an issue; respond as admin. If `OPENAI_API_KEY` is set, Kinyarwanda/informal text is processed and shown as “Structured report (AI)” in the admin view.
 
 ---
 
-## Designs
+## Designs and Screenshots
 
-This section should include your **design process and deliverables** (wireframes, mockups, style guides, and screenshots of the app).
+This section includes design references and screenshots of the app interfaces. Add your own images to the `docs/screenshots/` folder and ensure the filenames below match (or update the paths in this README).
 
-### Design process and considerations
+### Screenshots of the app interface
 
-- **Wireframes / mockups:** Add links or images of Figma (or other) wireframes and high-fidelity mockups.  
-- **Style guide:** Primary blue palette, typography (e.g. Poppins), spacing, and component patterns.  
-- See **[DESIGN.md](./DESIGN.md)** in this repo for a written summary of UI design decisions and structure.
+| Screen            | Description                              | Screenshot |
+|-------------------|------------------------------------------|------------|
+| **Homepage**      | Landing page, hero, services, CTA        | ![Homepage](docs/screenshots/homepage.png) |
+| **Services**      | Our Services – report, categorize, track | ![Services](docs/screenshots/services.png) |
+| **About**         | About PublicVoice, mission, vision       | ![About](docs/screenshots/about.png) |
+| **Contact**       | Contact form and information             | ![Contact](docs/screenshots/contact.png) |
+| **Register**      | Citizen registration with language switch| ![Register](docs/screenshots/register.png) |
+| **Login**         | Sign in (citizens and admins), EN/RW      | ![Login](docs/screenshots/login.png) |
+| **User Dashboard**| Overview, Submit Issue, My Issues        | ![User Dashboard](docs/screenshots/user-dashboard.png) |
+| **Admin Dashboard**| Stats, charts, recent reports, respond  | ![Admin Dashboard](docs/screenshots/admin-dashboard.png) |
 
-### Screenshots of the app interfaces
-
-Place screenshots here (or in a `/docs` or `/designs` folder) and reference them:
-
-| Screen           | Description                    |
-|------------------|--------------------------------|
-| Home             | Landing page, hero, services   |
-| Login / Register | Auth pages with language switch|
-| User Dashboard   | Overview, Submit Issue, My Issues |
-| Admin Dashboard  | Stats, charts, recent reports  |
-| Report form      | Submit issue (categories, etc.)|
-| Issue detail     | Single issue with status and response |
-
-**Suggested folder:** `docs/screenshots/` or `designs/` – add PNG/JPG files and link them in this README or in DESIGN.md.
+**Adding screenshots:** Place PNG or JPG files in `Public_Voice/docs/screenshots/` with the names above (e.g. `homepage.png`, `services.png`). If you use different names, update the image paths in the table.
 
 ---
 
 ## Deployment Plan
 
-- **Frontend:** Static build (`pnpm build` → `dist/`). Deploy to **Netlify**, **Vercel**, or any static host. Configure redirects so SPA routing works (e.g. `/*` → `index.html`). Set `VITE_API_URL` to the production backend URL.  
-- **Backend:** Run FastAPI on a cloud server or PaaS (e.g. **Railway**, **Render**, **AWS**, **GCP**). Use **PostgreSQL** in production; set `DATABASE_URL`, `SECRET_KEY`, and `CORS_ORIGINS` (frontend origin).  
-- **Database:** Provision PostgreSQL (e.g. managed DB on Railway/Render/AWS). Run migrations or ensure tables exist (backend creates them on startup).  
-- **CI/CD (optional):** GitHub Actions to run tests and deploy frontend/backend on push.
+### Frontend – Netlify
 
-See **[DEPLOYMENT.md](./DEPLOYMENT.md)** for step-by-step deployment instructions and infrastructure notes.
+1. Build the frontend: `cd Frontend && pnpm build` (output in `dist/`).
+2. In [Netlify](https://www.netlify.com/), create a new site and connect the GitHub repo.
+3. **Build settings:**
+   - **Base directory:** `Frontend`
+   - **Build command:** `pnpm install && pnpm build` (or `npm run build`)
+   - **Publish directory:** `Frontend/dist`
+4. **Environment variables:** Set `VITE_API_URL` to your production backend URL (e.g. `https://your-app.onrender.com`).
+5. **Redirects:** Add a redirect rule so SPA routing works: `/*` → `/index.html` (status 200).
+
+### Backend – Render
+
+1. In [Render](https://render.com/), create a new **Web Service** and connect the GitHub repo.
+2. **Build & run:**
+   - **Root directory:** `Backend` (or leave blank if repo root is the backend).
+   - **Build command:** `pip install -r requirements.txt`
+   - **Start command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
+3. **Environment variables:** Set at least:
+   - `SECRET_KEY` (strong random value)
+   - `DATABASE_URL` (Render PostgreSQL or external Postgres)
+   - `CORS_ORIGINS` (your Netlify frontend URL, e.g. `https://your-site.netlify.app`)
+   - `OPENAI_API_KEY` (optional, for AI/NLP)
+4. Use **PostgreSQL** in production; ensure the backend can reach it and tables are created (backend creates them on startup).
+
+### Summary
+
+| Component  | Platform | Notes |
+|------------|----------|--------|
+| **Frontend** | Netlify | Static build from `Frontend/dist`, `VITE_API_URL` → Render URL |
+| **Backend**  | Render  | Web Service, Uvicorn, PostgreSQL, CORS set to Netlify URL |
 
 ---
 
-## Video Demo (5–10 minutes)
-
-- **Minimum 5 minutes, maximum 10 minutes.**  
-- **Focus:** Demonstration of app functionalities (navigation, register/login, user vs admin flows, submitting an issue, viewing and responding as admin, language switch, key screens).  
-- Keep introductions and research description brief; prioritize **showing the working software**.
-
----
-
-## Project structure (code files)
+## Project structure
 
 ```
 Public_Voice/
-├── README.md              # This file (description, setup, designs, deployment)
-├── DESIGN.md              # UI design process, wireframes, style guide
-├── DEPLOYMENT.md          # Deployment plan and infrastructure
-├── Backend/
-│   ├── core/              # config, security (JWT, bcrypt), deps
-│   ├── models/            # User, Report (database schema)
-│   ├── schemas/            # Pydantic (auth, report)
-│   ├── routers/           # auth, reports, users
-│   ├── scripts/           # create_admin, migrations, check_db
-│   ├── main.py            # FastAPI app, CORS, lifespan
-│   ├── requirements.txt
-│   └── env.example
-└── Frontend/
-    ├── src/
-    │   ├── Components/    # Navbar, Footer, Sidebar, LanguageSwitcher, etc.
-    │   ├── Pages/         # Home, Login, Register, Report, Dashboard (user/admin)
-    │   ├── Routes/        # approute.tsx
-    │   ├── contexts/      # AuthContext, LanguageContext
-    │   ├── i18n/          # content.ts (English, Kinyarwanda)
-    │   └── api/           # client, config
-    ├── package.json
-    └── vite.config.ts
+├── README.md           # This file
+├── docs/
+│   └── screenshots/   # Add app screenshots here (homepage, services, about, etc.)
+├── Frontend/
+│   ├── public/        # Static assets (e.g. Image/)
+│   ├── src/
+│   │   ├── Components/
+│   │   ├── Pages/
+│   │   ├── Routes/
+│   │   ├── contexts/
+│   │   ├── i18n/
+│   │   └── api/
+│   ├── package.json
+│   └── vite.config.ts
+└── Backend/
+    ├── core/
+    ├── models/
+    ├── schemas/
+    ├── routers/
+    ├── services/      # e.g. ai_processor.py
+    ├── main.py
+    ├── requirements.txt
+    └── env.example
 ```
-
----
-
-## Database schema (summary)
-
-- **users:** `id`, `full_name`, `email`, `hashed_password`, `role` (User/Admin), `created_at`  
-- **reports:** `id`, `user_id` (nullable), `title`, `name`, `phone`, `location`, `institution`, `category`, `raw_description`, `structured_description`, `admin_response`, `status` (pending/resolved/rejected), `created_at`  
-
-Full schema and API details: see **Backend/README.md**.
-
----
-
-## Rubric alignment (Initial Software Demo)
-
-- **Review requirements & tools:** README and setup show use of React/TypeScript, FastAPI, and a relational database; tools match the FullStack track.  
-- **Development environment setup:** Step-by-step backend (venv, `.env`, create_admin) and frontend (Node, pnpm, `VITE_API_URL`) instructions for a reproducible setup.  
-- **Navigation & layout:** Clear routes (public, user dashboard, admin dashboard), sidebar layout, and protected routes; README and DESIGN.md describe navigation and layout.
 
 ---
 
 ## License
 
-Part of the PublicVoice capstone project.
+MIT License
