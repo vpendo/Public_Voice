@@ -1,25 +1,18 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../../contexts/AuthContext';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import { apiClient } from '../../../api/client';
 import { Send, FileText, MapPin, Phone, Tag } from 'lucide-react';
 
-const CATEGORIES = [
-  { value: 'roads', label: 'Roads & Infrastructure' },
-  { value: 'water', label: 'Water Supply' },
-  { value: 'security', label: 'Security & Safety' },
-  { value: 'sanitation', label: 'Sanitation & Waste' },
-  { value: 'electricity', label: 'Electricity' },
-  { value: 'health', label: 'Health Services' },
-  { value: 'education', label: 'Education' },
-  { value: 'other', label: 'Other' },
-];
+const CATEGORY_KEYS = ['roads', 'water', 'security', 'sanitation', 'electricity', 'health', 'education', 'other'] as const;
 
 const inputClass =
-  'w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] bg-white';
+  'w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] bg-white';
 
 export function SubmitIssue() {
   const { user } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     title: '',
@@ -51,7 +44,7 @@ export function SubmitIssue() {
         err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
           : null;
-      setError(typeof msg === 'string' ? msg : 'Failed to submit. Please try again.');
+      setError(typeof msg === 'string' ? msg : t.user.submitIssue.submitError);
     } finally {
       setSubmitting(false);
     }
@@ -61,20 +54,32 @@ export function SubmitIssue() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
+  const u = t.user.submitIssue;
+  const cats = t.user.categories;
+
   return (
     <div className="space-y-6 font-sans">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Submit Issue</h1>
-        <p className="text-slate-500 mt-0.5">
-          Report a community issue. Authorities will review and respond.
-        </p>
+      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
+        <div>
+          <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+            <span className="w-1 h-4 rounded-full bg-[var(--rwanda-blue)]" />
+            {u.citizenReport}
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{u.title}</h1>
+          <p className="text-slate-500 mt-0.5">{u.subtitle}</p>
+        </div>
       </div>
 
-      <div className="max-w-2xl rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+      <div className="max-w-2xl rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+        <div className="h-1 flex">
+          <div className="flex-1 bg-[var(--rwanda-blue)]" />
+          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
+          <div className="flex-1 bg-[var(--rwanda-green)]" />
+        </div>
         <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/80">
-          <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider flex items-center gap-2">
-            <FileText size={16} />
-            Report form
+          <h2 className="text-sm font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-2">
+            <FileText size={16} className="text-[var(--rwanda-blue)]" />
+            {u.reportForm}
           </h2>
         </div>
         <div className="p-6 md:p-8">
@@ -86,7 +91,7 @@ export function SubmitIssue() {
           <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label htmlFor="title" className="block text-sm font-medium text-slate-700 mb-1.5">
-                Title
+                {u.titleLabel}
               </label>
               <input
                 type="text"
@@ -95,12 +100,12 @@ export function SubmitIssue() {
                 value={formData.title}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder="Short title for the issue"
+                placeholder={u.titlePlaceholder}
               />
             </div>
             <div>
               <label htmlFor="description" className="block text-sm font-medium text-slate-700 mb-1.5">
-                Description <span className="text-red-500">*</span>
+                {u.description} <span className="text-red-500">*</span>
               </label>
               <textarea
                 id="description"
@@ -110,13 +115,13 @@ export function SubmitIssue() {
                 required
                 rows={5}
                 className={`${inputClass} resize-none`}
-                placeholder="Describe the issue in detail (what, where, when)."
+                placeholder={u.descriptionPlaceholder}
               />
             </div>
             <div>
               <label htmlFor="category" className="block text-sm font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
                 <Tag size={14} />
-                Category <span className="text-red-500">*</span>
+                {u.category} <span className="text-red-500">*</span>
               </label>
               <select
                 id="category"
@@ -126,10 +131,10 @@ export function SubmitIssue() {
                 required
                 className={inputClass}
               >
-                <option value="">Select category</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c.value} value={c.value}>
-                    {c.label}
+                <option value="">{u.categoryPlaceholder}</option>
+                {CATEGORY_KEYS.map((key) => (
+                  <option key={key} value={key}>
+                    {cats[key]}
                   </option>
                 ))}
               </select>
@@ -137,7 +142,7 @@ export function SubmitIssue() {
             <div>
               <label htmlFor="phone" className="block text-sm font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
                 <Phone size={14} />
-                Phone <span className="text-red-500">*</span>
+                {u.phone} <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
@@ -147,13 +152,13 @@ export function SubmitIssue() {
                 onChange={handleChange}
                 required
                 className={inputClass}
-                placeholder="e.g. 0781234567"
+                placeholder={u.phonePlaceholder}
               />
             </div>
             <div>
               <label htmlFor="location" className="block text-sm font-medium text-slate-700 mb-1.5 flex items-center gap-1.5">
                 <MapPin size={14} />
-                Location (optional)
+                {u.locationOptional}
               </label>
               <input
                 type="text"
@@ -162,16 +167,16 @@ export function SubmitIssue() {
                 value={formData.location}
                 onChange={handleChange}
                 className={inputClass}
-                placeholder="District, sector, cell or landmark"
+                placeholder={u.locationPlaceholder}
               />
             </div>
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-70 transition-opacity"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 disabled:opacity-70 transition-opacity shadow-md"
             >
               <Send size={18} />
-              {submitting ? 'Submitting...' : 'Submit Issue'}
+              {submitting ? u.submitting : u.submitButton}
             </button>
           </form>
         </div>

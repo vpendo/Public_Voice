@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { LogOut, X } from 'lucide-react';
+import { useLanguage } from '../contexts/LanguageContext';
 
 export interface SidebarItem {
   path: string;
@@ -19,6 +20,7 @@ interface SidebarProps {
 
 export function Sidebar({ items, onLogout, title = 'PublicVoice', mobileOpen = false, onMobileClose }: SidebarProps) {
   const location = useLocation();
+  const { t } = useLanguage();
   const titleParts = title.split(/(?=[A-Z])/);
   const isAdmin = title.toLowerCase().includes('admin');
   const accent = isAdmin ? 'rwanda' : 'primary';
@@ -90,7 +92,7 @@ export function Sidebar({ items, onLogout, title = 'PublicVoice', mobileOpen = f
           className="flex items-center gap-3 w-full px-4 py-3 rounded-xl text-sm font-medium text-slate-500 hover:bg-red-50 hover:text-red-600 transition-colors"
         >
           <LogOut size={20} />
-          Logout
+          {t.dashboard.signOut}
         </button>
       </div>
     </>
