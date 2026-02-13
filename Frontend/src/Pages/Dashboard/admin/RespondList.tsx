@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '../../../api/client';
-import { MessageSquare, ArrowRight, Inbox } from 'lucide-react';
+import { MessageSquare, ArrowRight, Inbox, Shield } from 'lucide-react';
 
 const CATEGORY_LABELS: Record<string, string> = {
   roads: 'Roads & Infrastructure',
@@ -73,13 +73,17 @@ export function RespondList() {
     <div className="space-y-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Respond to Issues</h1>
+          <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <span>Admin</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Respond to Issues</h1>
           <p className="text-slate-500 mt-0.5">
             Select an issue to add or edit your response · {pendingCount} pending
           </p>
         </div>
         {pendingCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 text-sm font-medium">
+          <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 text-amber-800 text-sm font-medium border border-amber-200/80">
             <Inbox size={16} />
             {pendingCount} need response
           </span>
@@ -87,8 +91,9 @@ export function RespondList() {
       </div>
 
       {loading && (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-pulse text-slate-400 text-sm">Loading...</div>
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+          <p className="text-slate-500 text-sm">Loading...</p>
         </div>
       )}
 
@@ -99,9 +104,9 @@ export function RespondList() {
       )}
 
       {!loading && !error && reports.length === 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-16 text-center">
-          <div className="w-20 h-20 rounded-2xl bg-[var(--color-primary-light)] flex items-center justify-center mx-auto mb-6">
-            <MessageSquare size={40} className="text-[var(--color-primary)]" />
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-16 text-center">
+          <div className="w-20 h-20 rounded-2xl bg-[var(--rwanda-blue-light)] flex items-center justify-center mx-auto mb-6">
+            <MessageSquare size={40} className="text-[var(--rwanda-blue)]" />
           </div>
           <h2 className="text-xl font-semibold text-slate-900 mb-2">No issues to respond to</h2>
           <p className="text-slate-500 max-w-sm mx-auto">
@@ -111,22 +116,22 @@ export function RespondList() {
       )}
 
       {!loading && !error && reports.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left min-w-[32rem]">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
+                <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="px-6 py-4">User</th>
+                  <th className="px-6 py-4">Title</th>
+                  <th className="px-6 py-4">Category</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {reports.map((r) => (
-                  <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
+                  <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-slate-900">{r.name}</td>
                     <td className="px-6 py-4 text-slate-700">{r.title || `#${r.id}`}</td>
                     <td className="px-6 py-4 text-slate-600">{CATEGORY_LABELS[r.category] || r.category}</td>
@@ -137,7 +142,7 @@ export function RespondList() {
                     <td className="px-6 py-4 text-right">
                       <Link
                         to={`/admin/respond/${r.id}`}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
                       >
                         View / Respond
                         <ArrowRight size={14} />

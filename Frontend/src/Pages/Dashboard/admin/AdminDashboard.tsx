@@ -10,6 +10,7 @@ import {
   AlertCircle,
   BarChart3,
   PieChart,
+  Shield,
 } from 'lucide-react';
 
 interface ReportItem {
@@ -96,7 +97,6 @@ export function AdminDashboard() {
     return () => { cancelled = true; };
   }, []);
 
-  // Group by category for bar chart
   const byCategory = reports.reduce<Record<string, number>>((acc, r) => {
     const cat = r.category || 'other';
     acc[cat] = (acc[cat] || 0) + 1;
@@ -108,7 +108,6 @@ export function AdminDashboard() {
     .slice(0, 8);
   const maxCategory = Math.max(1, ...categoryData.map((d) => d.value));
 
-  // Status for donut-style breakdown (Tailwind classes for stroke and legend dot)
   const statusData = [
     { label: 'Pending', value: counts.pendingReports, strokeClass: 'stroke-amber-500', dotClass: 'bg-amber-500' },
     { label: 'Resolved', value: counts.resolvedReports, strokeClass: 'stroke-emerald-500', dotClass: 'bg-emerald-500' },
@@ -116,15 +115,15 @@ export function AdminDashboard() {
   ].filter((d) => d.value > 0);
   const totalStatus = statusData.reduce((s, d) => s + d.value, 0) || 1;
 
-  // Recent reports (last 5)
   const recentReports = [...reports]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
     .slice(0, 5);
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <div className="animate-pulse text-slate-400">Loading dashboard...</div>
+      <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
+        <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+        <p className="text-slate-500 text-sm">Loading dashboard...</p>
       </div>
     );
   }
@@ -134,20 +133,24 @@ export function AdminDashboard() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Dashboard</h1>
+          <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <span>Admin overview</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
+            Dashboard
+          </h1>
           <p className="text-slate-500 mt-0.5">
-            {formatDate(new Date().toISOString())} · Overview of reports and users
+            {formatDate(new Date().toISOString())} · Reports and users across Rwanda
           </p>
         </div>
-        <div className="flex gap-2">
-          <Link
-            to="/admin/issues"
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-semibold text-white bg-[var(--color-primary)] hover:opacity-95 transition-opacity shadow-sm"
-          >
-            View all issues
-            <ArrowRight size={16} />
-          </Link>
-        </div>
+        <Link
+          to="/admin/issues"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[var(--rwanda-blue)] hover:opacity-95 transition-opacity shadow-md"
+        >
+          View all issues
+          <ArrowRight size={16} />
+        </Link>
       </div>
 
       {/* Stat cards */}
@@ -158,7 +161,7 @@ export function AdminDashboard() {
               <p className="text-sm font-medium text-slate-500">Total users</p>
               <p className="mt-1 text-3xl font-bold text-slate-900">{counts.users}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--color-primary-light)] text-[var(--color-primary)]">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
               <Users size={24} />
             </div>
           </div>
@@ -200,10 +203,11 @@ export function AdminDashboard() {
 
       {/* Charts row */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Status breakdown (donut-style) */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-6">
-            <PieChart size={20} className="text-slate-500" />
+            <div className="p-2 rounded-lg bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
+              <PieChart size={18} />
+            </div>
             <h2 className="text-lg font-semibold text-slate-900">Reports by status</h2>
           </div>
           {statusData.length === 0 ? (
@@ -250,10 +254,11 @@ export function AdminDashboard() {
           )}
         </div>
 
-        {/* Category bar chart (CSS) */}
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-6">
-            <BarChart3 size={20} className="text-slate-500" />
+            <div className="p-2 rounded-lg bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]">
+              <BarChart3 size={18} />
+            </div>
             <h2 className="text-lg font-semibold text-slate-900">Reports by category</h2>
           </div>
           {categoryData.length === 0 ? (
@@ -271,7 +276,7 @@ export function AdminDashboard() {
                   </div>
                   <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[var(--color-primary)] transition-all duration-500"
+                      className="h-full rounded-full bg-[var(--rwanda-blue)] transition-all duration-500"
                       style={{ width: `${(d.value / maxCategory) * 100}%` }}
                     />
                   </div>
@@ -289,7 +294,7 @@ export function AdminDashboard() {
             <h2 className="text-lg font-semibold text-slate-900">Recent reports</h2>
             <Link
               to="/admin/issues"
-              className="text-sm font-medium text-[var(--color-primary)] hover:underline"
+              className="text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
             >
               View all
             </Link>
@@ -298,7 +303,7 @@ export function AdminDashboard() {
             {recentReports.length === 0 ? (
               <div className="px-6 py-12 text-center text-slate-500 text-sm">No reports yet</div>
             ) : (
-              <table className="w-full text-left">
+              <table className="w-full text-left min-w-[32rem]">
                 <thead>
                   <tr className="bg-slate-50/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
                     <th className="px-6 py-3">ID</th>
@@ -317,7 +322,7 @@ export function AdminDashboard() {
                       </td>
                       <td className="px-6 py-3">
                         <span
-                          className={`inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium ${
+                          className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
                             r.status === 'resolved'
                               ? 'bg-emerald-100 text-emerald-800'
                               : r.status === 'rejected'
@@ -332,7 +337,7 @@ export function AdminDashboard() {
                       <td className="px-6 py-3">
                         <Link
                           to={`/admin/respond/${r.id}`}
-                          className="text-sm font-medium text-[var(--color-primary)] hover:underline"
+                          className="text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
                         >
                           Respond
                         </Link>
@@ -351,7 +356,7 @@ export function AdminDashboard() {
             <div className="space-y-2">
               <Link
                 to="/admin/respond"
-                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-amber-50/50 hover:border-amber-200 transition-colors"
               >
                 <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center text-amber-600">
                   <Clock size={20} />
@@ -377,9 +382,9 @@ export function AdminDashboard() {
               </Link>
               <Link
                 to="/admin/users"
-                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-[var(--rwanda-blue-light)]/50 hover:border-[var(--rwanda-blue)]/30 transition-colors"
               >
-                <div className="w-10 h-10 rounded-lg bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
+                <div className="w-10 h-10 rounded-lg bg-[var(--rwanda-blue-light)] flex items-center justify-center text-[var(--rwanda-blue)]">
                   <Users size={20} />
                 </div>
                 <div className="flex-1 min-w-0">

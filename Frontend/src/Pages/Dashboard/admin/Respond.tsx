@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../../../api/client';
-import { ArrowLeft, Send, MapPin, Tag, Calendar } from 'lucide-react';
+import { ArrowLeft, Send, MapPin, Tag, Calendar, Shield, MessageSquare } from 'lucide-react';
 
 interface ReportItem {
   id: number;
@@ -92,8 +92,9 @@ export function Respond() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <div className="animate-pulse text-slate-400 text-sm">Loading report...</div>
+      <div className="flex flex-col items-center justify-center py-20 gap-4">
+        <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+        <p className="text-slate-500 text-sm">Loading report...</p>
       </div>
     );
   }
@@ -109,16 +110,20 @@ export function Respond() {
   return (
     <div className="space-y-6 font-sans">
       <Link
-        to="/admin/issues"
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--color-primary)] transition-colors"
+        to="/admin/respond"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--rwanda-blue)] transition-colors"
       >
         <ArrowLeft size={18} />
-        Back to All Issues
+        Back to Respond list
       </Link>
 
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">Respond to Issue</h1>
+          <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <span>Admin</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">Respond to Issue</h1>
           <p className="text-slate-500 mt-0.5">
             {report.title || `Report #${report.id}`} · {report.name}
           </p>
@@ -126,7 +131,7 @@ export function Respond() {
         <StatusBadge status={report.status} />
       </div>
 
-      <div className="rounded-2xl border-l-4 border-l-[var(--color-primary)] border border-slate-200 bg-white shadow-sm p-6">
+      <div className="rounded-2xl border-l-4 border-l-[var(--rwanda-blue)] border border-slate-200/80 bg-white shadow-sm p-6">
         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
           <Tag size={16} />
           Citizen report
@@ -150,8 +155,11 @@ export function Respond() {
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200 bg-white shadow-sm p-6">
-        <h2 className="text-lg font-semibold text-slate-900 mb-4">Your response</h2>
+      <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6 md:p-8">
+        <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+          <MessageSquare size={20} className="text-[var(--rwanda-blue)]" />
+          Your response
+        </h2>
         {success && (
           <div className="mb-4 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
             Response saved successfully.
@@ -171,7 +179,7 @@ export function Respond() {
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] bg-white"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] bg-white"
             >
               <option value="pending">Pending</option>
               <option value="resolved">Resolved</option>
@@ -187,14 +195,14 @@ export function Respond() {
               value={response}
               onChange={(e) => setResponse(e.target.value)}
               rows={5}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] resize-none bg-white"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] resize-none bg-white"
               placeholder="Write your response to the citizen..."
             />
           </div>
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-90 disabled:opacity-70 transition-opacity"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 disabled:opacity-70 transition-opacity shadow-md"
           >
             <Send size={18} />
             {submitting ? 'Saving...' : 'Save response'}

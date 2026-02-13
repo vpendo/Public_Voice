@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '../../../api/client';
-import { FileText, ArrowRight, Inbox } from 'lucide-react';
+import { FileText, ArrowRight, Inbox, Shield } from 'lucide-react';
 
 const CATEGORY_LABELS: Record<string, string> = {
   roads: 'Roads & Infrastructure',
@@ -73,24 +73,27 @@ export function AllIssues() {
     <div className="space-y-6 font-sans">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 tracking-tight">All Issues</h1>
+          <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <span>Admin</span>
+          </div>
+          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">All Issues</h1>
           <p className="text-slate-500 mt-0.5">
             View and respond to citizen reports · {reports.length} total
           </p>
         </div>
-        <div className="flex items-center gap-2">
-          {pendingCount > 0 && (
-            <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-amber-50 text-amber-800 text-sm font-medium">
-              <Inbox size={16} />
-              {pendingCount} pending
-            </span>
-          )}
-        </div>
+        {pendingCount > 0 && (
+          <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 text-amber-800 text-sm font-medium border border-amber-200/80">
+            <Inbox size={16} />
+            {pendingCount} pending
+          </span>
+        )}
       </div>
 
       {loading && (
-        <div className="flex items-center justify-center py-20">
-          <div className="animate-pulse text-slate-400 text-sm">Loading issues...</div>
+        <div className="flex flex-col items-center justify-center py-20 gap-4">
+          <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+          <p className="text-slate-500 text-sm">Loading issues...</p>
         </div>
       )}
 
@@ -101,7 +104,7 @@ export function AllIssues() {
       )}
 
       {!loading && !error && reports.length === 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm p-16 text-center">
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-16 text-center">
           <div className="w-20 h-20 rounded-2xl bg-slate-100 flex items-center justify-center mx-auto mb-6">
             <FileText size={40} className="text-slate-400" />
           </div>
@@ -113,22 +116,22 @@ export function AllIssues() {
       )}
 
       {!loading && !error && reports.length > 0 && (
-        <div className="rounded-2xl border border-slate-200 bg-white shadow-sm overflow-hidden">
+        <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           <div className="overflow-x-auto">
-            <table className="w-full text-left">
+            <table className="w-full text-left min-w-[32rem]">
               <thead>
-                <tr className="border-b border-slate-200 bg-slate-50">
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">User</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Title</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Category</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider">Date</th>
-                  <th className="px-6 py-4 text-xs font-semibold text-slate-500 uppercase tracking-wider text-right">Action</th>
+                <tr className="border-b border-slate-200 bg-slate-50/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                  <th className="px-6 py-4">User</th>
+                  <th className="px-6 py-4">Title</th>
+                  <th className="px-6 py-4">Category</th>
+                  <th className="px-6 py-4">Status</th>
+                  <th className="px-6 py-4">Date</th>
+                  <th className="px-6 py-4 text-right">Action</th>
                 </tr>
               </thead>
               <tbody>
                 {reports.map((r) => (
-                  <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-50/80 transition-colors">
+                  <tr key={r.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4 font-medium text-slate-900">{r.name}</td>
                     <td className="px-6 py-4 text-slate-700">{r.title || `#${r.id}`}</td>
                     <td className="px-6 py-4">
@@ -141,7 +144,7 @@ export function AllIssues() {
                     <td className="px-6 py-4 text-right">
                       <Link
                         to={`/admin/respond/${r.id}`}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
                       >
                         View / Respond
                         <ArrowRight size={14} />
