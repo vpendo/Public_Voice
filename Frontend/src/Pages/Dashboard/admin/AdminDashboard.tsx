@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { apiClient } from '../../../api/client';
+import { useLanguage } from '../../../contexts/LanguageContext';
 import {
   Users,
   FileText,
@@ -28,16 +29,18 @@ interface Counts {
   rejectedReports: number;
 }
 
-const CATEGORY_LABELS: Record<string, string> = {
-  roads: 'Roads & Infrastructure',
-  water: 'Water',
-  security: 'Security',
-  sanitation: 'Sanitation',
-  electricity: 'Electricity',
-  health: 'Health',
-  education: 'Education',
-  other: 'Other',
-};
+function getCategoryLabels(t: typeof import('../../../i18n/content').content.English): Record<string, string> {
+  return {
+    roads: t.admin.categories.roads,
+    water: t.admin.categories.water,
+    security: t.admin.categories.security,
+    sanitation: t.admin.categories.sanitation,
+    electricity: t.admin.categories.electricity,
+    health: t.admin.categories.health,
+    education: t.admin.categories.education,
+    other: t.admin.categories.other,
+  };
+}
 
 function formatDate(iso: string) {
   try {
@@ -48,6 +51,8 @@ function formatDate(iso: string) {
 }
 
 export function AdminDashboard() {
+  const { t } = useLanguage();
+  const CATEGORY_LABELS = getCategoryLabels(t);
   const [counts, setCounts] = useState<Counts>({
     users: 0,
     totalReports: 0,
@@ -109,9 +114,9 @@ export function AdminDashboard() {
   const maxCategory = Math.max(1, ...categoryData.map((d) => d.value));
 
   const statusData = [
-    { label: 'Pending', value: counts.pendingReports, strokeClass: 'stroke-amber-500', dotClass: 'bg-amber-500' },
-    { label: 'Resolved', value: counts.resolvedReports, strokeClass: 'stroke-emerald-500', dotClass: 'bg-emerald-500' },
-    { label: 'Rejected', value: counts.rejectedReports, strokeClass: 'stroke-red-500', dotClass: 'bg-red-500' },
+    { label: t.admin.statusPending, value: counts.pendingReports, strokeClass: 'stroke-amber-500', dotClass: 'bg-amber-500' },
+    { label: t.admin.statusResolved, value: counts.resolvedReports, strokeClass: 'stroke-emerald-500', dotClass: 'bg-emerald-500' },
+    { label: t.admin.statusRejected, value: counts.rejectedReports, strokeClass: 'stroke-red-500', dotClass: 'bg-red-500' },
   ].filter((d) => d.value > 0);
   const totalStatus = statusData.reduce((s, d) => s + d.value, 0) || 1;
 
@@ -123,7 +128,7 @@ export function AdminDashboard() {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
         <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
-        <p className="text-slate-500 text-sm">Loading dashboard...</p>
+        <p className="text-slate-500 text-sm">{t.admin.loading}</p>
       </div>
     );
   }
@@ -135,20 +140,20 @@ export function AdminDashboard() {
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
             <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
-            <span>Admin overview</span>
+            <span>{t.admin.overview}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
-            Dashboard
+            {t.admin.dashboardTitle}
           </h1>
           <p className="text-slate-500 mt-0.5">
-            {formatDate(new Date().toISOString())} · Reports and users across Rwanda
+            {formatDate(new Date().toISOString())} · {t.admin.dateReports}
           </p>
         </div>
         <Link
           to="/admin/issues"
           className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[var(--rwanda-blue)] hover:opacity-95 transition-opacity shadow-md"
         >
-          View all issues
+          {t.admin.viewAllIssues}
           <ArrowRight size={16} />
         </Link>
       </div>
@@ -158,7 +163,7 @@ export function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Total users</p>
+              <p className="text-sm font-medium text-slate-500">{t.admin.totalUsers}</p>
               <p className="mt-1 text-3xl font-bold text-slate-900">{counts.users}</p>
             </div>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
@@ -169,7 +174,7 @@ export function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Total reports</p>
+              <p className="text-sm font-medium text-slate-500">{t.admin.totalReports}</p>
               <p className="mt-1 text-3xl font-bold text-slate-900">{counts.totalReports}</p>
             </div>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600">
@@ -180,7 +185,7 @@ export function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Pending</p>
+              <p className="text-sm font-medium text-slate-500">{t.admin.pending}</p>
               <p className="mt-1 text-3xl font-bold text-amber-600">{counts.pendingReports}</p>
             </div>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-amber-50 text-amber-600">
@@ -191,7 +196,7 @@ export function AdminDashboard() {
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">Resolved</p>
+              <p className="text-sm font-medium text-slate-500">{t.admin.resolved}</p>
               <p className="mt-1 text-3xl font-bold text-emerald-600">{counts.resolvedReports}</p>
             </div>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-emerald-50 text-emerald-600">
@@ -208,12 +213,12 @@ export function AdminDashboard() {
             <div className="p-2 rounded-lg bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
               <PieChart size={18} />
             </div>
-            <h2 className="text-lg font-semibold text-slate-900">Reports by status</h2>
+            <h2 className="text-lg font-semibold text-slate-900">{t.admin.reportsByStatus}</h2>
           </div>
           {statusData.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-slate-400">
               <AlertCircle size={40} className="mb-2" />
-              <p className="text-sm">No report data yet</p>
+              <p className="text-sm">{t.admin.noReportData}</p>
             </div>
           ) : (
             <div className="flex flex-wrap gap-6">
@@ -259,12 +264,12 @@ export function AdminDashboard() {
             <div className="p-2 rounded-lg bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]">
               <BarChart3 size={18} />
             </div>
-            <h2 className="text-lg font-semibold text-slate-900">Reports by category</h2>
+            <h2 className="text-lg font-semibold text-slate-900">{t.admin.reportsByCategory}</h2>
           </div>
           {categoryData.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-slate-400">
               <BarChart3 size={40} className="mb-2" />
-              <p className="text-sm">No categories yet</p>
+              <p className="text-sm">{t.admin.noCategoriesYet}</p>
             </div>
           ) : (
             <div className="space-y-4">
@@ -291,25 +296,25 @@ export function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div className="lg:col-span-2 bg-white rounded-2xl border border-slate-200/80 shadow-sm overflow-hidden">
           <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
-            <h2 className="text-lg font-semibold text-slate-900">Recent reports</h2>
+            <h2 className="text-lg font-semibold text-slate-900">{t.admin.recentReports}</h2>
             <Link
               to="/admin/issues"
               className="text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
             >
-              View all
+              {t.admin.viewAll}
             </Link>
           </div>
           <div className="overflow-x-auto">
             {recentReports.length === 0 ? (
-              <div className="px-6 py-12 text-center text-slate-500 text-sm">No reports yet</div>
+              <div className="px-6 py-12 text-center text-slate-500 text-sm">{t.admin.noReportsYet}</div>
             ) : (
               <table className="w-full text-left min-w-[32rem]">
                 <thead>
                   <tr className="bg-slate-50/80 text-xs font-semibold text-slate-500 uppercase tracking-wider">
-                    <th className="px-6 py-3">ID</th>
-                    <th className="px-6 py-3">Category</th>
-                    <th className="px-6 py-3">Status</th>
-                    <th className="px-6 py-3">Date</th>
+                    <th className="px-6 py-3">{t.admin.tableId}</th>
+                    <th className="px-6 py-3">{t.admin.tableCategory}</th>
+                    <th className="px-6 py-3">{t.admin.tableStatus}</th>
+                    <th className="px-6 py-3">{t.admin.tableDate}</th>
                     <th className="px-6 py-3"></th>
                   </tr>
                 </thead>
@@ -330,7 +335,7 @@ export function AdminDashboard() {
                                 : 'bg-amber-100 text-amber-800'
                           }`}
                         >
-                          {r.status}
+                          {r.status === 'resolved' ? t.admin.statusResolved : r.status === 'rejected' ? t.admin.statusRejected : t.admin.statusPending}
                         </span>
                       </td>
                       <td className="px-6 py-3 text-slate-500 text-sm">{formatDate(r.created_at)}</td>
@@ -339,7 +344,7 @@ export function AdminDashboard() {
                           to={`/admin/respond/${r.id}`}
                           className="text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
                         >
-                          Respond
+                          {t.admin.respondLink}
                         </Link>
                       </td>
                     </tr>
@@ -352,7 +357,7 @@ export function AdminDashboard() {
 
         <div className="space-y-4">
           <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
-            <h2 className="text-lg font-semibold text-slate-900 mb-4">Quick actions</h2>
+            <h2 className="text-lg font-semibold text-slate-900 mb-4">{t.admin.quickActions}</h2>
             <div className="space-y-2">
               <Link
                 to="/admin/respond"
@@ -362,8 +367,8 @@ export function AdminDashboard() {
                   <Clock size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-900">Respond to issues</p>
-                  <p className="text-xs text-slate-500">{counts.pendingReports} pending</p>
+                  <p className="font-medium text-slate-900">{t.admin.respondToIssues}</p>
+                  <p className="text-xs text-slate-500">{counts.pendingReports} {t.admin.pendingCount}</p>
                 </div>
                 <ArrowRight size={18} className="text-slate-400" />
               </Link>
@@ -375,8 +380,8 @@ export function AdminDashboard() {
                   <FileText size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-900">All issues</p>
-                  <p className="text-xs text-slate-500">{counts.totalReports} total</p>
+                  <p className="font-medium text-slate-900">{t.admin.allIssues}</p>
+                  <p className="text-xs text-slate-500">{counts.totalReports} {t.admin.totalCount}</p>
                 </div>
                 <ArrowRight size={18} className="text-slate-400" />
               </Link>
@@ -388,8 +393,8 @@ export function AdminDashboard() {
                   <Users size={20} />
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="font-medium text-slate-900">Users</p>
-                  <p className="text-xs text-slate-500">{counts.users} registered</p>
+                  <p className="font-medium text-slate-900">{t.admin.usersLabel}</p>
+                  <p className="text-xs text-slate-500">{counts.users} {t.admin.registered}</p>
                 </div>
                 <ArrowRight size={18} className="text-slate-400" />
               </Link>
