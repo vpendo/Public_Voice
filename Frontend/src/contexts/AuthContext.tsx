@@ -17,7 +17,7 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoadingUser: boolean;
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; user?: UserInfo }>;
+  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; user?: UserInfo; is_admin?: boolean }>;
   register: (fullName: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   getToken: () => string | null;
@@ -108,11 +108,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [token, fetchUser]);
 
   const login = useCallback(
-    async (email: string, password: string): Promise<{ ok: boolean; error?: string; user?: UserInfo }> => {
+    async (email: string, password: string): Promise<{ ok: boolean; error?: string; user?: UserInfo; is_admin?: boolean }> => {
       try {
         const { data } = await apiClient.post<{
           access_token: string;
           user?: UserInfo;
+          is_admin?: boolean;
         }>('/api/auth/login', {
           email: email.trim().toLowerCase(),
           password,
@@ -120,13 +121,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
         const accessToken = data.access_token;
         if (!accessToken) return { ok: false, error: 'Invalid response' };
         persistToken(accessToken);
-        // Backend returns user (with role) in login response so we can redirect Admin vs User correctly
+        const isAdmin = data.is_admin === true;
         if (data.user) {
           setUser(data.user);
-          return { ok: true, user: data.user };
+          return { ok: true, user: data.user, is_admin: isAdmin };
         }
         const me = await fetchUser();
-        return { ok: true, user: me ?? undefined };
+        const userFromMe = me ?? undefined;
+        return { ok: true, user: userFromMe, is_admin: isAdmin || (userFromMe && (userFromMe.role ?? '').trim().toLowerCase() === 'admin') };
       } catch (err) {
         return { ok: false, error: getErrorMessage(err) };
       }
@@ -165,7 +167,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     token,
     user,
     isAuthenticated: !!token,
-    isAdmin: (user?.role ?? '').toLowerCase() === 'admin',
+    isAdmin: (user?.role ?? '').trim().toLowerCase() === 'admin',
     isLoadingUser,
     login,
     register,
