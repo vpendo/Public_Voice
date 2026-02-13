@@ -10,8 +10,8 @@ FastAPI backend for **PublicVoice**, a civic engagement platform. Provides JWT a
 
 ## GitHub Repository
 
-- **Repo:** [Add your GitHub repo link here]  
-  Example: `https://github.com/your-username/Public_Voice`
+- **Repo:** [https://github.com/vpendo/Public_Voice.git]  
+  `
 
 ---
 
