@@ -31,7 +31,7 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
 
   return (
     <nav className="w-full bg-white shadow-sm border-b border-slate-100 sticky top-0 z-50">
-      <div className="w-11/12 mx-auto flex justify-between items-center py-4">
+      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 flex justify-between items-center py-3 sm:py-4">
         {/* Left Side: Logo & Navigation */}
         <div className="flex items-center gap-10">
           <Link 
@@ -188,7 +188,7 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
         <div className="lg:hidden border-t border-slate-100 bg-white">
-          <div className="w-11/12 mx-auto py-4 space-y-3">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 space-y-3">
             {navLinks.map((link) => (
               <Link
                 key={link.path}

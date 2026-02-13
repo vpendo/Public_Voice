@@ -47,7 +47,7 @@ export default function Home() {
             <Megaphone className="w-4 h-4" />
             <span>Rwanda · Civic engagement</span>
           </div>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] text-white tracking-tight drop-shadow-2xl mb-6 animate-fade-up">
+          <h1 className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-bold leading-[1.05] text-white tracking-tight drop-shadow-2xl mb-6 animate-fade-up">
             {t.home.hero.title}
           </h1>
           <p className="text-xl md:text-2xl text-white/95 max-w-2xl mx-auto mb-12 drop-shadow-md leading-relaxed animate-fade-up animation-delay-100">
