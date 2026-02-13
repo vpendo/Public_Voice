@@ -38,8 +38,8 @@
 
 ## GitHub Repository
 
-- **Repository:** [Add your GitHub repo link here]  
-  Example: `https://github.com/your-username/Public_Voice`
+- **Repository:** [https://github.com/vpendo/Public_Voice.git]  
+  
 
 ---
 
@@ -55,7 +55,7 @@
 ### 1. Clone the repository
 
 ```bash
-git clone https://github.com/your-username/Public_Voice.git
+git clone https://github.com/vpendo/Public_Voice.git
 cd Public_Voice
 ```
 
