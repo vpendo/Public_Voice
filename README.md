@@ -174,20 +174,22 @@ The application uses two main tables (SQLite in development, PostgreSQL in produ
 
 ## Designs and Screenshots
 
+
+
 ### Homepage
 Landing page, hero section, and services overview.
 
-![Homepage](Screenshots/home.png)
+![Homepage](Screenshots/Home.png)
 
 ### Services
 Our Services – report problems, smart categorization, track & feedback.
 
-![Services](Screenshots/services.png)
+![Services](Screenshots/Services.png)
 
 ### About
 About PublicVoice, mission, and vision.
 
-![About](Screenshots/about.png)
+![About](Screenshots/About.png)
 
 ### Contact
 Contact form and information.
@@ -197,12 +199,12 @@ Contact form and information.
 ### Register
 Citizen registration with language switch (EN/RW).
 
-![Register](Screenshots/register.png)
+![Register](Screenshots/Register.png)
 
 ### Login
 Sign in for citizens and admins, with language switch.
 
-![Login](Screenshots/login.png)
+![Login](Screenshots/Login.png)
 
 ### User Dashboard
 Overview, Submit Issue, and My Issues.
@@ -262,7 +264,7 @@ Submit an issue (with language switch and optional AI structuring).
 ```
 Public_Voice/
 ├── README.md           # This file
-├── Screenshots/        # App screenshots (homepage.png, services.png, etc.)
+├── Screenshots/        # Home.png, Services.png, About.png, Contact (2).png, Register.png, Login.png, User Dasboard.png, Admin Dashboard.png, Report.png
 ├── Frontend/
 │   ├── public/        # Static assets (e.g. Image/)
 │   ├── src/
