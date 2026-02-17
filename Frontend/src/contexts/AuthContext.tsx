@@ -9,6 +9,7 @@ export interface UserInfo {
   full_name: string;
   email: string;
   role: string;
+  profile_image?: string | null;
 }
 
 interface AuthContextType {
@@ -19,6 +20,9 @@ interface AuthContextType {
   isLoadingUser: boolean;
   login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; user?: UserInfo; is_admin?: boolean }>;
   register: (fullName: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
+  requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string; reset_token?: string }>;
+  resetPassword: (token: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
+  updateProfile: (data: { full_name?: string; profile_image?: File }) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   getToken: () => string | null;
   refreshUser: () => Promise<UserInfo | null>;
@@ -156,6 +160,51 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [login]
   );
 
+  const requestPasswordReset = useCallback(
+    async (email: string): Promise<{ ok: boolean; error?: string; reset_token?: string }> => {
+      try {
+        const { data } = await apiClient.post<{ message: string; reset_token?: string }>(
+          '/api/auth/forgot-password',
+          { email: email.trim().toLowerCase() }
+        );
+        return { ok: true, reset_token: data.reset_token };
+      } catch (err) {
+        return { ok: false, error: getErrorMessage(err) };
+      }
+    },
+    []
+  );
+
+  const resetPassword = useCallback(
+    async (token: string, newPassword: string): Promise<{ ok: boolean; error?: string }> => {
+      try {
+        await apiClient.post('/api/auth/reset-password', { token, new_password: newPassword });
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: getErrorMessage(err) };
+      }
+    },
+    []
+  );
+
+  const updateProfile = useCallback(
+    async (data: { full_name?: string; profile_image?: File }): Promise<{ ok: boolean; error?: string }> => {
+      try {
+        const formData = new FormData();
+        if (data.full_name !== undefined) formData.append('full_name', data.full_name);
+        if (data.profile_image) formData.append('profile_image', data.profile_image);
+        const { data: updated } = await apiClient.patch<UserInfo>('/api/auth/me', formData, {
+          headers: { 'Content-Type': 'multipart/form-data' },
+        });
+        setUser(updated);
+        return { ok: true };
+      } catch (err) {
+        return { ok: false, error: getErrorMessage(err) };
+      }
+    },
+    []
+  );
+
   const logout = useCallback(() => {
     persistToken(null);
     setUser(null);
@@ -171,6 +220,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isLoadingUser,
     login,
     register,
+    requestPasswordReset,
+    resetPassword,
+    updateProfile,
     logout,
     getToken,
     refreshUser: fetchUser,

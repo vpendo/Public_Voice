@@ -51,6 +51,20 @@ class Settings:
             if o.strip()
         ]
 
+        # Email (for forgot-password reset link)
+        self.FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
+        self.SMTP_HOST: str = os.getenv("SMTP_HOST", "").strip()
+        self.SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
+        self.SMTP_USER: str = os.getenv("SMTP_USER", "").strip()
+        self.SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "").strip()
+        self.SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", self.SMTP_USER or "noreply@publicvoice.rw").strip()
+        self.SMTP_USE_TLS: bool = self._to_bool(os.getenv("SMTP_USE_TLS", "true"))
+
+    @property
+    def email_configured(self) -> bool:
+        """True if SMTP is configured so we can send password-reset emails."""
+        return bool(self.SMTP_HOST and self.SMTP_USER and self.SMTP_PASSWORD)
+
     def _to_bool(self, value: str) -> bool:
         return value.lower() in ("true", "1", "yes")
 
