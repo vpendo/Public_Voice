@@ -77,9 +77,8 @@ export default function About() {
         </div>
       </section>
 
-      {/* The problem we solve + image */}
-      <section className="py-20 md:py-28 bg-slate-50 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%2300a651\' fill-opacity=\'0.04\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M0 40L40 0H20L0 20M40 20V40H20M20 20h20v20\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
+      {/* The problem we solve + image - white background */}
+      <section className="py-20 md:py-28 bg-white relative overflow-hidden">
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
@@ -110,11 +109,11 @@ export default function About() {
         </div>
       </section>
 
-      {/* Mission & Vision - Rwanda blue & green */}
-      <section className="py-20 md:py-28 bg-white">
+      {/* Mission & Vision - light background, blue accent */}
+      <section className="py-20 md:py-28 bg-slate-50/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
-            <div className="bg-slate-50 p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--color-primary)] hover:shadow-lg transition-shadow">
+            <div className="bg-white p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--color-primary)] hover:shadow-lg transition-shadow">
               <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                 <Target className="w-10 h-10" />
               </div>
@@ -125,7 +124,7 @@ export default function About() {
                 {t.about.mission.description}
               </p>
             </div>
-            <div className="bg-slate-50 p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--color-primary)] hover:shadow-lg transition-shadow">
+            <div className="bg-white p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--color-primary)] hover:shadow-lg transition-shadow">
               <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                 <Eye className="w-10 h-10" />
               </div>
@@ -140,33 +139,34 @@ export default function About() {
         </div>
       </section>
 
-      {/* CTA - Rwanda green */}
-      <section className="py-20 md:py-28 bg-[var(--color-primary)] text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4">
+      {/* CTA - white background, blue button */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">
             Ready to make an impact?
           </h2>
-          <p className="text-lg text-white/90 mb-8 max-w-2xl mx-auto">
+          <p className="text-lg text-slate-600 mb-8 max-w-2xl mx-auto">
             Report an issue in your area or get in touch with our team.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/report"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[var(--color-primary)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-95 transition-colors shadow-lg"
             >
               Report a problem
               <ArrowRight className="w-5 h-5" />
             </Link>
             <Link
               to="/contact"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-white/80 text-white font-semibold rounded-xl hover:bg-white/10 transition-colors"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 border-2 border-[var(--color-primary)] text-[var(--color-primary)] font-semibold rounded-xl hover:bg-[var(--color-primary-light)] transition-colors"
             >
               Contact us
             </Link>
           </div>
         </div>
       </section>
+      {/* Light strip above footer so footer matches Contact page look */}
+      <div className="h-4 bg-white" aria-hidden />
     </div>
   );
 }

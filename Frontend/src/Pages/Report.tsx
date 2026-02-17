@@ -68,7 +68,7 @@ export default function Report() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      {/* Hero - RGB blue */}
+      {/* Hero - */}
       <section className="relative bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary-hover)] to-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
@@ -85,8 +85,8 @@ export default function Report() {
         </div>
       </section>
 
-      {/* Form + sidebar */}
-      <section className="py-16 md:py-24 bg-slate-50/50">
+      {/* Form + sidebar - white background, blue submit button */}
+      <section className="py-16 md:py-24 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 lg:gap-12">
             {/* Form */}
@@ -216,7 +216,7 @@ export default function Report() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
+                    className="w-full px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                   >
                     <Send size={20} />
                     {submitting ? 'Submitting...' : t.report.form.button}
@@ -274,6 +274,8 @@ export default function Report() {
           </div>
         </div>
       </section>
+      {/* Light strip above footer (match Contact, Home, Services, About) */}
+      <div className="h-4 bg-white" aria-hidden />
     </div>
   );
 }

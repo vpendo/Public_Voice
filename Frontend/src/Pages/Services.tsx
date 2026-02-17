@@ -57,9 +57,8 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Services grid - Rwanda colors per card */}
-      <section className="py-20 md:py-28 bg-slate-50 relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%232063d5\' fill-opacity=\'0.04\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M0 40L40 0H20L0 20M40 20V40H20M20 20h20v20\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
+      {/* Services grid - white background, blue accents */}
+      <section className="py-20 md:py-28 bg-white relative overflow-hidden">
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
             <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-3">
@@ -170,25 +169,26 @@ export default function Services() {
         </div>
       </section>
 
-      {/* CTA - Rwanda green like Home */}
-      <section className="py-20 md:py-28 bg-[var(--color-primary)] text-white relative overflow-hidden">
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
-        <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
-          <h2 className="text-3xl md:text-4xl font-bold">
+      {/* CTA - white background, blue button */}
+      <section className="py-20 md:py-28 bg-white">
+        <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
+          <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
             Ready to report an issue?
           </h2>
-          <p className="mt-4 text-lg text-white/90">
+          <p className="mt-4 text-lg text-slate-600">
             Submit your report in a few steps. We route it to the right department and keep you updated.
           </p>
           <Link
             to="/report"
-            className="mt-8 inline-flex items-center gap-2 px-8 py-4 bg-white text-[var(--color-primary)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
+            className="mt-8 inline-flex items-center gap-2 px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-95 transition-colors shadow-lg"
           >
             {t.services.button}
             <ArrowRight className="w-5 h-5" />
           </Link>
         </div>
       </section>
+      {/* Light strip above footer so footer matches Contact page look */}
+      <div className="h-4 bg-white" aria-hidden />
     </div>
   );
 }
