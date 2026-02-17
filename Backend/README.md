@@ -60,6 +60,15 @@ Edit `.env`:
   - **Formal rewriting** (informal → formal)
   - **Structuring** (title, category, institution)
   The result is stored as `structured_description` and shown to admins in the dashboard. Without this key, only the raw submission is stored. Get an API key from [OpenAI](https://platform.openai.com/api-keys). Example: `OPENAI_API_KEY=sk-your-key-here`
+- **Email (forgot password)** – optional. To send password-reset links by email, set:
+  - **FRONTEND_URL** – base URL of your frontend (e.g. `http://localhost:5173` or `https://your-app.com`). Used to build the reset link in the email.
+  - **SMTP_HOST** – e.g. `smtp.gmail.com`, `smtp.outlook.com`
+  - **SMTP_PORT** – usually `587` (TLS) or `465` (SSL)
+  - **SMTP_USER** – your email address
+  - **SMTP_PASSWORD** – app password (for Gmail, create one under Google Account → Security → 2-Step Verification → App passwords)
+  - **SMTP_FROM_EMAIL** – optional; defaults to SMTP_USER
+  - **SMTP_USE_TLS** – `true` (default) or `false`
+  If these are not set, forgot-password still creates a reset token; in **DEBUG** mode the API returns the token so the frontend can show a “Reset password” link on the page for development.
 
 ### Create admin user
 

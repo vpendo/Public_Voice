@@ -8,6 +8,8 @@ import logging
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, Request
+from fastapi.staticfiles import StaticFiles
+from pathlib import Path
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 from fastapi.middleware.cors import CORSMiddleware
@@ -80,6 +82,11 @@ async def validation_exception_handler(_request: Request, exc: RequestValidation
 app.include_router(auth.router)
 app.include_router(reports.router)
 app.include_router(users.router)
+
+# Serve uploaded files (e.g. profile images)
+uploads_dir = Path(__file__).resolve().parent / "uploads"
+uploads_dir.mkdir(exist_ok=True)
+app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
 
 @app.get("/")

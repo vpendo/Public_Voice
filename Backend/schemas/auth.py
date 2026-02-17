@@ -52,6 +52,7 @@ class UserResponse(BaseModel):
     full_name: str
     email: str
     role: str
+    profile_image: str | None = None  # URL path e.g. /uploads/avatars/1_xxx.jpg
 
     class Config:
         from_attributes = True
@@ -65,3 +66,34 @@ class LoginResponse(BaseModel):
     expires_in_minutes: int
     user: UserResponse
     is_admin: bool = False  # True when user.role is Admin – frontend uses this for redirect
+
+
+class ForgotPasswordRequest(BaseModel):
+    """Request password reset by email."""
+
+    email: str = Field(..., min_length=1, strip_whitespace=True)
+
+
+class ForgotPasswordResponse(BaseModel):
+    """Response for forgot-password. reset_token only in DEBUG for development."""
+
+    message: str
+    reset_token: str | None = None  # Only set when DEBUG=true so dev can build reset link
+
+
+class ResetPasswordRequest(BaseModel):
+    """Reset password with token from forgot-password."""
+
+    token: str = Field(..., min_length=1)
+    new_password: str = Field(..., min_length=8, max_length=128)
+
+    @field_validator("new_password")
+    @classmethod
+    def password_strength(cls, v: str) -> str:
+        if len(v) < 8:
+            raise ValueError("Password must be at least 8 characters")
+        if not any(c.isdigit() for c in v):
+            raise ValueError("Password must contain at least one digit")
+        if not any(c.isalpha() for c in v):
+            raise ValueError("Password must contain at least one letter")
+        return v

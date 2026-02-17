@@ -9,7 +9,7 @@ const LOGIN_IMAGE = '/Image/home%203.jpg';
 
 export default function Login() {
   const { t } = useLanguage();
-  const { login, refreshUser } = useAuth();
+  const { login, refreshUser, requestPasswordReset } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +19,12 @@ export default function Login() {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState('');
+  const [forgotLoading, setForgotLoading] = useState(false);
+  const [forgotError, setForgotError] = useState<string | null>(null);
+  const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
+  const [resetTokenFromForgot, setResetTokenFromForgot] = useState<string | null>(null);
 
   const passwordError = passwordTouched && !formData.password.trim();
 
@@ -75,6 +81,30 @@ export default function Login() {
     if (e.target.name === 'password') setPasswordTouched(true);
   };
 
+  const handleForgotSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setForgotError(null);
+    setForgotSuccess(null);
+    setResetTokenFromForgot(null);
+    // Use the same value shown in the input (forgotEmail or prefill from login formData.email)
+    const email = (forgotEmail || formData.email).trim();
+    if (!email || !email.includes('@') || !email.includes('.')) {
+      setForgotError('Please enter a valid email address.');
+      return;
+    }
+    setForgotLoading(true);
+    const result = await requestPasswordReset(email);
+    setForgotLoading(false);
+    if (!result.ok) {
+      setForgotError(result.error ?? 'Request failed');
+      return;
+    }
+    setForgotSuccess(t.login.resetLinkSent ?? "If an account exists for this email, we've sent instructions to reset your password.");
+    if (result.reset_token) {
+      setResetTokenFromForgot(result.reset_token);
+    }
+  };
+
   return (
     <div className="min-h-screen flex flex-col lg:flex-row font-poppins">
       {/* Left panel */}
@@ -110,8 +140,83 @@ export default function Login() {
             </Link>
 
             {/* Headline */}
-            <p className="text-sm mt-4 mb-8 text-slate-500">{t.login.signInHeadline}</p>
+            <p className="text-sm mt-4 mb-8 text-slate-500">
+              {showForgotPassword ? t.login.forgotPasswordTitle : t.login.signInHeadline}
+            </p>
 
+            {/* Forgot password view */}
+            {showForgotPassword ? (
+              <>
+                {forgotError && (
+                  <div className="mb-4 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600">
+                    {forgotError}
+                  </div>
+                )}
+                {forgotSuccess && (
+                  <div className="mb-4 p-3 rounded-xl text-sm bg-green-50 border border-green-200 text-green-600 space-y-2">
+                    <p>{forgotSuccess}</p>
+                    {resetTokenFromForgot && (
+                      <p className="pt-2 border-t border-green-200">
+                        <span className="font-medium">{t.login.devResetLink}</span>
+                        <br />
+                        <Link
+                          to={`/reset-password?token=${encodeURIComponent(resetTokenFromForgot)}`}
+                          className="text-[var(--color-primary)] underline break-all"
+                        >
+                          Reset password
+                        </Link>
+                      </p>
+                    )}
+                  </div>
+                )}
+                {!forgotSuccess && (
+                  <form onSubmit={handleForgotSubmit} className="space-y-5">
+                    <p className="text-slate-600 text-sm mb-4">{t.login.forgotPasswordInstructions}</p>
+                    <div>
+                      <label htmlFor="forgot-email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                        {t.login.email}
+                      </label>
+                      <div className="relative">
+                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                          <Mail size={18} />
+                        </span>
+                        <input
+                          type="email"
+                          id="forgot-email"
+                          value={forgotEmail || formData.email}
+                          onChange={(e) => setForgotEmail(e.target.value)}
+                          className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                          placeholder={t.login.emailPlaceholder}
+                        />
+                      </div>
+                    </div>
+                    <button
+                      type="submit"
+                      disabled={forgotLoading}
+                      className={`w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-white font-semibold rounded-xl transition-colors ${
+                        forgotLoading ? 'bg-[var(--color-primary)] opacity-70' : 'bg-[var(--color-primary)] hover:opacity-95'
+                      }`}
+                    >
+                      {forgotLoading ? '...' : t.login.sendResetLink}
+                    </button>
+                  </form>
+                )}
+                <button
+                  type="button"
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setForgotError(null);
+                    setForgotSuccess(null);
+                    setResetTokenFromForgot(null);
+                  }}
+                  className="mt-4 w-full inline-flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-[var(--color-primary)] transition-colors"
+                >
+                  <ArrowLeft size={16} />
+                  {t.login.backToSignIn}
+                </button>
+              </>
+            ) : (
+              <>
             {/* Success & Error messages */}
             {success && (
               <div className="mb-4 p-3 rounded-xl text-sm bg-green-50 border border-green-200 text-green-600">
@@ -154,7 +259,14 @@ export default function Login() {
                   <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
                     {t.login.password}
                   </label>
-                  <button type="button" className="text-sm font-medium text-[var(--color-primary)]">
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setShowForgotPassword(true);
+                      setForgotEmail(formData.email);
+                    }}
+                    className="text-sm font-medium text-[var(--color-primary)] hover:underline"
+                  >
                     {t.login.forgotPassword}
                   </button>
                 </div>
@@ -212,23 +324,28 @@ export default function Login() {
             </form>
 
             {/* Sign Up */}
-            <p className="mt-8 text-center text-sm text-slate-500">
-              {t.login.noAccount}{' '}
-              <Link to="/register" className="font-semibold text-[var(--color-primary)]">
-                {t.login.signUp}
-              </Link>
-            </p>
+            </>
+            )}
 
-            {/* Back to home - bottom */}
-            <p className="mt-6 text-center">
-              <Link
-                to="/"
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-[var(--color-primary)] transition-colors"
-              >
-                <ArrowLeft size={14} />
-                {t.login.backToHome.replace('← ', '')}
-              </Link>
-            </p>
+            {!showForgotPassword && (
+              <>
+                <p className="mt-8 text-center text-sm text-slate-500">
+                  {t.login.noAccount}{' '}
+                  <Link to="/register" className="font-semibold text-[var(--color-primary)]">
+                    {t.login.signUp}
+                  </Link>
+                </p>
+                <p className="mt-6 text-center">
+                  <Link
+                    to="/"
+                    className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-[var(--color-primary)] transition-colors"
+                  >
+                    <ArrowLeft size={14} />
+                    {t.login.backToHome.replace('← ', '')}
+                  </Link>
+                </p>
+              </>
+            )}
           </div>
         </div>
       </div>
