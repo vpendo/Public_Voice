@@ -43,7 +43,7 @@ export function Users() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <Shield className="w-4 h-4 text-[var(--color-primary)]" />
             <span>{t.admin.adminLabel}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
@@ -54,7 +54,7 @@ export function Users() {
           </p>
         </div>
         <div className="flex gap-2">
-          <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)] text-sm font-medium border border-[var(--rwanda-blue)]/20">
+          <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--color-primary-light)] text-[var(--color-primary)] text-sm font-medium border border-[var(--color-primary)]/20">
             <Shield size={16} />
             {adminCount} {p.adminBadge}
           </span>
@@ -67,7 +67,7 @@ export function Users() {
 
       {loading && (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-xl border-2 border-[var(--color-primary)] border-t-transparent animate-spin" />
           <p className="text-slate-500 text-sm">{p.loading}</p>
         </div>
       )}
@@ -104,7 +104,7 @@ export function Users() {
                   <tr key={u.id} className="border-b border-slate-100 hover:bg-slate-50/50 transition-colors">
                     <td className="px-6 py-4">
                       <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-full bg-[var(--rwanda-blue-light)] flex items-center justify-center text-[var(--rwanda-blue)]">
+                        <div className="w-10 h-10 rounded-full bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
                           <User size={18} />
                         </div>
                         <span className="font-medium text-slate-900">{u.full_name}</span>
@@ -120,7 +120,7 @@ export function Users() {
                       <span
                         className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium ${
                           u.role === 'Admin'
-                            ? 'bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]'
+                            ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                             : 'bg-slate-100 text-slate-700'
                         }`}
                       >

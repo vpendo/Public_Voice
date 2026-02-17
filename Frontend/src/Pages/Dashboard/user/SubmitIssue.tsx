@@ -8,7 +8,7 @@ import { Send, FileText, MapPin, Phone, Tag } from 'lucide-react';
 const CATEGORY_KEYS = ['roads', 'water', 'security', 'sanitation', 'electricity', 'health', 'education', 'other'] as const;
 
 const inputClass =
-  'w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] bg-white';
+  'w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] bg-white';
 
 export function SubmitIssue() {
   const { user } = useAuth();
@@ -62,7 +62,7 @@ export function SubmitIssue() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-2">
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-            <span className="w-1 h-4 rounded-full bg-[var(--rwanda-blue)]" />
+            <span className="w-1 h-4 rounded-full bg-[var(--color-primary)]" />
             {u.citizenReport}
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{u.title}</h1>
@@ -71,14 +71,10 @@ export function SubmitIssue() {
       </div>
 
       <div className="max-w-2xl rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-        <div className="h-1 flex">
-          <div className="flex-1 bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 bg-[var(--rwanda-green)]" />
-        </div>
+        <div className="h-1 bg-[var(--color-primary)]" />
         <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/80">
           <h2 className="text-sm font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-2">
-            <FileText size={16} className="text-[var(--rwanda-blue)]" />
+            <FileText size={16} className="text-[var(--color-primary)]" />
             {u.reportForm}
           </h2>
         </div>
@@ -173,7 +169,7 @@ export function SubmitIssue() {
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 disabled:opacity-70 transition-opacity shadow-md"
+              className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-95 disabled:opacity-70 transition-opacity shadow-md"
             >
               <Send size={18} />
               {submitting ? u.submitting : u.submitButton}

@@ -53,18 +53,14 @@ export function UserDashboard() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* Welcome header – Rwanda identity */}
+      {/* Welcome header – RGB blue */}
       <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-        <div className="h-1.5 flex">
-          <div className="flex-1 bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 bg-[var(--rwanda-green)]" />
-        </div>
+        <div className="h-1.5 bg-[var(--color-primary)]" />
         <div className="p-6 md:p-8">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <p className="text-slate-500 text-sm font-medium flex items-center gap-2 mb-1">
-                <Sparkles size={16} className="text-[var(--rwanda-blue)]" />
+                <Sparkles size={16} className="text-[var(--color-primary)]" />
                 {formatDate(new Date().toISOString())}
               </p>
               <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
@@ -74,14 +70,14 @@ export function UserDashboard() {
                 {t.user.dashboard.tagline}
               </p>
             </div>
-            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-[var(--rwanda-blue-light)] flex items-center justify-center text-[var(--rwanda-blue)]">
+            <div className="flex-shrink-0 w-16 h-16 rounded-2xl bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
               <Megaphone size={32} />
             </div>
           </div>
         </div>
       </div>
 
-      {/* Stat cards – Rwanda blue, yellow, green */}
+      {/* Stat cards – RGB blue */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
         <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
@@ -89,7 +85,7 @@ export function UserDashboard() {
               <p className="text-sm font-medium text-slate-500">{t.user.dashboard.totalReports}</p>
               <p className="mt-1 text-3xl font-bold text-slate-900">{stats.total}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[var(--rwanda-blue-light)] flex items-center justify-center text-[var(--rwanda-blue)]">
+            <div className="w-12 h-12 rounded-xl bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
               <FileText size={24} />
             </div>
           </div>
@@ -98,9 +94,9 @@ export function UserDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">{t.user.dashboard.pending}</p>
-              <p className="mt-1 text-3xl font-bold text-[var(--rwanda-yellow)]">{stats.pending}</p>
+              <p className="mt-1 text-3xl font-bold text-slate-600">{stats.pending}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[var(--rwanda-yellow-light)] flex items-center justify-center text-[var(--rwanda-yellow)]">
+            <div className="w-12 h-12 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
               <Clock size={24} />
             </div>
           </div>
@@ -109,9 +105,9 @@ export function UserDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-slate-500">{t.user.dashboard.resolved}</p>
-              <p className="mt-1 text-3xl font-bold text-[var(--rwanda-green)]">{stats.resolved}</p>
+              <p className="mt-1 text-3xl font-bold text-[var(--color-primary)]">{stats.resolved}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl bg-[var(--rwanda-green-light)] flex items-center justify-center text-[var(--rwanda-green)]">
+            <div className="w-12 h-12 rounded-xl bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
               <CheckCircle size={24} />
             </div>
           </div>
@@ -127,7 +123,7 @@ export function UserDashboard() {
           </p>
           <Link
             to="/user/submit"
-            className="inline-flex items-center gap-2 px-5 py-3 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 transition-opacity shadow-md"
+            className="inline-flex items-center gap-2 px-5 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-95 transition-opacity shadow-md"
           >
             <PlusCircle size={20} />
             {t.user.dashboard.submitNewIssue}
@@ -136,24 +132,24 @@ export function UserDashboard() {
         </div>
         <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6">
           <h3 className="text-sm font-semibold text-slate-700 mb-4 flex items-center gap-2">
-            <span className="w-1 h-5 rounded-full bg-[var(--rwanda-blue)]" />
+            <span className="w-1 h-5 rounded-full bg-[var(--color-primary)]" />
             {t.user.dashboard.howItWorks}
           </h3>
           <ol className="space-y-4 text-sm text-slate-600">
             <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)] font-bold flex items-center justify-center text-xs">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold flex items-center justify-center text-xs">
                 1
               </span>
               <span>{t.user.dashboard.step1}</span>
             </li>
             <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--rwanda-yellow-light)] text-[var(--rwanda-yellow)] font-bold flex items-center justify-center text-xs">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-slate-100 text-slate-600 font-bold flex items-center justify-center text-xs">
                 2
               </span>
               <span>{t.user.dashboard.step2}</span>
             </li>
             <li className="flex gap-3">
-              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)] font-bold flex items-center justify-center text-xs">
+              <span className="flex-shrink-0 w-6 h-6 rounded-full bg-[var(--color-primary-light)] text-[var(--color-primary)] font-bold flex items-center justify-center text-xs">
                 3
               </span>
               <span>{t.user.dashboard.step3}</span>
@@ -168,7 +164,7 @@ export function UserDashboard() {
           <p className="text-slate-600 text-sm">{t.user.dashboard.viewMyIssues}</p>
           <Link
             to="/user/issues"
-            className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
+            className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline"
           >
             {t.user.dashboard.myIssues}
             <ArrowRight size={16} />

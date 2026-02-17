@@ -31,8 +31,8 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      {/* Hero - Rwanda colors */}
-      <section className="relative bg-gradient-to-br from-[var(--rwanda-blue)] via-slate-800 to-[var(--rwanda-green)] text-white overflow-hidden">
+      {/* Hero - RGB blue */}
+      <section className="relative bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary-hover)] to-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75 mb-4">
@@ -44,11 +44,6 @@ export default function Contact() {
           <p className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
             {t.contact.hero.description}
           </p>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 z-10 h-2 flex pointer-events-none">
-          <div className="flex-1 bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 bg-[var(--rwanda-green)]" />
         </div>
       </section>
 
@@ -82,7 +77,7 @@ export default function Contact() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] transition-colors"
+                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors"
                     placeholder={t.contact.form.namePlaceholder}
                   />
                 </div>
@@ -97,7 +92,7 @@ export default function Contact() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] transition-colors"
+                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors"
                     placeholder={t.contact.form.emailPlaceholder}
                   />
                 </div>
@@ -112,13 +107,13 @@ export default function Contact() {
                     onChange={handleChange}
                     required
                     rows={5}
-                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] transition-colors resize-none"
+                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors resize-none"
                     placeholder={t.contact.form.messagePlaceholder}
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full px-8 py-4 bg-[var(--rwanda-blue)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 shadow-lg"
+                  className="w-full px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 shadow-lg"
                 >
                   <Send size={20} />
                   {t.contact.form.button}
@@ -134,7 +129,7 @@ export default function Contact() {
                 </h2>
                 <div className="space-y-6">
                   <div className="flex items-start gap-4">
-                    <div className="p-3 rounded-xl flex-shrink-0 bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
+                    <div className="p-3 rounded-xl flex-shrink-0 bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                       <Mail className="w-6 h-6" />
                     </div>
                     <div>
@@ -143,20 +138,20 @@ export default function Contact() {
                       </h3>
                       <a
                         href="mailto:contact@publicvoice.org"
-                        className="text-slate-600 hover:text-[var(--rwanda-blue)] transition-colors block"
+                        className="text-slate-600 hover:text-[var(--color-primary)] transition-colors block"
                       >
                         contact@publicvoice.org
                       </a>
                       <a
                         href="mailto:support@publicvoice.org"
-                        className="text-slate-600 hover:text-[var(--rwanda-blue)] transition-colors block"
+                        className="text-slate-600 hover:text-[var(--color-primary)] transition-colors block"
                       >
                         support@publicvoice.org
                       </a>
                     </div>
                   </div>
                   <div className="flex items-start gap-4">
-                    <div className="p-3 rounded-xl flex-shrink-0 bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]">
+                    <div className="p-3 rounded-xl flex-shrink-0 bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                       <MapPin className="w-6 h-6" />
                     </div>
                     <div>
@@ -175,7 +170,7 @@ export default function Contact() {
 
               <Link
                 to="/report"
-                className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 transition-opacity"
+                className="flex items-center justify-center gap-2 w-full px-6 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-95 transition-opacity"
               >
                 Report a problem
                 <ArrowRight className="w-5 h-5" />

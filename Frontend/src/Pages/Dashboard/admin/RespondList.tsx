@@ -84,7 +84,7 @@ export function RespondList() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <Shield className="w-4 h-4 text-[var(--color-primary)]" />
             <span>{t.admin.adminLabel}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{p.title}</h1>
@@ -102,7 +102,7 @@ export function RespondList() {
 
       {loading && (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-xl border-2 border-[var(--color-primary)] border-t-transparent animate-spin" />
           <p className="text-slate-500 text-sm">{p.loading}</p>
         </div>
       )}
@@ -115,8 +115,8 @@ export function RespondList() {
 
       {!loading && !error && reports.length === 0 && (
         <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-16 text-center">
-          <div className="w-20 h-20 rounded-2xl bg-[var(--rwanda-blue-light)] flex items-center justify-center mx-auto mb-6">
-            <MessageSquare size={40} className="text-[var(--rwanda-blue)]" />
+          <div className="w-20 h-20 rounded-2xl bg-[var(--color-primary-light)] flex items-center justify-center mx-auto mb-6">
+            <MessageSquare size={40} className="text-[var(--color-primary)]" />
           </div>
           <h2 className="text-xl font-semibold text-slate-900 mb-2">{p.emptyTitle}</h2>
           <p className="text-slate-500 max-w-sm mx-auto">{p.emptyHint}</p>
@@ -150,7 +150,7 @@ export function RespondList() {
                     <td className="px-6 py-4 text-right">
                       <Link
                         to={`/admin/respond/${r.id}`}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline"
                       >
                         {t.admin.viewRespond}
                         <ArrowRight size={14} />

@@ -127,7 +127,7 @@ export function AdminDashboard() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center min-h-[400px] gap-4">
-        <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+        <div className="w-10 h-10 rounded-xl border-2 border-[var(--color-primary)] border-t-transparent animate-spin" />
         <p className="text-slate-500 text-sm">{t.admin.loading}</p>
       </div>
     );
@@ -139,7 +139,7 @@ export function AdminDashboard() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <Shield className="w-4 h-4 text-[var(--color-primary)]" />
             <span>{t.admin.overview}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
@@ -151,7 +151,7 @@ export function AdminDashboard() {
         </div>
         <Link
           to="/admin/issues"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[var(--rwanda-blue)] hover:opacity-95 transition-opacity shadow-md"
+          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[var(--color-primary)] hover:opacity-95 transition-opacity shadow-md"
         >
           {t.admin.viewAllIssues}
           <ArrowRight size={16} />
@@ -166,7 +166,7 @@ export function AdminDashboard() {
               <p className="text-sm font-medium text-slate-500">{t.admin.totalUsers}</p>
               <p className="mt-1 text-3xl font-bold text-slate-900">{counts.users}</p>
             </div>
-            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
+            <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-[var(--color-primary-light)] text-[var(--color-primary)]">
               <Users size={24} />
             </div>
           </div>
@@ -210,7 +210,7 @@ export function AdminDashboard() {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-lg bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
+            <div className="p-2 rounded-lg bg-[var(--color-primary-light)] text-[var(--color-primary)]">
               <PieChart size={18} />
             </div>
             <h2 className="text-lg font-semibold text-slate-900">{t.admin.reportsByStatus}</h2>
@@ -261,7 +261,7 @@ export function AdminDashboard() {
 
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6">
           <div className="flex items-center gap-2 mb-6">
-            <div className="p-2 rounded-lg bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]">
+            <div className="p-2 rounded-lg bg-[var(--color-primary-light)] text-[var(--color-primary)]">
               <BarChart3 size={18} />
             </div>
             <h2 className="text-lg font-semibold text-slate-900">{t.admin.reportsByCategory}</h2>
@@ -281,7 +281,7 @@ export function AdminDashboard() {
                   </div>
                   <div className="h-2.5 bg-slate-100 rounded-full overflow-hidden">
                     <div
-                      className="h-full rounded-full bg-[var(--rwanda-blue)] transition-all duration-500"
+                      className="h-full rounded-full bg-[var(--color-primary)] transition-all duration-500"
                       style={{ width: `${(d.value / maxCategory) * 100}%` }}
                     />
                   </div>
@@ -299,7 +299,7 @@ export function AdminDashboard() {
             <h2 className="text-lg font-semibold text-slate-900">{t.admin.recentReports}</h2>
             <Link
               to="/admin/issues"
-              className="text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
+              className="text-sm font-medium text-[var(--color-primary)] hover:underline"
             >
               {t.admin.viewAll}
             </Link>
@@ -342,7 +342,7 @@ export function AdminDashboard() {
                       <td className="px-6 py-3">
                         <Link
                           to={`/admin/respond/${r.id}`}
-                          className="text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
+                          className="text-sm font-medium text-[var(--color-primary)] hover:underline"
                         >
                           {t.admin.respondLink}
                         </Link>
@@ -387,9 +387,9 @@ export function AdminDashboard() {
               </Link>
               <Link
                 to="/admin/users"
-                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-[var(--rwanda-blue-light)]/50 hover:border-[var(--rwanda-blue)]/30 transition-colors"
+                className="flex items-center gap-3 p-3 rounded-xl border border-slate-200 hover:bg-[var(--color-primary-light)]/50 hover:border-[var(--color-primary)]/30 transition-colors"
               >
-                <div className="w-10 h-10 rounded-lg bg-[var(--rwanda-blue-light)] flex items-center justify-center text-[var(--rwanda-blue)]">
+                <div className="w-10 h-10 rounded-lg bg-[var(--color-primary-light)] flex items-center justify-center text-[var(--color-primary)]">
                   <Users size={20} />
                 </div>
                 <div className="flex-1 min-w-0">

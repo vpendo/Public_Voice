@@ -23,15 +23,12 @@ export function Sidebar({ items, onLogout, title = 'PublicVoice', mobileOpen = f
   const { t } = useLanguage();
   const titleParts = title.split(/(?=[A-Z])/);
   const isAdmin = title.toLowerCase().includes('admin');
-  const accent = isAdmin ? 'rwanda' : 'primary';
   const closeDrawer = () => onMobileClose?.();
 
   const linkClass = (isActive: boolean) =>
     `flex items-center gap-3 px-4 py-3 rounded-xl text-sm font-medium transition-colors ${
       isActive
-        ? accent === 'rwanda'
-          ? 'bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]'
-          : 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
+        ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
         : 'text-slate-500 hover:bg-slate-50 hover:text-slate-700'
     }`;
 
@@ -44,13 +41,7 @@ export function Sidebar({ items, onLogout, title = 'PublicVoice', mobileOpen = f
           onClick={closeDrawer}
         >
           <span className="text-slate-800">{titleParts[0]}</span>
-          <span
-            className={
-              accent === 'rwanda'
-                ? 'text-[var(--rwanda-blue)]'
-                : 'text-[var(--color-primary)]'
-            }
-          >
+          <span className="text-[var(--color-primary)]">
             {titleParts.slice(1).join('')}
           </span>
         </Link>

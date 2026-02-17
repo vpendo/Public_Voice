@@ -56,7 +56,7 @@ export default function Home() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center animate-fade-up animation-delay-200">
             <Link
               to="/services"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--rwanda-blue)] text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:opacity-95 hover:scale-[1.02] active:scale-[0.98]"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl transition-all duration-300 shadow-lg hover:opacity-95 hover:scale-[1.02] active:scale-[0.98]"
             >
               {t.home.hero.exploreServices}
               <ArrowRight className="w-5 h-5" />
@@ -68,12 +68,6 @@ export default function Home() {
               {t.home.hero.getInTouch}
             </Link>
           </div>
-        </div>
-        {/* Rwanda flag–inspired stripe */}
-        <div className="absolute bottom-0 left-0 right-0 z-10 h-2 flex pointer-events-none">
-          <div className="flex-1 bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 bg-[var(--rwanda-green)]" />
         </div>
         <div className="absolute bottom-0 left-0 right-0 h-24 bg-gradient-to-t from-white to-transparent pointer-events-none" />
       </section>
@@ -88,10 +82,10 @@ export default function Home() {
                 alt="Rwandan community"
                 className="w-full h-full object-cover"
               />
-              <div className="absolute inset-0 ring-4 ring-inset ring-[var(--rwanda-green)]/30 rounded-2xl pointer-events-none" />
+              <div className="absolute inset-0 ring-4 ring-inset ring-[var(--color-primary)]/30 rounded-2xl pointer-events-none" />
             </div>
             <div>
-              <div className="inline-flex items-center gap-2 text-[var(--rwanda-green)] font-semibold text-sm uppercase tracking-wider mb-4">
+              <div className="inline-flex items-center gap-2 text-[var(--color-primary)] font-semibold text-sm uppercase tracking-wider mb-4">
                 <MapPin className="w-4 h-4" />
                 <span>Nationwide</span>
               </div>
@@ -103,7 +97,7 @@ export default function Home() {
               </p>
               <Link
                 to="/report"
-                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 transition-opacity"
+                className="inline-flex items-center gap-2 px-6 py-3.5 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-95 transition-opacity"
               >
                 {t.home.forCitizens.reportCta}
                 <ArrowRight className="w-5 h-5" />
@@ -121,7 +115,7 @@ export default function Home() {
             <img src={IMG.steps} alt="" className="w-full aspect-[21/9] object-cover" />
           </div>
           <div className="text-center mb-12">
-            <p className="text-sm font-semibold uppercase tracking-widest text-[var(--rwanda-blue)] mb-3">
+            <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-3">
               Process
             </p>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900">
@@ -135,12 +129,12 @@ export default function Home() {
             {STEPS.map(({ key, icon: Icon }, index) => (
               <div
                 key={key}
-                className="group relative bg-white p-8 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 text-center border border-slate-100 border-t-4 border-t-[var(--rwanda-blue)]"
+                className="group relative bg-white p-8 rounded-2xl shadow-md hover:shadow-xl transition-all duration-300 text-center border border-slate-100 border-t-4 border-t-[var(--color-primary)]"
               >
-                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[var(--rwanda-blue)] text-white text-sm font-bold flex items-center justify-center shadow">
+                <div className="absolute -top-3 left-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[var(--color-primary)] text-white text-sm font-bold flex items-center justify-center shadow">
                   {index + 1}
                 </div>
-                <div className="inline-flex p-4 rounded-2xl mb-6 bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)] group-hover:scale-105 transition-transform duration-300">
+                <div className="inline-flex p-4 rounded-2xl mb-6 bg-[var(--color-primary-light)] text-[var(--color-primary)] group-hover:scale-105 transition-transform duration-300">
                   <Icon className="w-10 h-10" />
                 </div>
                 <h3 className="text-2xl font-bold mb-3 text-slate-900">
@@ -159,7 +153,7 @@ export default function Home() {
       <section className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center mb-16">
-            <p className="text-sm font-semibold uppercase tracking-widest text-[var(--rwanda-blue)] mb-3">
+            <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-3">
               For citizens & government
             </p>
             <h2 className="text-4xl md:text-5xl font-bold text-slate-900">
@@ -167,26 +161,12 @@ export default function Home() {
             </h2>
           </div>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {WHY_ITEMS.map(({ key, icon: Icon, color }) => (
+            {WHY_ITEMS.map(({ key, icon: Icon }) => (
               <div
                 key={key}
-                className={`group bg-white p-8 rounded-2xl shadow-md hover:shadow-xl border border-slate-100 border-l-4 transition-all duration-300 flex flex-col items-start text-left ${
-                  color === 'blue'
-                    ? 'border-l-[var(--rwanda-blue)]'
-                    : color === 'yellow'
-                      ? 'border-l-[var(--rwanda-yellow)]'
-                      : 'border-l-[var(--rwanda-green)]'
-                }`}
+                className="group bg-white p-8 rounded-2xl shadow-md hover:shadow-xl border border-slate-100 border-l-4 border-l-[var(--color-primary)] transition-all duration-300 flex flex-col items-start text-left"
               >
-                <div
-                  className={`inline-flex p-3 rounded-xl mb-5 ${
-                    color === 'blue'
-                      ? 'bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]'
-                      : color === 'yellow'
-                        ? 'bg-[var(--rwanda-yellow-light)] text-[var(--rwanda-yellow)]'
-                        : 'bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]'
-                  }`}
-                >
+                <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                   <Icon className="w-9 h-9" />
                 </div>
                 <h3 className="text-xl font-bold mb-2 text-slate-900">
@@ -201,8 +181,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* CTA - Rwanda green */}
-      <section className="py-20 md:py-28 bg-[var(--rwanda-green)] text-white relative overflow-hidden">
+      {/* CTA - RGB blue */}
+      <section className="py-20 md:py-28 bg-[var(--color-primary)] text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-4xl md:text-5xl font-bold mb-6">
@@ -213,7 +193,7 @@ export default function Home() {
           </p>
           <Link
             to="/report"
-            className="inline-flex items-center gap-2 px-10 py-4 bg-white text-[var(--rwanda-green)] font-semibold rounded-xl text-lg transition-all duration-300 shadow-xl hover:bg-white/95 hover:scale-[1.02] active:scale-[0.98]"
+            className="inline-flex items-center gap-2 px-10 py-4 bg-white text-[var(--color-primary)] font-semibold rounded-xl text-lg transition-all duration-300 shadow-xl hover:bg-white/95 hover:scale-[1.02] active:scale-[0.98]"
           >
             {t.home.cta.button}
             <ArrowRight className="w-5 h-5" />

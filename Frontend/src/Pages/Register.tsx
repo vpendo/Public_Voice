@@ -54,7 +54,7 @@ export default function Register() {
       {/* Left panel - Image */}
       <div className="lg:w-[48%] relative min-h-[40vh] lg:min-h-screen overflow-hidden order-2 lg:order-1">
         <img src={REGISTER_IMAGE} alt="Public Voice" className="absolute inset-0 w-full h-full object-cover" />
-        <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-8 lg:px-12 bg-gradient-to-br from-blue-600/50 via-slate-900/60 to-slate-900/90">
+        <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-8 lg:px-12 bg-gradient-to-br from-[var(--color-primary)]/60 via-slate-900/60 to-slate-900/90">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg bg-white/20">
             <Megaphone className="w-8 h-8 text-white" />
           </div>
@@ -70,7 +70,7 @@ export default function Register() {
           <LanguageSwitcher />
           <Link
             to="/"
-            className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-blue-600 transition-colors"
+            className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--color-primary)] transition-colors"
             aria-label="Back to home"
           >
             <Home size={18} />
@@ -83,8 +83,8 @@ export default function Register() {
             {/* Logo - click to go home */}
             <Link to="/" className="inline-block mb-1">
               <span className="text-2xl font-bold text-slate-900">Public</span>
-              <span className="text-2xl font-bold text-blue-600">Voice</span>
-              <span className="block h-0.5 rounded-full mt-0.5 w-full bg-blue-600" />
+              <span className="text-2xl font-bold text-[var(--color-primary)]">Voice</span>
+              <span className="block h-0.5 rounded-full mt-0.5 w-full bg-[var(--color-primary)]" />
             </Link>
 
             {/* Headline */}
@@ -115,7 +115,7 @@ export default function Register() {
                     value={formData.fullName}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 text-slate-900"
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
                     placeholder={t.register.fullNamePlaceholder}
                   />
                 </div>
@@ -137,7 +137,7 @@ export default function Register() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 text-slate-900"
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
                     placeholder={t.register.emailPlaceholder}
                   />
                 </div>
@@ -159,7 +159,7 @@ export default function Register() {
                     value={formData.password}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-600/30 focus:border-blue-600 text-slate-900"
+                    className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
                     placeholder={t.register.passwordPlaceholder}
                   />
                   <button
@@ -179,7 +179,7 @@ export default function Register() {
                 type="submit"
                 disabled={loading}
                 className={`w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-white font-semibold rounded-xl transition-colors ${
-                  loading ? 'bg-blue-600 opacity-70' : 'bg-blue-600 hover:bg-blue-700'
+                  loading ? 'bg-[var(--color-primary)] opacity-70' : 'bg-[var(--color-primary)] hover:opacity-95'
                 }`}
               >
                 {loading ? '...' : t.register.button}
@@ -190,7 +190,7 @@ export default function Register() {
             {/* Sign in link */}
             <p className="mt-8 text-center text-sm text-slate-500">
               {t.register.hasAccount}{' '}
-              <Link to="/login" className="font-semibold text-blue-600">
+              <Link to="/login" className="font-semibold text-[var(--color-primary)]">
                 {t.register.signIn}
               </Link>
             </p>
@@ -199,7 +199,7 @@ export default function Register() {
             <p className="mt-6 text-center">
               <Link
                 to="/"
-                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-blue-600 transition-colors"
+                className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-[var(--color-primary)] transition-colors"
               >
                 <ArrowLeft size={14} />
                 {t.register.backToHome.replace('← ', '')}

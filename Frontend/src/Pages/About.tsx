@@ -13,8 +13,8 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      {/* Hero - Rwanda colors */}
-      <section className="relative bg-gradient-to-br from-[var(--rwanda-blue)] via-slate-800 to-[var(--rwanda-green)] text-white overflow-hidden">
+      {/* Hero - RGB blue */}
+      <section className="relative bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary-hover)] to-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75 mb-4">
@@ -26,11 +26,6 @@ export default function About() {
           <p className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
             {t.about.hero.description}
           </p>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 z-10 h-2 flex pointer-events-none">
-          <div className="flex-1 bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 bg-[var(--rwanda-green)]" />
         </div>
       </section>
 
@@ -44,9 +39,9 @@ export default function About() {
       </section>
 
       {/* Serving all of Rwanda */}
-      <section className="py-16 md:py-20 bg-[var(--rwanda-blue)]/5 border-y border-slate-200/80">
+      <section className="py-16 md:py-20 bg-[var(--color-primary)]/5 border-y border-slate-200/80">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
-          <div className="inline-flex items-center gap-2 text-[var(--rwanda-blue)] font-semibold text-sm uppercase tracking-wider mb-4">
+          <div className="inline-flex items-center gap-2 text-[var(--color-primary)] font-semibold text-sm uppercase tracking-wider mb-4">
             <MapPin className="w-4 h-4" />
             <span>Nationwide</span>
           </div>
@@ -65,10 +60,10 @@ export default function About() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[4/3] lg:aspect-auto lg:min-h-[360px]">
               <img src={IMG.whoWeAre} alt="" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 ring-4 ring-inset ring-[var(--rwanda-blue)]/20 rounded-2xl pointer-events-none" />
+              <div className="absolute inset-0 ring-4 ring-inset ring-[var(--color-primary)]/20 rounded-2xl pointer-events-none" />
             </div>
             <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-[var(--rwanda-blue)] mb-3">
+              <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-3">
                 Our story
               </p>
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-6">
@@ -88,7 +83,7 @@ export default function About() {
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
-              <p className="text-sm font-semibold uppercase tracking-widest text-[var(--rwanda-green)] mb-3">
+              <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-3">
                 Why we exist
               </p>
               <h2 className="text-3xl md:text-4xl font-bold text-slate-900 mb-8">
@@ -102,7 +97,7 @@ export default function About() {
                   t.about.problem.issue4,
                 ].map((text, i) => (
                   <li key={i} className="flex items-start gap-3">
-                    <CheckCircle2 className="w-6 h-6 flex-shrink-0 mt-0.5 text-[var(--rwanda-green)]" />
+                    <CheckCircle2 className="w-6 h-6 flex-shrink-0 mt-0.5 text-[var(--color-primary)]" />
                     <span className="text-slate-600 leading-relaxed">{text}</span>
                   </li>
                 ))}
@@ -119,8 +114,8 @@ export default function About() {
       <section className="py-20 md:py-28 bg-white">
         <div className="max-w-6xl mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
-            <div className="bg-slate-50 p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--rwanda-blue)] hover:shadow-lg transition-shadow">
-              <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]">
+            <div className="bg-slate-50 p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--color-primary)] hover:shadow-lg transition-shadow">
+              <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                 <Target className="w-10 h-10" />
               </div>
               <h2 className="text-2xl font-bold mb-4 text-slate-900">
@@ -130,8 +125,8 @@ export default function About() {
                 {t.about.mission.description}
               </p>
             </div>
-            <div className="bg-slate-50 p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--rwanda-green)] hover:shadow-lg transition-shadow">
-              <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]">
+            <div className="bg-slate-50 p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--color-primary)] hover:shadow-lg transition-shadow">
+              <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--color-primary-light)] text-[var(--color-primary)]">
                 <Eye className="w-10 h-10" />
               </div>
               <h2 className="text-2xl font-bold mb-4 text-slate-900">
@@ -146,7 +141,7 @@ export default function About() {
       </section>
 
       {/* CTA - Rwanda green */}
-      <section className="py-20 md:py-28 bg-[var(--rwanda-green)] text-white relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-[var(--color-primary)] text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4">
@@ -158,7 +153,7 @@ export default function About() {
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Link
               to="/report"
-              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[var(--rwanda-green)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
+              className="inline-flex items-center justify-center gap-2 px-8 py-4 bg-white text-[var(--color-primary)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
             >
               Report a problem
               <ArrowRight className="w-5 h-5" />

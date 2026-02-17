@@ -37,9 +37,9 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
           <Link 
             to="/" 
             className="text-2xl font-bold tracking-tighter transition-colors"
-            style={{ color: '#0066CC' }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#0052A3'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#0066CC'}
+            style={{ color: 'var(--color-primary)' }}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-primary-hover)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = 'var(--color-primary)'; }}
           >
             PublicVoice
           </Link>
@@ -52,12 +52,12 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
                 to={link.path}
                 className="transition-colors duration-200"
                 style={isActive(link.path) 
-                  ? { color: '#0066CC', fontWeight: '600' }
+                  ? { color: 'var(--color-primary)', fontWeight: '600' }
                   : { color: '#64748B' }
                 }
                 onMouseEnter={(e) => {
                   if (!isActive(link.path)) {
-                    e.currentTarget.style.color = '#0066CC';
+                    e.currentTarget.style.color = 'var(--color-primary)';
                   }
                 }}
                 onMouseLeave={(e) => {
@@ -81,8 +81,8 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
               className="flex items-center gap-2 bg-slate-50 px-4 py-2 rounded-lg transition-all border border-slate-200"
               style={{ color: '#64748B' }}
               onMouseEnter={(e) => {
-                e.currentTarget.style.backgroundColor = '#E3F2FD';
-                e.currentTarget.style.color = '#0066CC';
+                e.currentTarget.style.backgroundColor = 'var(--color-primary-bg)';
+                e.currentTarget.style.color = 'var(--color-primary)';
               }}
               onMouseLeave={(e) => {
                 e.currentTarget.style.backgroundColor = '#F8FAFC';
@@ -107,13 +107,13 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
                       onClick={() => { onLangChange(lang); setIsLangOpen(false); }}
                       className="w-full text-left px-4 py-3 text-sm font-medium transition-colors"
                       style={currentLang === lang 
-                        ? { color: '#0066CC', backgroundColor: '#E3F2FD' }
+                        ? { color: 'var(--color-primary)', backgroundColor: 'var(--color-primary-bg)' }
                         : { color: '#64748B' }
                       }
                       onMouseEnter={(e) => {
                         if (currentLang !== lang) {
                           e.currentTarget.style.backgroundColor = '#F8FAFC';
-                          e.currentTarget.style.color = '#0066CC';
+                          e.currentTarget.style.color = 'var(--color-primary)';
                         }
                       }}
                       onMouseLeave={(e) => {
@@ -141,8 +141,8 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
                   to={isAdmin ? '/admin/dashboard' : '/user/dashboard'}
                   className="flex items-center gap-2 text-sm font-medium transition-colors px-3 py-2"
                   style={{ color: '#64748B' }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-primary)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; }}
                 >
                   <LayoutDashboard size={18} /> Dashboard
                 </Link>
@@ -153,17 +153,17 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
                   to="/login"
                   className="flex items-center gap-2 text-sm font-medium transition-colors px-3 py-2"
                   style={{ color: '#64748B' }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-primary)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; }}
                 >
                   <LogIn size={18} /> {t.login}
                 </Link>
                 <Link
                   to="/register"
                   className="flex items-center gap-2 text-white px-5 py-2 rounded-lg font-medium shadow-sm transition-all"
-                  style={{ backgroundColor: '#0066CC' }}
-                  onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
-                  onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
+                  style={{ backgroundColor: 'var(--color-primary)' }}
+                  onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
                 >
                   <UserPlus size={18} /> {t.register}
                 </Link>
@@ -176,8 +176,8 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className="lg:hidden p-2 transition-colors"
             style={{ color: '#64748B' }}
-            onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
-            onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+            onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-primary)'; }}
+            onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; }}
             aria-label="Toggle menu"
           >
             {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
@@ -196,12 +196,12 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="block px-4 py-2 rounded-lg transition-colors"
                 style={isActive(link.path)
-                  ? { color: '#0066CC', fontWeight: '600', backgroundColor: '#E3F2FD' }
+                  ? { color: 'var(--color-primary)', fontWeight: '600', backgroundColor: 'var(--color-primary-bg)' }
                   : { color: '#64748B' }
                 }
                 onMouseEnter={(e) => {
                   if (!isActive(link.path)) {
-                    e.currentTarget.style.color = '#0066CC';
+                    e.currentTarget.style.color = 'var(--color-primary)';
                     e.currentTarget.style.backgroundColor = '#F8FAFC';
                   }
                 }}
@@ -222,8 +222,8 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
                   onClick={() => setIsMobileMenuOpen(false)}
                   className="flex items-center gap-2 px-4 py-2 transition-colors"
                   style={{ color: '#64748B' }}
-                  onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
-                  onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+                  onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-primary)'; }}
+                  onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; }}
                 >
                   <LayoutDashboard size={18} /> Dashboard
                 </Link>
@@ -234,8 +234,8 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 transition-colors"
                     style={{ color: '#64748B' }}
-                    onMouseEnter={(e) => e.currentTarget.style.color = '#0066CC'}
-                    onMouseLeave={(e) => e.currentTarget.style.color = '#64748B'}
+                    onMouseEnter={(e) => { e.currentTarget.style.color = 'var(--color-primary)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.color = '#64748B'; }}
                   >
                     <LogIn size={18} /> {t.login}
                   </Link>
@@ -243,9 +243,9 @@ export const Navbar = ({ currentLang, onLangChange }: NavbarProps) => {
                     to="/register"
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="flex items-center gap-2 px-4 py-2 text-white rounded-lg font-medium transition-colors"
-                    style={{ backgroundColor: '#0066CC' }}
-                    onMouseEnter={(e) => e.currentTarget.style.backgroundColor = '#0052A3'}
-                    onMouseLeave={(e) => e.currentTarget.style.backgroundColor = '#0066CC'}
+                    style={{ backgroundColor: 'var(--color-primary)' }}
+                    onMouseEnter={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)'; }}
+                    onMouseLeave={(e) => { e.currentTarget.style.backgroundColor = 'var(--color-primary)'; }}
                   >
                     <UserPlus size={18} /> {t.register}
                   </Link>

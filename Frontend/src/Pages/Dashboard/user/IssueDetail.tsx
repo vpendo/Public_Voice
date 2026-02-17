@@ -27,10 +27,10 @@ function StatusBadge({ status, label }: { status: string; label?: string }) {
   const s = status.toLowerCase();
   const classes =
     s === 'resolved'
-      ? 'bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]'
+      ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
       : s === 'rejected'
         ? 'bg-red-100 text-red-800'
-        : 'bg-[var(--rwanda-yellow-light)] text-[var(--rwanda-yellow)]';
+        : 'bg-[var(--color-primary-light)] text-[var(--color-primary)]';
   return (
     <span className={`inline-flex items-center px-2.5 py-1 rounded-full text-xs font-medium ${classes}`}>
       {label ?? status}
@@ -65,7 +65,7 @@ export function IssueDetail() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+        <div className="w-10 h-10 rounded-xl border-2 border-[var(--color-primary)] border-t-transparent animate-spin" />
         <p className="text-slate-500 text-sm">{t.user.issueDetail.loading}</p>
       </div>
     );
@@ -82,7 +82,7 @@ export function IssueDetail() {
     <div className="space-y-6 font-sans">
       <Link
         to="/user/issues"
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--rwanda-blue)] transition-colors"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--color-primary)] transition-colors"
       >
         <ArrowLeft size={18} />
         {t.user.issueDetail.backToIssues}
@@ -91,7 +91,7 @@ export function IssueDetail() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-            <span className="w-1 h-4 rounded-full bg-[var(--rwanda-blue)]" />
+            <span className="w-1 h-4 rounded-full bg-[var(--color-primary)]" />
             {t.user.issueDetail.issueDetail}
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
@@ -103,14 +103,10 @@ export function IssueDetail() {
       </div>
 
       <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
-        <div className="h-1 flex">
-          <div className="flex-1 bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 bg-[var(--rwanda-green)]" />
-        </div>
+        <div className="h-1 bg-[var(--color-primary)]" />
         <div className="p-6">
         <h2 className="text-sm font-semibold text-slate-600 uppercase tracking-wider mb-3 flex items-center gap-2">
-          <Tag size={16} className="text-[var(--rwanda-blue)]" />
+          <Tag size={16} className="text-[var(--color-primary)]" />
           {t.user.issueDetail.yourReport}
         </h2>
         <p className="text-slate-800 whitespace-pre-wrap leading-relaxed">{report.raw_description}</p>
@@ -134,8 +130,8 @@ export function IssueDetail() {
       </div>
 
       {report.admin_response ? (
-        <div className="rounded-2xl border-l-4 border-l-[var(--rwanda-green)] border border-slate-200/80 bg-[var(--rwanda-green-light)]/50 p-6">
-          <h2 className="text-sm font-semibold text-[var(--rwanda-green)] uppercase tracking-wider mb-3 flex items-center gap-2">
+        <div className="rounded-2xl border-l-4 border-l-[var(--color-primary)] border border-slate-200/80 bg-[var(--color-primary-light)]/50 p-6">
+          <h2 className="text-sm font-semibold text-[var(--color-primary)] uppercase tracking-wider mb-3 flex items-center gap-2">
             <MessageSquare size={16} />
             {t.user.issueDetail.responseFromAuthorities}
           </h2>

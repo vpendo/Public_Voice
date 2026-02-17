@@ -18,7 +18,7 @@ export const Footer = ({ currentLang }: FooterProps) => {
   ];
 
   return (
-    <footer className="text-white mt-auto" style={{ backgroundColor: '#0066CC' }}>
+    <footer className="text-white mt-auto" style={{ backgroundColor: 'var(--color-primary)' }}>
       <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
@@ -33,13 +33,15 @@ export const Footer = ({ currentLang }: FooterProps) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg transition-all duration-200 hover:scale-110"
-                style={{ backgroundColor: '#0052A3' }}
+                style={{ backgroundColor: 'var(--color-primary-hover)' }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#003D7A';
+                  e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
+                  e.currentTarget.style.filter = 'brightness(0.9)';
                   e.currentTarget.style.transform = 'scale(1.1)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#0052A3';
+                  e.currentTarget.style.backgroundColor = 'var(--color-primary-hover)';
+                  e.currentTarget.style.filter = 'none';
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
                 aria-label="Facebook"
@@ -51,13 +53,13 @@ export const Footer = ({ currentLang }: FooterProps) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg transition-all duration-200 hover:scale-110"
-                style={{ backgroundColor: '#0052A3' }}
+                style={{ backgroundColor: 'var(--color-primary-hover)' }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#003D7A';
+                  e.currentTarget.style.filter = 'brightness(0.9)';
                   e.currentTarget.style.transform = 'scale(1.1)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#0052A3';
+                  e.currentTarget.style.filter = 'none';
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
                 aria-label="Twitter"
@@ -69,13 +71,13 @@ export const Footer = ({ currentLang }: FooterProps) => {
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 rounded-lg transition-all duration-200 hover:scale-110"
-                style={{ backgroundColor: '#0052A3' }}
+                style={{ backgroundColor: 'var(--color-primary-hover)' }}
                 onMouseEnter={(e) => {
-                  e.currentTarget.style.backgroundColor = '#003D7A';
+                  e.currentTarget.style.filter = 'brightness(0.9)';
                   e.currentTarget.style.transform = 'scale(1.1)';
                 }}
                 onMouseLeave={(e) => {
-                  e.currentTarget.style.backgroundColor = '#0052A3';
+                  e.currentTarget.style.filter = 'none';
                   e.currentTarget.style.transform = 'scale(1)';
                 }}
                 aria-label="LinkedIn"
@@ -223,7 +225,7 @@ export const Footer = ({ currentLang }: FooterProps) => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 pt-8" style={{ borderTop: '1px solid #0052A3' }}>
+        <div className="mt-8 pt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.2)' }}>
           <div className="text-center">
             <p className="text-sm" style={{ color: '#E0F2F1' }}>
               {t.footer.copyright}

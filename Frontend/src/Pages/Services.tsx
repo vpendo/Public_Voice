@@ -25,7 +25,7 @@ export default function Services() {
   return (
     <div className="min-h-screen bg-white font-sans">
       {/* Hero - Rwanda colors */}
-      <section className="relative bg-gradient-to-br from-[var(--rwanda-blue)] via-slate-800 to-[var(--rwanda-green)] text-white overflow-hidden">
+      <section className="relative bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary-hover)] to-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75 mb-4">
@@ -40,7 +40,7 @@ export default function Services() {
           <div className="mt-10 flex flex-wrap gap-4">
             <Link
               to="/report"
-              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-[var(--rwanda-green)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
+              className="inline-flex items-center gap-2 px-6 py-3.5 bg-white text-[var(--color-primary)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
             >
               {t.services.button}
               <ArrowRight className="w-5 h-5" />
@@ -54,9 +54,6 @@ export default function Services() {
           </div>
         </div>
         <div className="absolute bottom-0 left-0 right-0 z-10 h-2 flex pointer-events-none">
-          <div className="flex-1 bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 bg-[var(--rwanda-green)]" />
         </div>
       </section>
 
@@ -65,7 +62,7 @@ export default function Services() {
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'40\' height=\'40\' viewBox=\'0 0 40 40\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%232063d5\' fill-opacity=\'0.04\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M0 40L40 0H20L0 20M40 20V40H20M20 20h20v20\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
           <div className="text-center max-w-2xl mx-auto mb-16">
-            <p className="text-sm font-semibold uppercase tracking-widest text-[var(--rwanda-blue)] mb-3">
+            <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-3">
               What we offer
             </p>
             <h2 className="text-3xl md:text-4xl font-bold text-slate-900">
@@ -82,10 +79,10 @@ export default function Services() {
                 key={titleKey}
                 className={`group bg-white rounded-2xl shadow-md border border-slate-200/80 overflow-hidden hover:shadow-xl transition-all duration-300 flex flex-col border-t-4 ${
                   color === 'blue'
-                    ? 'border-t-[var(--rwanda-blue)]'
+                    ? 'border-t-[var(--color-primary)]'
                     : color === 'yellow'
-                      ? 'border-t-[var(--rwanda-yellow)]'
-                      : 'border-t-[var(--rwanda-green)]'
+                      ? 'border-t-[var(--color-primary)]'
+                      : 'border-t-[var(--color-primary)]'
                 }`}
               >
                 <div className="relative aspect-[4/3] overflow-hidden bg-slate-100">
@@ -97,10 +94,10 @@ export default function Services() {
                   <div
                     className={`absolute top-4 left-4 w-10 h-10 rounded-xl flex items-center justify-center text-white font-bold text-sm shadow-lg ${
                       color === 'blue'
-                        ? 'bg-[var(--rwanda-blue)]'
+                        ? 'bg-[var(--color-primary)]'
                         : color === 'yellow'
-                          ? 'bg-[var(--rwanda-yellow)]'
-                          : 'bg-[var(--rwanda-green)]'
+                          ? 'bg-[var(--color-primary)]'
+                          : 'bg-[var(--color-primary)]'
                     }`}
                     aria-hidden
                   >
@@ -111,10 +108,10 @@ export default function Services() {
                   <div
                     className={`inline-flex p-3 rounded-xl mb-5 w-fit ${
                       color === 'blue'
-                        ? 'bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)]'
+                        ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                         : color === 'yellow'
-                          ? 'bg-[var(--rwanda-yellow-light)] text-[var(--rwanda-yellow)]'
-                          : 'bg-[var(--rwanda-green-light)] text-[var(--rwanda-green)]'
+                          ? 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
+                          : 'bg-[var(--color-primary-light)] text-[var(--color-primary)]'
                     }`}
                   >
                     <Icon className="w-7 h-7" />
@@ -129,10 +126,10 @@ export default function Services() {
                     to="/report"
                     className={`mt-6 inline-flex items-center gap-2 text-sm font-semibold transition-colors ${
                       color === 'blue'
-                        ? 'text-[var(--rwanda-blue)] hover:opacity-80'
+                        ? 'text-[var(--color-primary)] hover:opacity-80'
                         : color === 'yellow'
-                          ? 'text-[var(--rwanda-yellow)] hover:opacity-80'
-                          : 'text-[var(--rwanda-green)] hover:opacity-80'
+                          ? 'text-[var(--color-primary)] hover:opacity-80'
+                          : 'text-[var(--color-primary)] hover:opacity-80'
                     }`}
                   >
                     {t.services.button}
@@ -159,9 +156,9 @@ export default function Services() {
             </div>
             <ul className="flex flex-col sm:flex-row gap-4 sm:gap-8">
               {[
-                { label: 'Transparent process', cn: 'text-[var(--rwanda-blue)]' },
-                { label: 'Faster resolution', cn: 'text-[var(--rwanda-yellow)]' },
-                { label: 'Accountability', cn: 'text-[var(--rwanda-green)]' },
+                { label: 'Transparent process', cn: 'text-[var(--color-primary)]' },
+                { label: 'Faster resolution', cn: 'text-[var(--color-primary)]' },
+                { label: 'Accountability', cn: 'text-[var(--color-primary)]' },
               ].map(({ label, cn }) => (
                 <li key={label} className="flex items-center gap-2 text-slate-700">
                   <CheckCircle2 className={`w-5 h-5 shrink-0 ${cn}`} />
@@ -174,7 +171,7 @@ export default function Services() {
       </section>
 
       {/* CTA - Rwanda green like Home */}
-      <section className="py-20 md:py-28 bg-[var(--rwanda-green)] text-white relative overflow-hidden">
+      <section className="py-20 md:py-28 bg-[var(--color-primary)] text-white relative overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.06\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-3xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold">
@@ -185,7 +182,7 @@ export default function Services() {
           </p>
           <Link
             to="/report"
-            className="mt-8 inline-flex items-center gap-2 px-8 py-4 bg-white text-[var(--rwanda-green)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
+            className="mt-8 inline-flex items-center gap-2 px-8 py-4 bg-white text-[var(--color-primary)] font-semibold rounded-xl hover:bg-white/95 transition-colors shadow-lg"
           >
             {t.services.button}
             <ArrowRight className="w-5 h-5" />
