@@ -34,9 +34,7 @@ export function AdminDashboardLayout() {
       />
       <div className="flex-1 flex flex-col min-w-0">
         <div className="h-1 flex shrink-0">
-          <div className="flex-1 h-full bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 h-full bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 h-full bg-[var(--rwanda-green)]" />
+          <div className="flex-1 h-full bg-[var(--color-primary)]" />
         </div>
         <header className="flex items-center justify-between gap-3 px-4 py-3 bg-white border-b border-slate-200 shrink-0">
           <div className="flex items-center gap-3">

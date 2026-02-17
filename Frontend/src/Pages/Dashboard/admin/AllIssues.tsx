@@ -84,7 +84,7 @@ export function AllIssues() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <Shield className="w-4 h-4 text-[var(--color-primary)]" />
             <span>{t.admin.adminLabel}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{p.title}</h1>
@@ -102,7 +102,7 @@ export function AllIssues() {
 
       {loading && (
         <div className="flex flex-col items-center justify-center py-20 gap-4">
-          <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+          <div className="w-10 h-10 rounded-xl border-2 border-[var(--color-primary)] border-t-transparent animate-spin" />
           <p className="text-slate-500 text-sm">{p.loading}</p>
         </div>
       )}
@@ -152,7 +152,7 @@ export function AllIssues() {
                     <td className="px-6 py-4 text-right">
                       <Link
                         to={`/admin/respond/${r.id}`}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--rwanda-blue)] hover:underline"
+                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline"
                       >
                         {t.admin.viewRespond}
                         <ArrowRight size={14} />

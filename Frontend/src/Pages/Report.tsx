@@ -63,13 +63,13 @@ export default function Report() {
   };
 
   const inputClass =
-    'w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] transition-colors';
+    'w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors';
   const labelClass = 'block text-sm font-semibold text-slate-700 mb-2';
 
   return (
     <div className="min-h-screen bg-white font-sans">
-      {/* Hero - Rwanda colors */}
-      <section className="relative bg-gradient-to-br from-[var(--rwanda-blue)] via-slate-800 to-[var(--rwanda-green)] text-white overflow-hidden">
+      {/* Hero - RGB blue */}
+      <section className="relative bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary-hover)] to-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
         <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-16 md:py-24">
           <div className="inline-flex items-center gap-2 text-white/80 text-sm font-medium mb-4">
@@ -82,11 +82,6 @@ export default function Report() {
           <p className="mt-6 text-lg md:text-xl text-white/90 max-w-2xl leading-relaxed">
             {t.report.hero.description}
           </p>
-        </div>
-        <div className="absolute bottom-0 left-0 right-0 z-10 h-2 flex pointer-events-none">
-          <div className="flex-1 bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 bg-[var(--rwanda-green)]" />
         </div>
       </section>
 
@@ -221,7 +216,7 @@ export default function Report() {
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="w-full px-8 py-4 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
+                    className="w-full px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed shadow-lg"
                   >
                     <Send size={20} />
                     {submitting ? 'Submitting...' : t.report.form.button}
@@ -234,7 +229,7 @@ export default function Report() {
             <div className="space-y-6">
               <div className="bg-white p-6 rounded-2xl shadow-md border border-slate-200/80">
                 <h3 className="text-lg font-bold mb-4 text-slate-900 flex items-center gap-2">
-                  <CheckCircle2 className="w-5 h-5 text-[var(--rwanda-green)] shrink-0" />
+                  <CheckCircle2 className="w-5 h-5 text-[var(--color-primary)] shrink-0" />
                   {t.report.whyReport.title}
                 </h3>
                 <ul className="space-y-3 text-slate-600 text-sm">
@@ -244,29 +239,29 @@ export default function Report() {
                     t.report.whyReport.reason3,
                   ].map((text, i) => (
                     <li key={i} className="flex items-start gap-2">
-                      <span className="text-[var(--rwanda-green)] mt-0.5 font-bold">•</span>
+                      <span className="text-[var(--color-primary)] mt-0.5 font-bold">•</span>
                       <span>{text}</span>
                     </li>
                   ))}
                 </ul>
               </div>
 
-              <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-l-[var(--rwanda-blue)] border border-slate-200/80">
+              <div className="bg-white p-6 rounded-2xl shadow-md border-l-4 border-l-[var(--color-primary)] border border-slate-200/80">
                 <h3 className="text-lg font-bold mb-4 text-slate-900 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-[var(--rwanda-blue)] shrink-0" />
+                  <MapPin className="w-5 h-5 text-[var(--color-primary)] shrink-0" />
                   {t.report.howProcess.title}
                 </h3>
                 <ol className="space-y-3 text-slate-600 text-sm">
                   <li className="flex gap-2">
-                    <span className="font-bold text-[var(--rwanda-blue)] shrink-0">1.</span>
+                    <span className="font-bold text-[var(--color-primary)] shrink-0">1.</span>
                     <span>{t.report.howProcess.step1}</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="font-bold text-[var(--rwanda-blue)] shrink-0">2.</span>
+                    <span className="font-bold text-[var(--color-primary)] shrink-0">2.</span>
                     <span>{t.report.howProcess.step2}</span>
                   </li>
                   <li className="flex gap-2">
-                    <span className="font-bold text-[var(--rwanda-blue)] shrink-0">3.</span>
+                    <span className="font-bold text-[var(--color-primary)] shrink-0">3.</span>
                     <span>{t.report.howProcess.step3}</span>
                   </li>
                 </ol>

@@ -111,7 +111,7 @@ export function Respond() {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20 gap-4">
-        <div className="w-10 h-10 rounded-xl border-2 border-[var(--rwanda-blue)] border-t-transparent animate-spin" />
+        <div className="w-10 h-10 rounded-xl border-2 border-[var(--color-primary)] border-t-transparent animate-spin" />
         <p className="text-slate-500 text-sm">{p.loading}</p>
       </div>
     );
@@ -129,7 +129,7 @@ export function Respond() {
     <div className="space-y-6 font-sans">
       <Link
         to="/admin/respond"
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--rwanda-blue)] transition-colors"
+        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--color-primary)] transition-colors"
       >
         <ArrowLeft size={18} />
         {p.backToList}
@@ -138,7 +138,7 @@ export function Respond() {
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-            <Shield className="w-4 h-4 text-[var(--rwanda-blue)]" />
+            <Shield className="w-4 h-4 text-[var(--color-primary)]" />
             <span>{t.admin.adminLabel}</span>
           </div>
           <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{p.title}</h1>
@@ -149,7 +149,7 @@ export function Respond() {
         <StatusBadge status={report.status} labels={statusLabels} />
       </div>
 
-      <div className="rounded-2xl border-l-4 border-l-[var(--rwanda-blue)] border border-slate-200/80 bg-white shadow-sm p-6">
+      <div className="rounded-2xl border-l-4 border-l-[var(--color-primary)] border border-slate-200/80 bg-white shadow-sm p-6">
         <h2 className="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3 flex items-center gap-2">
           <Tag size={16} />
           {p.citizenReport}
@@ -185,7 +185,7 @@ export function Respond() {
 
       <form onSubmit={handleSubmit} className="rounded-2xl border border-slate-200/80 bg-white shadow-sm p-6 md:p-8">
         <h2 className="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
-          <MessageSquare size={20} className="text-[var(--rwanda-blue)]" />
+          <MessageSquare size={20} className="text-[var(--color-primary)]" />
           {p.yourResponse}
         </h2>
         {success && (
@@ -207,7 +207,7 @@ export function Respond() {
               id="status"
               value={status}
               onChange={(e) => setStatus(e.target.value)}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] bg-white"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] bg-white"
             >
               <option value="pending">{t.admin.statusPending}</option>
               <option value="resolved">{t.admin.statusResolved}</option>
@@ -223,14 +223,14 @@ export function Respond() {
               value={response}
               onChange={(e) => setResponse(e.target.value)}
               rows={5}
-              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--rwanda-blue)]/30 focus:border-[var(--rwanda-blue)] resize-none bg-white"
+              className="w-full px-4 py-2.5 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] resize-none bg-white"
               placeholder={p.responsePlaceholder}
             />
           </div>
           <button
             type="submit"
             disabled={submitting}
-            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--rwanda-green)] text-white font-semibold rounded-xl hover:opacity-95 disabled:opacity-70 transition-opacity shadow-md"
+            className="inline-flex items-center gap-2 px-6 py-3 bg-[var(--color-primary)] text-white font-semibold rounded-xl hover:opacity-95 disabled:opacity-70 transition-opacity shadow-md"
           >
             <Send size={18} />
             {submitting ? p.saving : p.saveResponse}

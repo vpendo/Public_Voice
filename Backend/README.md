@@ -96,7 +96,7 @@ You can also run `python -m scripts.create_admin` again: if an admin already exi
 ### Run
 
 ```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
+uvicorn main:app --reload 
 ```
 
 - **API:** http://localhost:8000  

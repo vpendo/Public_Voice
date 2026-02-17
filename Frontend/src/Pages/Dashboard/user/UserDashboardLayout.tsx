@@ -35,9 +35,7 @@ export function UserDashboardLayout() {
       <div className="flex-1 flex flex-col min-w-0">
         {/* Rwanda flag stripe */}
         <div className="h-1 flex shrink-0">
-          <div className="flex-1 h-full bg-[var(--rwanda-blue)]" />
-          <div className="flex-1 h-full bg-[var(--rwanda-yellow)]" />
-          <div className="flex-1 h-full bg-[var(--rwanda-green)]" />
+          <div className="flex-1 h-full bg-[var(--color-primary)]" />
         </div>
         {/* Top bar: language switcher (desktop) / menu + title + switcher + citizen (mobile) */}
         <header className="flex items-center justify-between gap-3 px-4 py-3 bg-white border-b border-slate-200 shrink-0">
@@ -54,7 +52,7 @@ export function UserDashboardLayout() {
           </div>
           <div className="flex items-center gap-2">
             <LanguageSwitcher />
-            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--rwanda-blue-light)] text-[var(--rwanda-blue)] text-xs font-medium">
+            <span className="hidden sm:inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--color-primary-light)] text-[var(--color-primary)] text-xs font-medium">
               {t.user.citizen}
             </span>
           </div>

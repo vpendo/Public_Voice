@@ -16,7 +16,7 @@ export function Card({ title, value, icon, subtitle }: CardProps) {
           <p className="mt-1 text-2xl font-bold text-slate-900">{value}</p>
           {subtitle && <p className="mt-0.5 text-xs text-slate-400">{subtitle}</p>}
         </div>
-        {icon && <div className="text-[#0066CC]">{icon}</div>}
+        {icon && <div className="text-[var(--color-primary)]">{icon}</div>}
       </div>
     </div>
   );
