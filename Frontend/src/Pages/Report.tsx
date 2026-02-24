@@ -99,7 +99,7 @@ export default function Report() {
                   All fields help authorities respond faster. Your data is used only for this report.
                 </p>
                 {submitError && (
-                  <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                  <div role="alert" className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
                     {submitError}
                   </div>
                 )}
@@ -216,10 +216,20 @@ export default function Report() {
                   <button
                     type="submit"
                     disabled={submitting}
+                    aria-busy={submitting}
                     className="w-full px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 disabled:opacity-70 disabled:cursor-not-allowed shadow-md hover:shadow-lg"
                   >
-                    <Send size={20} />
-                    {submitting ? 'Submitting...' : t.report.form.button}
+                    {submitting ? (
+                      <>
+                        <span className="inline-block w-5 h-5 border-2 border-white/60 border-t-white rounded-full animate-spin" aria-hidden />
+                        {t.report.form.button}
+                      </>
+                    ) : (
+                      <>
+                        <Send size={20} aria-hidden />
+                        {t.report.form.button}
+                      </>
+                    )}
                   </button>
                 </form>
               </div>

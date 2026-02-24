@@ -1,14 +1,10 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
+import { defineConfig } from 'vitest/config'
 import react from '@vitejs/plugin-react'
-import tailwindcss from '@tailwindcss/vite'
 
-// https://vitejs.dev/config/
+// Standalone Vitest config so tests use standard Vite (no rolldown) and avoid __vite_ssr_exportName__ errors
 export default defineConfig({
-  plugins: [
-    react(),
-    tailwindcss(),
-  ],
+  plugins: [react()],
   test: {
     globals: true,
     environment: 'jsdom',

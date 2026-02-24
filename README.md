@@ -124,6 +124,26 @@ uvicorn main:app --reload --host 0.0.0.0 --port 8000
 - Log in with the admin account → Admin dashboard.
 - Submit an issue; respond as admin. If `OPENAI_API_KEY` is set, Kinyarwanda/informal text is processed and shown as “Structured report (AI)” in the admin view.
 
+### 5. Run tests (local)
+
+**Backend** (from `Backend` folder; uses in-memory SQLite):
+
+```bash
+cd Backend
+pip install -r requirements.txt
+pytest tests/ -v
+```
+
+**Frontend** (from `Frontend` folder):
+
+```bash
+cd Frontend
+pnpm install
+pnpm test:run
+```
+
+See `Backend/tests/README.md` and `Frontend/src/test/README.md` for details.
+
 ---
 
 ## Design Process and User Interface
