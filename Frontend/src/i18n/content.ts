@@ -35,7 +35,7 @@ export const content: Record<Language, any> = {
         subtitle: "Three steps from report to resolution",
         step1: {
           title: "Report Issue",
-          description: "Submit with details, location, and category. No account required to report."
+          description: "Register and sign in, then submit with details, location, and category."
         },
         step2: {
           title: "Auto Categorize",
@@ -70,21 +70,33 @@ export const content: Record<Language, any> = {
     services: {
       hero: {
         title: "Our Services",
-        description: "Tools for Rwandan citizens and local authorities to report, route, and resolve community issues"
+        description: "Tools for Rwandan citizens and local authorities to report, route, and resolve community issues",
+        badge: "Rwanda · For citizens & government"
       },
+      whatWeOffer: "What we offer",
+      threeWays: "Three ways we serve citizens",
+      threeWaysDesc: "Report, route, and track—so local government can respond faster across Rwanda.",
       service1: {
         title: "Report Problems",
-        description: "Submit community issues with details, location, and evidence."
+        description: "Submit community issues with details, location, and evidence. Available in English and Kinyarwanda."
       },
       service2: {
         title: "Smart Categorization",
-        description: "Intelligent logic automatically routes reports to the right department."
+        description: "Reports are routed to the right department automatically—roads, water, health, education, and more."
       },
       service3: {
         title: "Track & Feedback",
-        description: "Real-time status updates from submission to resolution."
+        description: "See status and official responses in one place. From submission to resolution."
       },
-      button: "Report a Problem"
+      button: "Report a Problem",
+      trustTitle: "Built for citizens and local government",
+      trustDesc: "Transparent reporting, smart routing, and real-time updates—so every issue can be tracked from submission to resolution.",
+      trust1: "Transparent process",
+      trust2: "Faster resolution",
+      trust3: "Accountability",
+      ctaTitle: "Ready to report an issue?",
+      ctaDesc: "Submit your report in a few steps. We route it to the right department and keep you updated.",
+      contactUs: "Contact us"
     },
     about: {
       hero: {
@@ -145,7 +157,7 @@ export const content: Record<Language, any> = {
       overlayTitle: "Welcome",
       overlayTagline: "Sign in to your account and stay connected with your community.",
       adminLoginOnly: "Admins do not register here. Use the email and password created for you by the system.",
-      adminOnlyNote: "For administrators only. Citizens can report without an account.",
+      adminOnlyNote: "For administrators only. Citizens sign in to submit and track reports.",
       title: "Sign In",
       subtitle: "Access your PublicVoice admin dashboard",
       step2Subtitle: "Enter your password",
@@ -265,7 +277,7 @@ export const content: Record<Language, any> = {
         step3: "Authorities work on resolution; you may be contacted if needed"
       },
       successMessage: "Thank you! Your report has been submitted. Authorities will review it.",
-      noAccountNeeded: "You don't need an account to report. Only admins sign in to view reports in the dashboard."
+      noAccountNeeded: "Sign in to submit a report and track it in your dashboard."
     },
     dashboard: {
       title: "Admin Dashboard",
@@ -524,7 +536,7 @@ export const content: Record<Language, any> = {
         subtitle: "Intambwe zitatu kuva kuri raporo kugeza ku gukemura",
         step1: {
           title: "Tanga Ikibazo",
-          description: "Ohereza hamwe n'amakuru, ahantu, n'itsinda. Nta konti bisabwa kugira ngo utange raporo."
+          description: "Iyandikishe kandi winjire, hanyuma ohereza hamwe n'amakuru, ahantu n'itsinda."
         },
         step2: {
           title: "Gutondekanya mu Buryo Bw'Ubwenge",
@@ -559,21 +571,33 @@ export const content: Record<Language, any> = {
     services: {
       hero: {
         title: "Serivisi Zacu",
-        description: "Ibikoresho kubaturage b'u Rwanda n'abategetsi bo hafi kugira ngo batange, bohereze, bakanemure ibibazo by'umuryango"
+        description: "Ibikoresho kubaturage b'u Rwanda n'abategetsi bo hafi kugira ngo batange, bohereze, bakanemure ibibazo by'umuryango",
+        badge: "Rwanda · Kubaturage n'abategetsi"
       },
+      whatWeOffer: "Icyo tugira",
+      threeWays: "Uburyo butatu dukorera abaturage",
+      threeWaysDesc: "Tanga, bohereze, kurikirane—kugira ngo ubutegetsi bwa hafi busubize vuba mu Rwanda wose.",
       service1: {
         title: "Tanga Ibibazo",
-        description: "Ohereza ibibazo by'umuryango hamwe n'amakuru, ahantu, n'ubwoba."
+        description: "Ohereza ibibazo by'umuryango hamwe n'amakuru, ahantu n'ubwoba. Biraboneka mu Icyongereza n'Ikinyarwanda."
       },
       service2: {
         title: "Gutondekanya mu Buryo Bw'Ubwenge",
-        description: "Inzira y'ubwenge ikoresha mu buryo bwikora kugirango ihereze raporo ku serivisi z'ibanze."
+        description: "Raporo zoherezwa mu buryo bwikora ku serivisi iracyo—inzira, amazi, ubuzima, amashuri, n'ibindi."
       },
       service3: {
         title: "Kurikirana no Gutanga Inama",
-        description: "Amakuru y'igihe cyose kuva kuherezwa kugeza ku gukemura."
+        description: "Raba imiterere n'ibisubizo by'ofisi mu gace kimwe. Kuva kuherezwa kugeza ku gukemura."
       },
-      button: "Tanga Ikibazo"
+      button: "Tanga Ikibazo",
+      trustTitle: "Yubatswe kubaturage n'ubutegetsi bwa hafi",
+      trustDesc: "Kubika raporo biri k'umurongo, guhereza mu buryo bw'ubwenge, n'amakuru y'igihe cyose—kugira ngo ikibazo cyose gikurikiranwe kuva kuherezwa kugeza ku gukemura.",
+      trust1: "Inzira iri k'umurongo",
+      trust2: "Gukemura vuba",
+      trust3: "Kwicisha bugufi",
+      ctaTitle: "Witeguye gutanga ikibazo?",
+      ctaDesc: "Ohereza raporo yawe mu ntambwe nkeya. Tuzohereza kuri departimenti iracyo kandi turabamenyesha.",
+      contactUs: "Twandikire"
     },
     about: {
       hero: {
@@ -634,7 +658,7 @@ export const content: Record<Language, any> = {
       overlayTitle: "Murakaze",
       overlayTagline: "Injira mu konti yawe kugira ngo ube mu muryango no gukomeza.",
       adminLoginOnly: "Abadereva ntibandikisha hano. Koresha imeyili n'ijambobanga byatanzwe n'itsinda.",
-      adminOnlyNote: "Kubadereva gusa. Abaturage batanga raporo batakeneye konti.",
+      adminOnlyNote: "Kubadereva gusa. Abaturage binjira kugira ngo batange raporo kandi bayikurikirane.",
       title: "Injira",
       subtitle: "Kwinjira mu dashboard ya PublicVoice",
       step2Subtitle: "Injiza ijambobanga ryawe",
@@ -754,7 +778,7 @@ export const content: Record<Language, any> = {
         step3: "Abategetsi bakora gukemura; washobora kuvugwa niba bikenewe"
       },
       successMessage: "Murakoze! Raporo yawe yoherejwe. Abategetsi bazayireba.",
-      noAccountNeeded: "Ntugira konti kugira ngo utange raporo. Abadereva gusa ni bo binjira kureba raporo mu dashboard."
+      noAccountNeeded: "Injira kugira ngo utange raporo kandi uyikurikirane mu dashboard yawe."
     },
     dashboard: {
       title: "Dashboard y'Umudereva",
