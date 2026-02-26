@@ -3,6 +3,7 @@ import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
 import { apiClient } from '../api/client';
 import { CheckCircle2, Send, MapPin, FileText } from 'lucide-react';
+import { REPORT_CATEGORIES } from '../constants/categories';
 
 const IMG = {
   sidebar: '/Image/home%202.jpg',
@@ -188,14 +189,11 @@ export default function Report() {
                       className={inputClass}
                     >
                       <option value="">{t.report.categories.select}</option>
-                      <option value="roads">{t.report.categories.roads}</option>
-                      <option value="water">{t.report.categories.water}</option>
-                      <option value="security">{t.report.categories.security}</option>
-                      <option value="sanitation">{t.report.categories.sanitation}</option>
-                      <option value="electricity">{t.report.categories.electricity}</option>
-                      <option value="health">{t.report.categories.health}</option>
-                      <option value="education">{t.report.categories.education}</option>
-                      <option value="other">{t.report.categories.other}</option>
+                      {REPORT_CATEGORIES.map((key) => (
+                        <option key={key} value={key}>
+                          {(t.report.categories as Record<string, string>)[key] ?? key}
+                        </option>
+                      ))}
                     </select>
                   </div>
                   <div>

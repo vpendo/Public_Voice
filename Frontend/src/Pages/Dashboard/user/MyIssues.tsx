@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { apiClient } from '../../../api/client';
-import { FileText, ArrowRight, Inbox, PlusCircle } from 'lucide-react';
+import { FileText, ArrowRight, Inbox, PlusCircle, Pencil, Trash2 } from 'lucide-react';
 
 interface ReportItem {
   id: number;
@@ -42,10 +42,12 @@ export function MyIssues() {
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deletingId, setDeletingId] = useState<number | null>(null);
 
   useEffect(() => {
     let cancelled = false;
-    async function fetchReports() {
+    (async () => {
+      setLoading(true);
       try {
         const { data } = await apiClient.get<ReportItem[]>('/api/reports/mine');
         if (!cancelled) setReports(Array.isArray(data) ? data : []);
@@ -54,10 +56,22 @@ export function MyIssues() {
       } finally {
         if (!cancelled) setLoading(false);
       }
-    }
-    fetchReports();
+    })();
     return () => { cancelled = true; };
   }, [t]);
+
+  const handleDelete = async (reportId: number) => {
+    if (!window.confirm(t.user.myIssues.confirmDeleteReport)) return;
+    setDeletingId(reportId);
+    try {
+      await apiClient.delete(`/api/reports/${reportId}`);
+      setReports((prev) => prev.filter((r) => r.id !== reportId));
+    } catch {
+      setError(t.user.myIssues.deleteFailed);
+    } finally {
+      setDeletingId(null);
+    }
+  };
 
   const pendingCount = reports.filter((r) => r.status === 'pending' || r.status === 'new').length;
 
@@ -153,13 +167,31 @@ export function MyIssues() {
                       <StatusBadge status={r.status} label={(t.user.statusLabels as Record<string, string>)[r.status]} />
                     </td>
                     <td className="px-6 py-4 text-right">
-                      <Link
-                        to={`/user/issues/${r.id}`}
-                        className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline"
-                      >
-                        {t.user.myIssues.viewDetails}
-                        <ArrowRight size={14} />
-                      </Link>
+                      <div className="flex items-center justify-end gap-2 flex-wrap">
+                        <Link
+                          to={`/user/issues/${r.id}`}
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-[var(--color-primary)] hover:underline"
+                        >
+                          {t.user.myIssues.viewDetails}
+                          <ArrowRight size={14} />
+                        </Link>
+                        <Link
+                          to={`/user/issues/${r.id}/edit`}
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-slate-600 hover:text-slate-900 p-2 rounded-lg hover:bg-slate-100"
+                          title={t.user.myIssues.editReport}
+                        >
+                          <Pencil size={14} />
+                        </Link>
+                        <button
+                          type="button"
+                          onClick={() => handleDelete(r.id)}
+                          disabled={deletingId === r.id}
+                          className="inline-flex items-center gap-1.5 text-sm font-medium text-red-600 hover:text-red-700 p-2 rounded-lg hover:bg-red-50 disabled:opacity-50"
+                          title={t.user.myIssues.deleteReport}
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      </div>
                     </td>
                   </tr>
                 ))}

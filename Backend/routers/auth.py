@@ -76,6 +76,7 @@ def login(
         full_name=user.full_name,
         email=user.email,
         role=role,
+        admin_category=getattr(user, "admin_category", None),
         profile_image=user.profile_image,
     )
     return LoginResponse(
@@ -93,6 +94,7 @@ def _user_to_response(user: User) -> UserResponse:
         full_name=user.full_name,
         email=user.email,
         role=user.role or "User",
+        admin_category=getattr(user, "admin_category", None),
         profile_image=user.profile_image,
     )
 

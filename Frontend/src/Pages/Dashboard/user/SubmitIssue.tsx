@@ -4,8 +4,7 @@ import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { apiClient } from '../../../api/client';
 import { Send, FileText, MapPin, Phone, Tag } from 'lucide-react';
-
-const CATEGORY_KEYS = ['roads', 'water', 'security', 'sanitation', 'electricity', 'health', 'education', 'other'] as const;
+import { REPORT_CATEGORIES } from '../../../constants/categories';
 
 const inputClass =
   'w-full px-4 py-3 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] bg-white';
@@ -128,7 +127,7 @@ export function SubmitIssue() {
                 className={inputClass}
               >
                 <option value="">{u.categoryPlaceholder}</option>
-                {CATEGORY_KEYS.map((key) => (
+                {REPORT_CATEGORIES.map((key) => (
                   <option key={key} value={key}>
                     {cats[key]}
                   </option>

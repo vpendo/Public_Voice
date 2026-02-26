@@ -7,8 +7,11 @@ import { useLanguage } from '../../../contexts/LanguageContext';
 import { LayoutDashboard, FileText, MessageSquare, Users, Menu } from 'lucide-react';
 
 export function AdminDashboardLayout() {
-  const { logout } = useAuth();
+  const { user, logout } = useAuth();
   const { t } = useLanguage();
+  const adminCategoryLabel = user?.admin_category
+    ? (t.admin.categories as Record<string, string>)[user.admin_category] ?? user.admin_category
+    : t.admin.filterAllCategories;
   const sidebarItems = [
     { path: '/admin/dashboard', label: t.admin.sidebar.dashboard, icon: LayoutDashboard },
     { path: '/admin/issues', label: t.admin.sidebar.allIssues, icon: FileText },
@@ -46,7 +49,10 @@ export function AdminDashboardLayout() {
             >
               <Menu size={24} />
             </button>
-            <span className="text-sm font-semibold text-slate-700">PublicVoice Admin</span>
+            <span className="text-sm font-semibold text-slate-700">
+              PublicVoice Admin
+              <span className="ml-2 font-normal text-slate-500">· {adminCategoryLabel}</span>
+            </span>
           </div>
           <LanguageSwitcher />
         </header>

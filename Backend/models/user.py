@@ -28,6 +28,8 @@ class User(Base):
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
 
     role = Column(String(50), nullable=False, default=UserRole.USER.value)
+    # When set, this admin only sees and manages reports for this category (e.g. water, electricity, roads). Null = super admin sees all.
+    admin_category = Column(String(50), nullable=True, index=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     profile_image = Column(String(512), nullable=True)  # path e.g. uploads/avatars/1_xxx.jpg
 

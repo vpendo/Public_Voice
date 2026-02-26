@@ -1,11 +1,12 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { apiClient } from '../../../api/client';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { MessageSquare, ArrowRight, Inbox, Shield } from 'lucide-react';
+import { REPORT_CATEGORIES, isReportCategory } from '../../../constants/categories';
 
-function getCategoryLabels(t: { admin: { categories: Record<string, string> } }) {
-  return t.admin.categories;
+function getCategoryLabels(t: { admin: { categories: Record<string, string>; filterAllCategories: string } }): Record<string, string> {
+  return { ...t.admin.categories, all: t.admin.filterAllCategories };
 }
 
 interface ReportItem {
@@ -50,6 +51,9 @@ function StatusBadge({
 
 export function RespondList() {
   const { t } = useLanguage();
+  const [searchParams, setSearchParams] = useSearchParams();
+  const categoryParam = searchParams.get('category') || '';
+  const categoryFilter = isReportCategory(categoryParam) ? categoryParam : '';
   const CATEGORY_LABELS = getCategoryLabels(t);
   const statusLabels = {
     pending: t.admin.statusPending,
@@ -64,7 +68,8 @@ export function RespondList() {
     let cancelled = false;
     async function fetchReports() {
       try {
-        const { data } = await apiClient.get<ReportItem[]>('/api/reports');
+        const params = categoryFilter ? { category_filter: categoryFilter } : {};
+        const { data } = await apiClient.get<ReportItem[]>('/api/reports', { params });
         if (!cancelled) setReports(Array.isArray(data) ? data : []);
       } catch {
         if (!cancelled) setError('Could not load reports.');
@@ -74,30 +79,60 @@ export function RespondList() {
     }
     fetchReports();
     return () => { cancelled = true; };
-  }, []);
+  }, [categoryFilter]);
 
   const pendingCount = reports.filter((r) => r.status === 'pending' || r.status === 'new').length;
 
   const p = t.admin.respondListPage;
   return (
     <div className="space-y-6 font-sans">
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
-            <Shield className="w-4 h-4 text-[var(--color-primary)]" />
-            <span>{t.admin.adminLabel}</span>
+      <div className="flex flex-col gap-4">
+        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <div>
+            <div className="flex items-center gap-2 text-sm text-slate-500 mb-1">
+              <Shield className="w-4 h-4 text-[var(--color-primary)]" />
+              <span>{t.admin.adminLabel}</span>
+            </div>
+            <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{p.title}</h1>
+            <p className="text-slate-500 mt-0.5">
+              {p.subtitle} · {pendingCount} {t.admin.pendingCount}
+              {categoryFilter ? ` · ${CATEGORY_LABELS[categoryFilter] || categoryFilter}` : ''}
+            </p>
           </div>
-          <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">{p.title}</h1>
-          <p className="text-slate-500 mt-0.5">
-            {p.subtitle} · {pendingCount} {t.admin.pendingCount}
-          </p>
+          {pendingCount > 0 && (
+            <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 text-amber-800 text-sm font-medium border border-amber-200/80">
+              <Inbox size={16} />
+              {pendingCount} {p.needResponse}
+            </span>
+          )}
         </div>
-        {pendingCount > 0 && (
-          <span className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-amber-50 text-amber-800 text-sm font-medium border border-amber-200/80">
-            <Inbox size={16} />
-            {pendingCount} {p.needResponse}
-          </span>
-        )}
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => setSearchParams({})}
+            className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+              !categoryFilter
+                ? 'bg-[var(--color-primary)] text-white'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+            }`}
+          >
+            {CATEGORY_LABELS.all}
+          </button>
+          {REPORT_CATEGORIES.map((key) => (
+            <button
+              key={key}
+              type="button"
+              onClick={() => setSearchParams({ category: key })}
+              className={`px-4 py-2 rounded-xl text-sm font-medium transition-colors ${
+                categoryFilter === key
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+              }`}
+            >
+              {CATEGORY_LABELS[key] || key}
+            </button>
+          ))}
+        </div>
       </div>
 
       {loading && (

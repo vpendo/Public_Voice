@@ -22,6 +22,7 @@ import { UserDashboard } from '../Pages/Dashboard/user/UserDashboard';
 import { SubmitIssue } from '../Pages/Dashboard/user/SubmitIssue';
 import { MyIssues } from '../Pages/Dashboard/user/MyIssues';
 import { IssueDetail } from '../Pages/Dashboard/user/IssueDetail';
+import { EditIssue } from '../Pages/Dashboard/user/EditIssue';
 import { Profile } from '../Pages/Dashboard/user/Profile';
 import { AdminDashboardLayout } from '../Pages/Dashboard/admin/AdminDashboardLayout';
 import { AdminDashboard } from '../Pages/Dashboard/admin/AdminDashboard';
@@ -107,6 +108,7 @@ export function AppRoute() {
                 <Route path="submit" element={<SubmitIssue />} />
                 <Route path="issues" element={<MyIssues />} />
                 <Route path="issues/:id" element={<IssueDetail />} />
+                <Route path="issues/:id/edit" element={<EditIssue />} />
                 <Route path="profile" element={<Profile />} />
               </Route>
               {/* Admin dashboard */}

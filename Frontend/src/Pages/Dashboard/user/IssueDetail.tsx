@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { apiClient } from '../../../api/client';
-import { ArrowLeft, Tag, MapPin, Calendar, MessageSquare } from 'lucide-react';
+import { ArrowLeft, Tag, MapPin, Calendar, MessageSquare, Pencil, Trash2 } from 'lucide-react';
 
 interface ReportItem {
   id: number;
@@ -40,10 +40,12 @@ function StatusBadge({ status, label }: { status: string; label?: string }) {
 
 export function IssueDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const { t } = useLanguage();
   const [report, setReport] = useState<ReportItem | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
     if (!id) return;
@@ -70,23 +72,71 @@ export function IssueDetail() {
       </div>
     );
   }
+  const handleDelete = async () => {
+    if (!id || !report) return;
+    if (!window.confirm(t.user.issueDetail.confirmDeleteReport)) return;
+    setDeleting(true);
+    try {
+      await apiClient.delete(`/api/reports/${id}`);
+      navigate('/user/issues');
+    } catch {
+      setError(t.user.issueDetail.deleteFailed);
+    } finally {
+      setDeleting(false);
+    }
+  };
+
   if (error || !report) {
     return (
-      <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-700">
-        {error || t.user.issueDetail.error}
+      <div className="space-y-4">
+        <Link
+          to="/user/issues"
+          className="inline-flex items-center gap-2 text-sm font-medium text-[var(--color-primary)] hover:underline"
+        >
+          <ArrowLeft size={18} />
+          {t.user.issueDetail.backToIssues}
+        </Link>
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-700">
+          {error || t.user.issueDetail.error}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6 font-sans">
-      <Link
-        to="/user/issues"
-        className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--color-primary)] transition-colors"
-      >
-        <ArrowLeft size={18} />
-        {t.user.issueDetail.backToIssues}
-      </Link>
+      {error && (
+        <div className="rounded-2xl border border-red-200 bg-red-50 px-6 py-4 text-red-700 text-sm">
+          {error}
+        </div>
+      )}
+      <div className="flex flex-wrap items-center justify-between gap-4">
+        <Link
+          to="/user/issues"
+          className="inline-flex items-center gap-2 text-sm font-medium text-slate-500 hover:text-[var(--color-primary)] transition-colors"
+        >
+          <ArrowLeft size={18} />
+          {t.user.issueDetail.backToIssues}
+        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            to={`/user/issues/${id}/edit`}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 text-slate-700 text-sm font-medium hover:bg-slate-50"
+          >
+            <Pencil size={16} />
+            {t.user.issueDetail.editReport}
+          </Link>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-red-200 text-red-600 text-sm font-medium hover:bg-red-50 disabled:opacity-50"
+          >
+            <Trash2 size={16} />
+            {t.user.issueDetail.deleteReport}
+          </button>
+        </div>
+      </div>
 
       <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4">
         <div>

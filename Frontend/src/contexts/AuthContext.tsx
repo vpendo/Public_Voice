@@ -9,6 +9,8 @@ export interface UserInfo {
   full_name: string;
   email: string;
   role: string;
+  /** When set, admin only sees/manages reports for this category (e.g. water, electricity, roads). */
+  admin_category?: string | null;
   profile_image?: string | null;
 }
 

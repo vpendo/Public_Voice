@@ -7,10 +7,11 @@ from typing import Optional
 from pydantic import BaseModel, Field, field_validator
 
 
-# Allowed values for validation
+# Allowed values for validation – all lowercase to match AI normalization.
+# Keep in sync with Frontend src/constants/categories.ts REPORT_CATEGORIES.
 ALLOWED_INSTITUTIONS = {
     "district", "sector", "cell", "village",
-    "mininfra", "mineduc", "minisante", "localGov", "other"
+    "mininfra", "mineduc", "minisante", "localgov", "other"
 }
 ALLOWED_CATEGORIES = {
     "roads", "water", "security", "sanitation",
@@ -32,16 +33,18 @@ class ReportCreate(BaseModel):
     @field_validator("institution")
     @classmethod
     def validate_institution(cls, v: str) -> str:
-        if v not in ALLOWED_INSTITUTIONS:
+        v_lower = v.lower()
+        if v_lower not in ALLOWED_INSTITUTIONS:
             raise ValueError(f"Institution must be one of: {', '.join(ALLOWED_INSTITUTIONS)}")
-        return v
+        return v_lower
 
     @field_validator("category")
     @classmethod
     def validate_category(cls, v: str) -> str:
-        if v not in ALLOWED_CATEGORIES:
+        v_lower = v.lower()
+        if v_lower not in ALLOWED_CATEGORIES:
             raise ValueError(f"Category must be one of: {', '.join(ALLOWED_CATEGORIES)}")
-        return v
+        return v_lower
 
 
 class ReportUpdate(BaseModel):
@@ -56,9 +59,44 @@ class ReportUpdate(BaseModel):
     @field_validator("status")
     @classmethod
     def validate_status(cls, v: Optional[str]) -> Optional[str]:
-        if v and v not in ("pending", "resolved", "rejected"):
-            raise ValueError("Status must be pending, resolved, or rejected")
+        if v:
+            v_lower = v.lower()
+            if v_lower not in ("pending", "resolved", "rejected"):
+                raise ValueError("Status must be pending, resolved, or rejected")
+            return v_lower
         return v
+
+
+class ReportUserUpdate(BaseModel):
+    """User updates their own report (owner only). All fields optional."""
+
+    title: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
+    name: Optional[str] = Field(None, min_length=1, max_length=255, strip_whitespace=True)
+    phone: Optional[str] = Field(None, min_length=1, max_length=50, strip_whitespace=True)
+    location: Optional[str] = Field(None, min_length=1, max_length=500, strip_whitespace=True)
+    institution: Optional[str] = Field(None, min_length=1, max_length=100, strip_whitespace=True)
+    category: Optional[str] = Field(None, min_length=1, max_length=100, strip_whitespace=True)
+    description: Optional[str] = Field(None, min_length=1, max_length=10_000, strip_whitespace=True)
+
+    @field_validator("institution")
+    @classmethod
+    def validate_institution(cls, v: Optional[str]) -> Optional[str]:
+        if not v:
+            return v
+        v_lower = v.lower()
+        if v_lower not in ALLOWED_INSTITUTIONS:
+            raise ValueError(f"Institution must be one of: {', '.join(ALLOWED_INSTITUTIONS)}")
+        return v_lower
+
+    @field_validator("category")
+    @classmethod
+    def validate_category(cls, v: Optional[str]) -> Optional[str]:
+        if not v:
+            return v
+        v_lower = v.lower()
+        if v_lower not in ALLOWED_CATEGORIES:
+            raise ValueError(f"Category must be one of: {', '.join(ALLOWED_CATEGORIES)}")
+        return v_lower
 
 
 class ReportResponse(BaseModel):
@@ -79,4 +117,4 @@ class ReportResponse(BaseModel):
     created_at: datetime
 
     class Config:
-        from_attributes = True
+        from_attributes = True  # Pydantic v2 proper attribute mapping

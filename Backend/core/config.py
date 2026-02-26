@@ -10,19 +10,19 @@ class Settings:
     """Load settings from environment."""
 
     def __init__(self) -> None:
+        # ---------------- App Info ----------------
         self.APP_NAME: str = os.getenv("APP_NAME", "PublicVoice")
         self.APP_VERSION: str = os.getenv("APP_VERSION", "1.0.0")
         self.ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
-
         self.DEBUG: bool = self._to_bool(os.getenv("DEBUG", "false"))
 
-        # Database
+        # ---------------- Database ----------------
         self.DATABASE_URL: str = os.getenv(
             "DATABASE_URL",
-            "sqlite:///./publicvoice.db"
+            "sqlite:///./publicvoice.db"  # fallback for dev
         )
 
-        # JWT
+        # ---------------- JWT / Security ----------------
         self.SECRET_KEY: str = os.getenv(
             "SECRET_KEY",
             "change-me-in-production-use-openssl-rand-hex-32"
@@ -32,16 +32,17 @@ class Settings:
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
         )
 
-        # AI / NLP processing (OpenAI or compatible API)
+        # ---------------- AI / NLP (OpenAI SDK v2) ----------------
+        # Make sure OPENAI_API_KEY is set in your .env for AI processing to work
         self.OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
-        self.OPENAI_API_BASE: Optional[str] = (os.getenv("OPENAI_API_BASE", "").strip() or None)  # e.g. Azure
-        self.OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
+        self.OPENAI_API_BASE: Optional[str] = (os.getenv("OPENAI_API_BASE", "").strip() or None)  # optional, e.g., Azure endpoint
+        self.OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")  # default to GPT-4o-mini
 
-        # Security check
+        # ---------------- Production Security Check ----------------
         if self.ENVIRONMENT == "production" and self.SECRET_KEY.startswith("change-me"):
             raise ValueError("SECRET_KEY must be set in production")
 
-        # CORS (stored as list)
+        # ---------------- CORS ----------------
         self.CORS_ORIGINS: List[str] = [
             o.strip()
             for o in os.getenv(
@@ -51,7 +52,7 @@ class Settings:
             if o.strip()
         ]
 
-        # Email (for forgot-password reset link)
+        # ---------------- Email (Forgot-password / reset) ----------------
         self.FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
         self.SMTP_HOST: str = os.getenv("SMTP_HOST", "").strip()
         self.SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
@@ -66,12 +67,14 @@ class Settings:
         return bool(self.SMTP_HOST and self.SMTP_USER and self.SMTP_PASSWORD)
 
     def _to_bool(self, value: str) -> bool:
+        """Convert string env variable to bool."""
         return value.lower() in ("true", "1", "yes")
 
-    # 🔥 IMPORTANT: property used by FastAPI main.py
     @property
     def cors_origin_list(self) -> List[str]:
+        """Used by FastAPI main.py to configure CORS middleware."""
         return self.CORS_ORIGINS
 
 
+# Singleton instance
 settings = Settings()

@@ -274,7 +274,11 @@ export function AdminDashboard() {
           ) : (
             <div className="space-y-4">
               {categoryData.map((d) => (
-                <div key={d.key}>
+                <Link
+                  key={d.key}
+                  to={`/admin/issues?category=${encodeURIComponent(d.key)}`}
+                  className="block rounded-lg p-2 -m-2 hover:bg-slate-50 transition-colors"
+                >
                   <div className="flex justify-between text-sm mb-1">
                     <span className="text-slate-700 font-medium">{d.name}</span>
                     <span className="text-slate-500">{d.value}</span>
@@ -285,7 +289,7 @@ export function AdminDashboard() {
                       style={{ width: `${(d.value / maxCategory) * 100}%` }}
                     />
                   </div>
-                </div>
+                </Link>
               ))}
             </div>
           )}

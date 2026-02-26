@@ -52,6 +52,7 @@ class UserResponse(BaseModel):
     full_name: str
     email: str
     role: str
+    admin_category: str | None = None  # When set, admin only sees reports for this category
     profile_image: str | None = None  # URL path e.g. /uploads/avatars/1_xxx.jpg
 
     class Config:
