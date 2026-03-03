@@ -17,8 +17,39 @@ from models.user import User
 from core.security import hash_password
 from schemas.report import ALLOWED_CATEGORIES
 
-# Display order for category choice (roads = land/infrastructure)
-CATEGORY_CHOICES = ["roads", "water", "electricity", "security", "sanitation", "health", "education", "other"]
+# Category choices aligned with report form (Cell-level Community Problem Report)
+CATEGORY_CHOICES = [
+    "service_delivery",
+    "land_property",
+    "infrastructure_utilities",
+    "social_community",
+    "administrative",
+]
+
+# Geographic scope: admin sees only reports in this area
+SCOPE_LEVELS = ("all", "district", "sector", "cell")
+
+
+def ensure_admin_scope_columns() -> None:
+    """Add admin scope columns if missing."""
+    url = str(engine.url)
+    with engine.begin() as conn:
+        if "sqlite" in url:
+            r = conn.execute(text("PRAGMA table_info(users)"))
+            cols = [row[1] for row in r]
+            for col_name, col_type in [
+                ("admin_scope_level", "VARCHAR(20)"),
+                ("scope_district", "VARCHAR(255)"),
+                ("scope_sector", "VARCHAR(255)"),
+                ("scope_cell", "VARCHAR(255)"),
+            ]:
+                if col_name not in cols:
+                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
+        else:
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_scope_level VARCHAR(20)"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_district VARCHAR(255)"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_sector VARCHAR(255)"))
+            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_cell VARCHAR(255)"))
 
 
 def ensure_admin_category_column() -> None:
@@ -38,21 +69,29 @@ def ensure_admin_category_column() -> None:
 
 def main() -> None:
     # Optional: create admin from command line (no prompts)
-    # Usage: python -m scripts.create_admin EMAIL "Full Name" CATEGORY PASSWORD
-    # Example: python -m scripts.create_admin admin@water.com "Water Admin" water Water123
+    # Usage: python -m scripts.create_admin EMAIL "Full Name" CATEGORY PASSWORD [scope_level] [district] [sector] [cell]
+    # Example: python -m scripts.create_admin admin@cell.com "Cell Admin" "" Pass123 cell "Gasabo" "Remera" "Gikondo"
+    # Example: python -m scripts.create_admin admin@sector.com "Sector Admin" "" Pass123 sector "Gasabo" "Remera" ""
     if len(sys.argv) >= 5:
         email = sys.argv[1].strip().lower()
         full_name = sys.argv[2].strip() or "Admin"
         admin_category_raw = sys.argv[3].strip().lower()
         password = sys.argv[4]
         admin_category = admin_category_raw if admin_category_raw in ALLOWED_CATEGORIES else None
+        scope_level = sys.argv[5].strip().lower() if len(sys.argv) > 5 and sys.argv[5] else "all"
+        scope_level = scope_level if scope_level in SCOPE_LEVELS else "all"
+        scope_district = sys.argv[6].strip() if len(sys.argv) > 6 else None
+        scope_sector = sys.argv[7].strip() if len(sys.argv) > 7 else None
+        scope_cell = sys.argv[8].strip() if len(sys.argv) > 8 else None
         use_prompt = False
     else:
         email = full_name = admin_category = password = None
+        scope_level = scope_district = scope_sector = scope_cell = None
         use_prompt = sys.stdin.isatty()
 
     init_db()
     ensure_admin_category_column()
+    ensure_admin_scope_columns()
     db = SessionLocal()
 
     if not use_prompt and email:
@@ -71,11 +110,30 @@ def main() -> None:
 
         cat_prompt = (
             "\nCategory this admin manages (press Enter for super admin – sees all):\n"
-            "  roads, water, electricity, security, sanitation, health, education, other\n"
+            "  service_delivery, land_property, infrastructure_utilities, social_community, administrative\n"
             "Choice: "
         )
         admin_category = (input(cat_prompt).strip().lower() if use_prompt else None) or os.getenv("CREATE_ADMIN_CATEGORY", "").strip().lower()
         admin_category = admin_category if admin_category in ALLOWED_CATEGORIES else None
+
+        scope_prompt = (
+            "\nGeographic scope (press Enter for 'all' – sees all locations):\n"
+            "  all | district | sector | cell\n"
+            "  (cell = one cell; sector = one sector; district = one district)\n"
+            "Choice: "
+        )
+        scope_level = (input(scope_prompt).strip().lower() if use_prompt else None) or os.getenv("CREATE_ADMIN_SCOPE_LEVEL", "all").strip().lower()
+        scope_level = scope_level if scope_level in SCOPE_LEVELS else "all"
+        scope_district = scope_sector = scope_cell = None
+        if scope_level == "district":
+            scope_district = (input("  District name: ").strip() if use_prompt else None) or os.getenv("CREATE_ADMIN_SCOPE_DISTRICT", "").strip() or None
+        elif scope_level == "sector":
+            scope_district = (input("  District name: ").strip() if use_prompt else None) or os.getenv("CREATE_ADMIN_SCOPE_DISTRICT", "").strip() or None
+            scope_sector = (input("  Sector name: ").strip() if use_prompt else None) or os.getenv("CREATE_ADMIN_SCOPE_SECTOR", "").strip() or None
+        elif scope_level == "cell":
+            scope_district = (input("  District name: ").strip() if use_prompt else None) or os.getenv("CREATE_ADMIN_SCOPE_DISTRICT", "").strip() or None
+            scope_sector = (input("  Sector name: ").strip() if use_prompt else None) or os.getenv("CREATE_ADMIN_SCOPE_SECTOR", "").strip() or None
+            scope_cell = (input("  Cell name: ").strip() if use_prompt else None) or os.getenv("CREATE_ADMIN_SCOPE_CELL", "").strip() or None
 
         password = os.getenv("CREATE_ADMIN_PASSWORD") if not use_prompt else None
         if not password:
@@ -113,13 +171,23 @@ def main() -> None:
         hashed_password=hash_password(password),
         role="Admin",
         admin_category=admin_category,
+        admin_scope_level=scope_level or "all",
+        scope_district=scope_district,
+        scope_sector=scope_sector,
+        scope_cell=scope_cell,
     )
     db.add(user)
     db.commit()
     db.refresh(user)
     db.close()
 
-    scope = f"category={admin_category}" if admin_category else "all categories (super admin)"
+    parts = []
+    if admin_category:
+        parts.append(f"category={admin_category}")
+    if scope_level and scope_level != "all":
+        loc = " → ".join(x for x in [scope_district, scope_sector, scope_cell] if x)
+        parts.append(f"scope={scope_level}: {loc}")
+    scope = "; ".join(parts) if parts else "all (super admin)"
     print(f"Admin created: id={user.id}, email={user.email}, scope={scope}")
 
 

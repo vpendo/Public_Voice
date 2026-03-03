@@ -1,6 +1,6 @@
 """
-AI/NLP smart processing for citizen issue reports.
-Uses OpenAI SDK v2 (responses.create).
+AI/NLP smart processing for citizen issue reports (cell-level).
+Uses OpenAI SDK v2 (responses.create). Aligned with Report schema categories/institutions.
 """
 
 import logging
@@ -10,63 +10,68 @@ from core.config import settings
 
 logger = logging.getLogger(__name__)
 
-# ---------------- Allowed categories and institutions ----------------
-# Must match DB enums; prevents invalid entries
+# —— Must match schemas/report.py (cell-level) ——
 ALLOWED_CATEGORIES = {
-    "roads", "water", "security", "sanitation",
-    "electricity", "health", "education", "other",
+    "service_delivery",
+    "land_property",
+    "infrastructure_utilities",
+    "social_community",
+    "administrative",
 }
 
 ALLOWED_INSTITUTIONS = {
-    "district", "sector", "cell", "village",
-    "mininfra", "mineduc", "minisante", "localgov", "other",
+    "cell_office",
+    "sector_office",
+    "district_authority",
+    "social_affairs_officer",
+    "land_bureau",
+    "other",
 }
 
-# ---------------- System prompt ----------------
-# Defines AI behavior and JSON output format
-SYSTEM_PROMPT = """You are a civic issue processing assistant for PublicVoice, a platform used in Rwanda.
+ALLOWED_URGENCY = {"low", "medium", "high", "emergency"}
 
-Your task is to process citizen-submitted issue text that may be:
-- In Kinyarwanda
-- In informal or mixed English
-- Unstructured
+# Problem types (subset used for AI suggestion; full set in schemas)
+PROBLEM_TYPE_HINTS = {
+    "service_delivery": ["delay_assistance", "no_response", "service_not_delivered", "other"],
+    "land_property": ["boundary_conflict", "ownership_dispute", "inheritance", "registration_issue"],
+    "infrastructure_utilities": ["water_shortage", "road_damage", "drainage", "electricity", "waste_management"],
+    "social_community": ["gbv", "family_conflict", "child_protection", "community_dispute"],
+    "administrative": ["not_followed_up", "poor_communication", "delayed_decision", "misconduct"],
+}
 
-Output ONLY a single valid JSON object with these keys:
-- structured_description
-- suggested_title
-- suggested_category
-- suggested_institution
+SYSTEM_PROMPT = """You are a civic issue processing assistant for PublicVoice, used in Rwanda at Cell level (Ministry of Local Government decentralised governance).
 
-Use empty string "" if not inferable.
-"""
+Process citizen-submitted issue text that may be in Kinyarwanda or informal English. Output ONLY a single valid JSON object with these keys:
+- structured_description: clear, formal summary in English (or keep original if already clear)
+- suggested_title: short title (optional)
+- suggested_category: one of service_delivery, land_property, infrastructure_utilities, social_community, administrative
+- suggested_institution: one of cell_office, sector_office, district_authority, social_affairs_officer, land_bureau, other
+- suggested_problem_type: optional, one of the problem types for the suggested category (e.g. water_shortage, road_damage for infrastructure_utilities)
+- suggested_urgency: optional, one of low, medium, high, emergency
 
-# ---------------- Public function ----------------
-def process_issue_text(raw_text: str) -> Optional[dict[str, Any]]:
+Use empty string "" for any key if not inferable. Do not add extra keys."""
+
+
+def process_issue_text(
+    raw_text: str,
+    category: Optional[str] = None,
+) -> Optional[dict[str, Any]]:
     """
-    Processes raw citizen text via AI and returns a structured dict.
-
-    Returns:
-        dict with keys: structured_description, suggested_title,
-        suggested_category, suggested_institution
-        or None if API key missing or processing fails.
+    Process raw citizen text via AI. Returns structured dict for Report creation.
+    If category is provided, AI can use it to suggest problem_type.
     """
     if not settings.OPENAI_API_KEY:
         logger.info("OPENAI_API_KEY not set — skipping AI processing.")
         return None
 
     try:
-        return _call_openai(raw_text)
+        return _call_openai(raw_text, category=category)
     except Exception as e:
         logger.error("AI processing failed: %s", str(e))
         return None
 
-# ---------------- Internal call to OpenAI ----------------
-def _call_openai(raw_text: str) -> Optional[dict[str, Any]]:
-    """
-    Calls OpenAI Responses API (v2) and returns structured output.
 
-    ✅ Uses `output_parsed` to get dict directly.
-    """
+def _call_openai(raw_text: str, category: Optional[str] = None) -> Optional[dict[str, Any]]:
     from openai import OpenAI
 
     client = OpenAI(api_key=settings.OPENAI_API_KEY)
@@ -74,8 +79,9 @@ def _call_openai(raw_text: str) -> Optional[dict[str, Any]]:
 
     user_content = f"""
 Process this citizen issue text and return ONLY the JSON object.
+{f'User selected category: {category}. You may suggest problem_type from that category.' if category else ''}
 
---- 
+---
 {raw_text}
 ---
 """
@@ -88,40 +94,46 @@ Process this citizen issue text and return ONLY the JSON object.
         ],
         temperature=0.2,
         max_output_tokens=1024,
-        response_format={"type": "json_object"},  # Ensures AI returns JSON
+        response_format={"type": "json_object"},
     )
 
-    # Prefer output_parsed if available; fallback to None
     data = getattr(response, "output_parsed", None)
     if not data:
         logger.warning("AI returned empty or invalid output")
         return None
 
-    # Optional: log AI response for debugging
     logger.info("Raw AI response: %s", data)
+    return _validate_and_normalize(data, category=category)
 
-    return _validate_and_normalize(data)
 
-# ---------------- Validation & normalization ----------------
-def _validate_and_normalize(data: dict[str, Any]) -> dict[str, Any]:
-    """
-    Ensures category and institution are valid and trims text
-    to fit DB storage limits.
-    """
+def _validate_and_normalize(
+    data: dict[str, Any],
+    category: Optional[str] = None,
+) -> dict[str, Any]:
     result: dict[str, Any] = {}
 
     desc = (data.get("structured_description") or "").strip()
     if desc:
-        result["structured_description"] = desc[:10000]  # DB limit
+        result["structured_description"] = desc[:10000]
 
     title = (data.get("suggested_title") or "").strip()
     if title:
         result["suggested_title"] = title[:255]
 
-    cat = (data.get("suggested_category") or "").strip().lower()
-    result["suggested_category"] = cat if cat in ALLOWED_CATEGORIES else None
+    cat = (data.get("suggested_category") or "").strip().lower().replace(" ", "_")
+    result["suggested_category"] = cat if cat in ALLOWED_CATEGORIES else (category if category in ALLOWED_CATEGORIES else None)
 
-    inst = (data.get("suggested_institution") or "").strip().lower()
+    inst = (data.get("suggested_institution") or "").strip().lower().replace(" ", "_")
     result["suggested_institution"] = inst if inst in ALLOWED_INSTITUTIONS else None
+
+    ptype = (data.get("suggested_problem_type") or "").strip().lower().replace(" ", "_")
+    if ptype:
+        allowed_for_cat = PROBLEM_TYPE_HINTS.get(result.get("suggested_category") or category or "")
+        if allowed_for_cat and ptype in allowed_for_cat:
+            result["suggested_problem_type"] = ptype
+
+    urgency = (data.get("suggested_urgency") or "").strip().lower()
+    if urgency in ALLOWED_URGENCY:
+        result["suggested_urgency"] = urgency
 
     return result

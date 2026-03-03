@@ -35,6 +35,14 @@ export default function Login() {
     }
   }, [location.state]);
 
+  useEffect(() => {
+    const params = new URLSearchParams(location.search);
+    if (params.get('session') === 'expired') {
+      setError('Your session expired. Please log in again.');
+      window.history.replaceState({}, document.title, '/login');
+    }
+  }, [location.search]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);

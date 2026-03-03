@@ -9,8 +9,13 @@ export interface UserInfo {
   full_name: string;
   email: string;
   role: string;
-  /** When set, admin only sees/manages reports for this category (e.g. water, electricity, roads). */
+  /** When set, admin only sees/manages reports for this category. */
   admin_category?: string | null;
+  /** Geographic scope: all | district | sector | cell. */
+  admin_scope_level?: string | null;
+  scope_district?: string | null;
+  scope_sector?: string | null;
+  scope_cell?: string | null;
   profile_image?: string | null;
 }
 

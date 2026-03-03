@@ -12,6 +12,18 @@ export function AdminDashboardLayout() {
   const adminCategoryLabel = user?.admin_category
     ? (t.admin.categories as Record<string, string>)[user.admin_category] ?? user.admin_category
     : t.admin.filterAllCategories;
+  const scopeLevel = (user?.admin_scope_level ?? '').toLowerCase();
+  const scopeLabel =
+    scopeLevel === 'cell' && user?.scope_district && user?.scope_sector && user?.scope_cell
+      ? `Cell: ${user.scope_cell} (${user.scope_sector}, ${user.scope_district})`
+      : scopeLevel === 'sector' && user?.scope_district && user?.scope_sector
+        ? `Sector: ${user.scope_sector} (${user.scope_district})`
+        : scopeLevel === 'district' && user?.scope_district
+          ? `District: ${user.scope_district}`
+          : scopeLevel && scopeLevel !== 'all'
+            ? [user?.scope_district, user?.scope_sector, user?.scope_cell].filter(Boolean).join(' → ') || scopeLevel
+            : null;
+  const headerScopeText = scopeLabel || (scopeLevel === 'all' || !scopeLevel ? null : 'Scope');
   const sidebarItems = [
     { path: '/admin/dashboard', label: t.admin.sidebar.dashboard, icon: LayoutDashboard },
     { path: '/admin/issues', label: t.admin.sidebar.allIssues, icon: FileText },
@@ -52,6 +64,9 @@ export function AdminDashboardLayout() {
             <span className="text-sm font-semibold text-slate-700">
               PublicVoice Admin
               <span className="ml-2 font-normal text-slate-500">· {adminCategoryLabel}</span>
+              {headerScopeText && (
+                <span className="ml-2 font-normal text-slate-500">· {headerScopeText}</span>
+              )}
             </span>
           </div>
           <LanguageSwitcher />

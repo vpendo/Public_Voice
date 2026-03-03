@@ -77,6 +77,10 @@ def login(
         email=user.email,
         role=role,
         admin_category=getattr(user, "admin_category", None),
+        admin_scope_level=getattr(user, "admin_scope_level", None),
+        scope_district=getattr(user, "scope_district", None),
+        scope_sector=getattr(user, "scope_sector", None),
+        scope_cell=getattr(user, "scope_cell", None),
         profile_image=user.profile_image,
     )
     return LoginResponse(
@@ -95,6 +99,10 @@ def _user_to_response(user: User) -> UserResponse:
         email=user.email,
         role=user.role or "User",
         admin_category=getattr(user, "admin_category", None),
+        admin_scope_level=getattr(user, "admin_scope_level", None),
+        scope_district=getattr(user, "scope_district", None),
+        scope_sector=getattr(user, "scope_sector", None),
+        scope_cell=getattr(user, "scope_cell", None),
         profile_image=user.profile_image,
     )
 

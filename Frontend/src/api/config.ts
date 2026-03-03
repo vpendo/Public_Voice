@@ -10,9 +10,16 @@ export function apiUrl(path: string): string {
   return `${base}${p}`;
 }
 
-/** Build full URL for backend-served assets (e.g. profile images). */
+/** Build full URL for backend-served assets (e.g. profile images, evidence). */
 export function assetUrl(path: string | null | undefined): string | null {
   if (!path || !path.trim()) return null;
   const p = path.startsWith('/') ? path : `/${path}`;
   return `${API_BASE_URL.replace(/\/$/, '')}${p}`;
+}
+
+/** Build full URL for evidence file (path from API is e.g. "evidence/abc.jpg"). */
+export function evidenceUrl(path: string | null | undefined): string | null {
+  if (!path || !path.trim()) return null;
+  const segment = path.startsWith('uploads/') ? path : `uploads/${path}`;
+  return assetUrl(segment);
 }

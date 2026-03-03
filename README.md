@@ -2,6 +2,18 @@
 
 - **DEMO of Public Voice:** [https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing](https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing)
 
+---
+
+## How to run the project
+
+See **[RUN.md](RUN.md)** for step-by-step instructions. Summary:
+
+1. **Backend** (from `Backend`): create venv, `pip install -r requirements.txt`, copy `env.example` to `.env`, run `python -m scripts.create_admin`, then `uvicorn main:app --reload --host 0.0.0.0 --port 8000`.
+2. **Frontend** (from `Frontend`): `pnpm install` (or `npm install`), then `pnpm dev` (or `npm run dev`).
+3. Open **http://localhost:5173** and log in or register.
+
+---
+
 ## Description
 
 **PublicVoice** is a civic engagement platform for Rwanda that connects citizens with local authorities. Citizens can report community issues (e.g. roads, water, security, sanitation) in **English or Kinyarwanda**; the platform uses **AI/NLP** to translate, rewrite into formal English, and structure reports so admins see clear, actionable content. It promotes transparency, accountability, and data-driven governance.
@@ -80,7 +92,7 @@ python -m venv venv
 
 **Activate the virtual environment:**
 
-- **Windows:** `venv\Scripts\activate`
+- **Windows:** `source venv/Scripts/activate`
 - **macOS/Linux:** `source venv/bin/activate`
 
 ```bash

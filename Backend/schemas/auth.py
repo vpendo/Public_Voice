@@ -53,6 +53,10 @@ class UserResponse(BaseModel):
     email: str
     role: str
     admin_category: str | None = None  # When set, admin only sees reports for this category
+    admin_scope_level: str | None = None  # all | district | sector | cell – geographic scope
+    scope_district: str | None = None
+    scope_sector: str | None = None
+    scope_cell: str | None = None
     profile_image: str | None = None  # URL path e.g. /uploads/avatars/1_xxx.jpg
 
     class Config:

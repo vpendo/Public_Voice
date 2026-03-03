@@ -18,13 +18,14 @@ from fastapi.responses import JSONResponse
 
 from core.config import settings
 from models.base import init_db
-from routers import auth, reports, users
+from routers import auth, reports, users, upload
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    """Create DB tables on startup; log AI/NLP status."""
+    """Create DB tables on startup; log AI/NLP status and CORS origins."""
     init_db()
+    logger.info("CORS allowed origins: %s", settings.CORS_ORIGINS)
     if getattr(settings, "OPENAI_API_KEY", None) and settings.OPENAI_API_KEY.strip():
         logger.info("AI/NLP enabled: citizen reports will be translated, rewritten formally, and structured (set OPENAI_API_KEY in .env).")
     else:
@@ -82,10 +83,12 @@ async def validation_exception_handler(_request: Request, exc: RequestValidation
 app.include_router(auth.router)
 app.include_router(reports.router)
 app.include_router(users.router)
+app.include_router(upload.router)
 
-# Serve uploaded files (e.g. profile images)
+# Serve uploaded files (profile images, evidence)
 uploads_dir = Path(__file__).resolve().parent / "uploads"
 uploads_dir.mkdir(exist_ok=True)
+(uploads_dir / "evidence").mkdir(exist_ok=True)
 app.mount("/uploads", StaticFiles(directory=str(uploads_dir)), name="uploads")
 
 

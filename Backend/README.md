@@ -90,6 +90,40 @@ CREATE_ADMIN_EMAIL=admin@example.com CREATE_ADMIN_PASSWORD=YourSecurePass1 pytho
 
 Password rules: at least 8 characters, one letter and one digit.
 
+**Cell / Sector / District dashboards:** You can create admins that see only reports from a specific area. When prompted, choose a **geographic scope**: `all` (default), `district`, `sector`, or `cell`, then enter the district/sector/cell names (must match how citizens enter them in reports). Examples:
+
+```bash
+# Interactive: run and choose scope when prompted
+python -m scripts.create_admin
+
+# CLI: cell admin (district → sector → cell)
+python -m scripts.create_admin cell@example.com "Cell Admin" "" Pass123 cell "Gasabo" "Remera" "Gikondo"
+
+# CLI: sector admin
+python -m scripts.create_admin sector@example.com "Sector Admin" "" Pass123 sector "Gasabo" "Remera" ""
+
+# CLI: district admin
+python -m scripts.create_admin district@example.com "District Admin" "" Pass123 district "Gasabo" "" ""
+```
+
+If the `admin_scope_level` / `scope_district` / `scope_sector` / `scope_cell` columns are missing on the `users` table, run once:
+
+```bash
+python -m scripts.add_admin_scope_columns
+```
+
+**Fix a mistake (wrong sector/district/cell):** To update an existing admin’s scope or category:
+
+```bash
+python -m scripts.update_admin_scope celladmin@gmail.com
+```
+
+Then enter the correct sector (and district/cell if needed) when prompted. Or pass everything on the command line:
+
+```bash
+python -m scripts.update_admin_scope celladmin@gmail.com --scope-level cell --district Gasabo --sector Remera --cell Gikondo
+```
+
 ### See your admin account (which email to use for admin login)
 
 To see which account is the admin (e.g. if you forgot the email you used):
@@ -136,3 +170,22 @@ API design: REST; auth via JWT Bearer; endpoints documented at `/docs`.
 6. **Database:** Add a PostgreSQL database on Render; use its internal URL as `DATABASE_URL`. Tables are created on first startup via `init_db()`. Create an admin with `python -m scripts.create_admin` (run locally with prod `DATABASE_URL` or via a one-off job if you add it).
 
 After deploy, use the Render service URL (e.g. `https://your-app.onrender.com`) as the frontend `VITE_API_URL`.
+
+---
+
+### Troubleshooting: CORS and "Connection refused"
+
+- **"ERR_CONNECTION_REFUSED" / "Failed to load resource: net::ERR_FAILED"**  
+  The backend is not running or not reachable. Start it from the Backend folder:
+  ```bash
+  uvicorn main:app --reload --host 127.0.0.1 --port 8000
+  ```
+  Then open the frontend at `http://localhost:5173` again.
+
+- **"Blocked by CORS policy: No 'Access-Control-Allow-Origin' header"**  
+  1. Make sure the backend is running (see above).  
+  2. In the Backend folder, ensure `.env` has the frontend origin(s) (no trailing slash, comma-separated if several):
+     ```
+     CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
+     ```
+  3. Restart the backend after changing `.env`.

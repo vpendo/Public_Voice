@@ -43,14 +43,16 @@ class Settings:
             raise ValueError("SECRET_KEY must be set in production")
 
         # ---------------- CORS ----------------
-        self.CORS_ORIGINS: List[str] = [
-            o.strip()
-            for o in os.getenv(
-                "CORS_ORIGINS",
-                "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
-            ).split(",")
-            if o.strip()
-        ]
+        _cors_raw = os.getenv(
+            "CORS_ORIGINS",
+            "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
+        )
+        self.CORS_ORIGINS = [o.strip() for o in _cors_raw.split(",") if o.strip()]
+        if not self.CORS_ORIGINS:
+            self.CORS_ORIGINS = [
+                "http://localhost:5173",
+                "http://127.0.0.1:5173",
+            ]
 
         # ---------------- Email (Forgot-password / reset) ----------------
         self.FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
@@ -60,6 +62,8 @@ class Settings:
         self.SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "").strip()
         self.SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", self.SMTP_USER or "noreply@publicvoice.rw").strip()
         self.SMTP_USE_TLS: bool = self._to_bool(os.getenv("SMTP_USE_TLS", "true"))
+        # Comma-separated emails to notify when a new report is submitted (optional)
+        self.ADMIN_NOTIFY_EMAILS: str = os.getenv("ADMIN_NOTIFY_EMAILS", "").strip()
 
     @property
     def email_configured(self) -> bool:
