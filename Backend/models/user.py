@@ -2,7 +2,7 @@
 User model for authentication.
 Admins manage the system; users may submit/track reports.
 """
-from sqlalchemy import Column, Integer, String, DateTime
+from sqlalchemy import Boolean, Column, Integer, String, DateTime
 from sqlalchemy.sql import func
 from sqlalchemy.orm import relationship
 import enum
@@ -27,6 +27,8 @@ class User(Base):
     reset_token = Column(String(255), nullable=True, index=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
 
+    # Email verification (OTP sent on register)
+    email_verified = Column(Boolean, nullable=False, default=False)
     role = Column(String(50), nullable=False, default=UserRole.USER.value)
     # When set, this admin only sees and manages reports for this category. Null = all categories.
     admin_category = Column(String(50), nullable=True, index=True)

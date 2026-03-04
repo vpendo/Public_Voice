@@ -45,6 +45,6 @@ def init_db() -> None:
     Create tables (development only).
     In production, use Alembic migrations instead.
     """
-    from models import user, report  # register models
+    from models import user, report, otp  # register models
 
     Base.metadata.create_all(bind=engine)

@@ -45,3 +45,45 @@ def send_password_reset_email(to_email: str, reset_link: str) -> None:
             server.starttls()
         server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
         server.sendmail(settings.SMTP_FROM_EMAIL, [to_email], msg.as_string())
+
+
+def send_otp_email(to_email: str, code: str, purpose: str = "register") -> None:
+    """
+    Send an email with a 6-digit OTP.
+    purpose: "register" | "login" | "reset_password"
+    """
+    app_name = settings.APP_NAME
+    if purpose == "login":
+        subject = f"{app_name} – Your login code"
+        intro = f"Use this code to log in to your {app_name} account:"
+    elif purpose == "reset_password":
+        subject = f"{app_name} – Password reset code"
+        intro = f"Use this code to reset your {app_name} password:"
+    else:
+        subject = f"{app_name} – Verify your email"
+        intro = f"Your verification code for {app_name} is:"
+    html_body = f"""
+    <p>{intro}</p>
+    <p style="font-size: 24px; font-weight: bold; letter-spacing: 4px;">{code}</p>
+    <p>This code expires in 15 minutes. If you didn't request this, you can ignore this email.</p>
+    <p>— {app_name}</p>
+    """
+    text_body = f"""
+    {intro}
+    {code}
+    This code expires in 15 minutes. If you didn't request this, you can ignore this email.
+    — {app_name}
+    """
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = settings.SMTP_FROM_EMAIL
+    msg["To"] = to_email
+    msg.attach(MIMEText(text_body.strip(), "plain"))
+    msg.attach(MIMEText(html_body.strip(), "html"))
+    use_tls = settings.SMTP_USE_TLS
+    port = settings.SMTP_PORT
+    with smtplib.SMTP(settings.SMTP_HOST, port) as server:
+        if use_tls:
+            server.starttls()
+        server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        server.sendmail(settings.SMTP_FROM_EMAIL, [to_email], msg.as_string())

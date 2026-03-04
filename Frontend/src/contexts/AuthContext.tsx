@@ -9,9 +9,7 @@ export interface UserInfo {
   full_name: string;
   email: string;
   role: string;
-  /** When set, admin only sees/manages reports for this category. */
   admin_category?: string | null;
-  /** Geographic scope: all | district | sector | cell. */
   admin_scope_level?: string | null;
   scope_district?: string | null;
   scope_sector?: string | null;
@@ -25,10 +23,34 @@ interface AuthContextType {
   isAuthenticated: boolean;
   isAdmin: boolean;
   isLoadingUser: boolean;
-  login: (email: string, password: string) => Promise<{ ok: boolean; error?: string; user?: UserInfo; is_admin?: boolean }>;
-  register: (fullName: string, email: string, password: string) => Promise<{ ok: boolean; error?: string }>;
-  requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string; reset_token?: string }>;
+
+  login: (email: string, password: string) => Promise<{
+    ok: boolean;
+    error?: string;
+    user?: UserInfo;
+    is_admin?: boolean;
+    requires_otp?: boolean;
+    email?: string;
+    dev_otp?: string; // ✅ included
+  }>;
+
+  loginVerifyOtp: (email: string, code: string) => Promise<{
+    ok: boolean;
+    error?: string;
+    user?: UserInfo;
+    is_admin?: boolean;
+  }>;
+
+  register: (fullName: string, email: string, password: string) => Promise<{
+    ok: boolean;
+    error?: string;
+    email?: string;
+    dev_otp?: string; // ✅ included
+  }>;
+
+  requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string }>;
   resetPassword: (token: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
+  resetPasswordWithOtp: (email: string, code: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
   updateProfile: (data: { full_name?: string; profile_image?: File }) => Promise<{ ok: boolean; error?: string }>;
   logout: () => void;
   getToken: () => string | null;
@@ -48,7 +70,7 @@ function getStoredToken(): string | null {
 function getErrorMessage(err: unknown): string {
   if (isAxiosError(err)) {
     if (err.code === 'ECONNREFUSED' || err.message === 'Network Error') {
-      return 'Cannot reach server. Is the backend running at http://127.0.0.1:8000?';
+      return 'Cannot reach server. Is the backend running?';
     }
     if (err.response?.data?.detail !== undefined) {
       const detail = err.response.data.detail;
@@ -84,9 +106,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       if (t) localStorage.setItem(TOKEN_KEY, t);
       else localStorage.removeItem(TOKEN_KEY);
-    } catch {
-      // ignore
-    }
+    } catch {}
   }, []);
 
   const fetchUser = useCallback(async (): Promise<UserInfo | null> => {
@@ -110,36 +130,60 @@ export function AuthProvider({ children }: AuthProviderProps) {
   }, [persistToken]);
 
   useEffect(() => {
-    if (token) {
-      fetchUser();
-    } else {
+    if (token) fetchUser();
+    else {
       setUser(null);
       setIsLoadingUser(false);
     }
   }, [token, fetchUser]);
 
+  // ✅ LOGIN
   const login = useCallback(
-    async (email: string, password: string): Promise<{ ok: boolean; error?: string; user?: UserInfo; is_admin?: boolean }> => {
+    async (
+      email: string,
+      password: string
+    ): Promise<{
+      ok: boolean;
+      error?: string;
+      user?: UserInfo;
+      is_admin?: boolean;
+      requires_otp?: boolean;
+      email?: string;
+      dev_otp?: string;
+    }> => {
       try {
         const { data } = await apiClient.post<{
-          access_token: string;
+          access_token?: string;
+          requires_otp?: boolean;
+          email?: string;
+          dev_otp?: string;
           user?: UserInfo;
           is_admin?: boolean;
         }>('/api/auth/login', {
           email: email.trim().toLowerCase(),
           password,
         });
-        const accessToken = data.access_token;
-        if (!accessToken) return { ok: false, error: 'Invalid response' };
-        persistToken(accessToken);
-        const isAdmin = data.is_admin === true;
+
+        if (data.requires_otp === true && data.email) {
+          return {
+            ok: true,
+            requires_otp: true,
+            email: data.email,
+            dev_otp: data.dev_otp,
+          };
+        }
+
+        if (!data.access_token) return { ok: false, error: 'Invalid response' };
+
+        persistToken(data.access_token);
+
         if (data.user) {
           setUser(data.user);
-          return { ok: true, user: data.user, is_admin: isAdmin };
+          return { ok: true, user: data.user, is_admin: data.is_admin === true };
         }
+
         const me = await fetchUser();
-        const userFromMe = me ?? undefined;
-        return { ok: true, user: userFromMe, is_admin: isAdmin || (userFromMe && (userFromMe.role ?? '').trim().toLowerCase() === 'admin') };
+        return { ok: true, user: me ?? undefined, is_admin: data.is_admin === true };
       } catch (err) {
         return { ok: false, error: getErrorMessage(err) };
       }
@@ -147,34 +191,60 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [persistToken, fetchUser]
   );
 
+  // ✅ VERIFY LOGIN OTP
+  const loginVerifyOtp = useCallback(
+    async (email: string, code: string) => {
+      try {
+        const { data } = await apiClient.post<{
+          access_token: string;
+          user?: UserInfo;
+          is_admin?: boolean;
+        }>('/api/auth/login/verify-otp', {
+          email: email.trim().toLowerCase(),
+          code: code.trim(),
+        });
+
+        if (!data.access_token) return { ok: false, error: 'Invalid response' };
+
+        persistToken(data.access_token);
+
+        if (data.user) {
+          setUser(data.user);
+          return { ok: true, user: data.user, is_admin: data.is_admin === true };
+        }
+
+        const me = await fetchUser();
+        return { ok: true, user: me ?? undefined, is_admin: data.is_admin === true };
+      } catch (err) {
+        return { ok: false, error: getErrorMessage(err) };
+      }
+    },
+    [persistToken, fetchUser]
+  );
+
+  // ✅ REGISTER
   const register = useCallback(
     async (
       fullName: string,
       email: string,
       password: string
-    ): Promise<{ ok: boolean; error?: string }> => {
+    ): Promise<{ ok: boolean; error?: string; email?: string; dev_otp?: string }> => {
       try {
-        await apiClient.post('/api/auth/register', {
+        const { data } = await apiClient.post<{
+          message: string;
+          email: string;
+          dev_otp?: string;
+        }>('/api/auth/register', {
           full_name: fullName.trim(),
           email: email.trim().toLowerCase(),
           password,
         });
-        return login(email, password);
-      } catch (err) {
-        return { ok: false, error: getErrorMessage(err) };
-      }
-    },
-    [login]
-  );
 
-  const requestPasswordReset = useCallback(
-    async (email: string): Promise<{ ok: boolean; error?: string; reset_token?: string }> => {
-      try {
-        const { data } = await apiClient.post<{ message: string; reset_token?: string }>(
-          '/api/auth/forgot-password',
-          { email: email.trim().toLowerCase() }
-        );
-        return { ok: true, reset_token: data.reset_token };
+        return {
+          ok: true,
+          email: data.email ?? email.trim().toLowerCase(),
+          dev_otp: data.dev_otp,
+        };
       } catch (err) {
         return { ok: false, error: getErrorMessage(err) };
       }
@@ -182,42 +252,58 @@ export function AuthProvider({ children }: AuthProviderProps) {
     []
   );
 
-  const resetPassword = useCallback(
-    async (token: string, newPassword: string): Promise<{ ok: boolean; error?: string }> => {
-      try {
-        await apiClient.post('/api/auth/reset-password', { token, new_password: newPassword });
-        return { ok: true };
-      } catch (err) {
-        return { ok: false, error: getErrorMessage(err) };
-      }
-    },
-    []
-  );
+  const requestPasswordReset = useCallback(async (email: string) => {
+    try {
+      await apiClient.post('/api/auth/forgot-password', { email: email.trim().toLowerCase() });
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: getErrorMessage(err) };
+    }
+  }, []);
 
-  const updateProfile = useCallback(
-    async (data: { full_name?: string; profile_image?: File }): Promise<{ ok: boolean; error?: string }> => {
-      try {
-        const formData = new FormData();
-        if (data.full_name !== undefined) formData.append('full_name', data.full_name);
-        if (data.profile_image) formData.append('profile_image', data.profile_image);
-        const { data: updated } = await apiClient.patch<UserInfo>('/api/auth/me', formData, {
-          headers: { 'Content-Type': 'multipart/form-data' },
-        });
-        setUser(updated);
-        return { ok: true };
-      } catch (err) {
-        return { ok: false, error: getErrorMessage(err) };
-      }
-    },
-    []
-  );
+  const resetPassword = useCallback(async (token: string, newPassword: string) => {
+    try {
+      await apiClient.post('/api/auth/reset-password', { token, new_password: newPassword });
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: getErrorMessage(err) };
+    }
+  }, []);
+
+  const resetPasswordWithOtp = useCallback(async (email: string, code: string, newPassword: string) => {
+    try {
+      await apiClient.post('/api/auth/reset-password', {
+        email: email.trim().toLowerCase(),
+        code: code.trim(),
+        new_password: newPassword,
+      });
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: getErrorMessage(err) };
+    }
+  }, []);
+
+  const updateProfile = useCallback(async (data: { full_name?: string; profile_image?: File }) => {
+    try {
+      const formData = new FormData();
+      if (data.full_name) formData.append('full_name', data.full_name);
+      if (data.profile_image) formData.append('profile_image', data.profile_image);
+
+      const { data: updated } = await apiClient.patch<UserInfo>('/api/auth/me', formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      });
+
+      setUser(updated);
+      return { ok: true };
+    } catch (err) {
+      return { ok: false, error: getErrorMessage(err) };
+    }
+  }, []);
 
   const logout = useCallback(() => {
     persistToken(null);
     setUser(null);
   }, [persistToken]);
-
-  const getToken = useCallback(() => getStoredToken(), []);
 
   const value: AuthContextType = {
     token,
@@ -226,12 +312,14 @@ export function AuthProvider({ children }: AuthProviderProps) {
     isAdmin: (user?.role ?? '').trim().toLowerCase() === 'admin',
     isLoadingUser,
     login,
+    loginVerifyOtp,
     register,
     requestPasswordReset,
     resetPassword,
+    resetPasswordWithOtp,
     updateProfile,
     logout,
-    getToken,
+    getToken: getStoredToken,
     refreshUser: fetchUser,
   };
 

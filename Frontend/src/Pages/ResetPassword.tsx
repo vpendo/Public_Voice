@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Link, useSearchParams } from 'react-router-dom';
-import { Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Megaphone } from 'lucide-react';
+import { Link, useSearchParams, useLocation } from 'react-router-dom';
+import { Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Megaphone, Mail } from 'lucide-react';
 import { LanguageSwitcher } from '../Components/LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -9,9 +9,13 @@ const RESET_IMAGE = '/Image/home%203.jpg';
 
 export default function ResetPassword() {
   const { t } = useLanguage();
-  const { resetPassword } = useAuth();
+  const { resetPassword, resetPasswordWithOtp } = useAuth();
   const [searchParams] = useSearchParams();
+  const location = useLocation();
   const token = searchParams.get('token') ?? '';
+  const emailFromState = (location.state as { email?: string } | null)?.email ?? '';
+  const useOtpFlow = !!emailFromState;
+  const [otpCode, setOtpCode] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
@@ -21,10 +25,10 @@ export default function ResetPassword() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!token) {
+    if (!useOtpFlow && !token) {
       setError(t.resetPassword?.invalidToken ?? 'Invalid or expired reset link. Please request a new one from the login page.');
     }
-  }, [token, t.resetPassword?.invalidToken]);
+  }, [token, useOtpFlow, t.resetPassword?.invalidToken]);
 
   const validatePassword = (p: string): string | null => {
     if (p.length < 8) return 'Password must be at least 8 characters';
@@ -36,7 +40,12 @@ export default function ResetPassword() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!token) {
+    if (useOtpFlow) {
+      if (!emailFromState || otpCode.trim().length !== 6) {
+        setError(t.resetPassword?.enterCode ?? 'Enter the 6-digit code from your email.');
+        return;
+      }
+    } else if (!token) {
       setError(t.resetPassword?.invalidToken ?? 'Invalid or expired reset link.');
       return;
     }
@@ -50,7 +59,9 @@ export default function ResetPassword() {
       return;
     }
     setLoading(true);
-    const result = await resetPassword(token, newPassword);
+    const result = useOtpFlow
+      ? await resetPasswordWithOtp(emailFromState, otpCode.trim(), newPassword)
+      : await resetPassword(token, newPassword);
     setLoading(false);
     if (!result.ok) {
       setError(result.error ?? 'Failed to reset password');
@@ -59,7 +70,7 @@ export default function ResetPassword() {
     setSuccess(true);
   };
 
-  if (!token) {
+  if (!token && !useOtpFlow) {
     return (
       <div className="min-h-screen flex flex-col lg:flex-row font-poppins">
         <div className="lg:w-[48%] relative min-h-[40vh] lg:min-h-screen overflow-hidden order-2 lg:order-1">
@@ -132,13 +143,45 @@ export default function ResetPassword() {
               </div>
             ) : (
               <>
-                <p className="text-sm text-slate-500 mb-6">{t.resetPassword?.subtitle ?? 'Enter your new password below.'}</p>
+                <p className="text-sm text-slate-500 mb-6">
+                  {useOtpFlow
+                    ? (t.resetPassword?.otpSubtitle ?? 'Enter the code we sent to your email and choose a new password.')
+                    : (t.resetPassword?.subtitle ?? 'Enter your new password below.')}
+                </p>
                 {error && (
                   <div className="mb-4 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600">
                     {error}
                   </div>
                 )}
                 <form onSubmit={handleSubmit} className="space-y-5">
+                  {useOtpFlow && (
+                    <>
+                      <div>
+                        <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                          {t.login?.email ?? 'Email'}
+                        </label>
+                        <div className="flex items-center gap-2 text-slate-700 font-medium">
+                          <Mail size={18} className="text-slate-500" />
+                          {emailFromState}
+                        </div>
+                      </div>
+                      <div>
+                        <label htmlFor="reset-otp-code" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                          {t.resetPassword?.enterCode ?? 'Verification code'}
+                        </label>
+                        <input
+                          type="text"
+                          id="reset-otp-code"
+                          inputMode="numeric"
+                          maxLength={6}
+                          value={otpCode}
+                          onChange={(e) => setOtpCode(e.target.value.replace(/\D/g, ''))}
+                          className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900 text-center text-2xl tracking-widest font-mono"
+                          placeholder="000000"
+                        />
+                      </div>
+                    </>
+                  )}
                   <div>
                     <label htmlFor="new-password" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
                       {t.resetPassword?.newPassword ?? 'New password'}

@@ -38,8 +38,10 @@ export default function Register() {
     setLoading(true);
     const result = await registerUser(formData.fullName, formData.email, formData.password);
     setLoading(false);
-    if (result.ok) {
-      navigate('/login', { state: { message: 'Registration successful. Please login.' } });
+    if (result.ok && result.email) {
+      navigate('/verify-email', { state: { email: result.email, dev_otp: result.dev_otp } });
+    } else if (result.ok) {
+      navigate('/verify-email', { state: { email: formData.email.trim().toLowerCase(), dev_otp: result.dev_otp } });
     } else {
       setError(result.error ?? 'Registration failed');
     }
