@@ -3,7 +3,14 @@ Application configuration from environment variables.
 Never commit .env; use env.example as template.
 """
 import os
+from pathlib import Path
 from typing import List, Optional
+from dotenv import load_dotenv
+
+# Load .env from Backend folder so it works regardless of current working directory
+_backend_dir = Path(__file__).resolve().parent.parent
+_env_file = _backend_dir / ".env"
+load_dotenv(_env_file)
 
 
 class Settings:
@@ -33,10 +40,11 @@ class Settings:
         )
 
         # ---------------- AI / NLP (OpenAI SDK v2) ----------------
-        # Make sure OPENAI_API_KEY is set in your .env for AI processing to work
         self.OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
-        self.OPENAI_API_BASE: Optional[str] = (os.getenv("OPENAI_API_BASE", "").strip() or None)  # optional, e.g., Azure endpoint
-        self.OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")  # default to GPT-4o-mini
+        self.OPENAI_API_BASE: Optional[str] = (
+            os.getenv("OPENAI_API_BASE", "").strip() or None
+        )  # optional, e.g., Azure endpoint
+        self.OPENAI_MODEL: str = os.getenv("OPENAI_MODEL", "gpt-4o-mini")
 
         # ---------------- Production Security Check ----------------
         if self.ENVIRONMENT == "production" and self.SECRET_KEY.startswith("change-me"):
@@ -49,10 +57,13 @@ class Settings:
         )
         self.CORS_ORIGINS = [o.strip() for o in _cors_raw.split(",") if o.strip()]
         if not self.CORS_ORIGINS:
-            self.CORS_ORIGINS = [
-                "http://localhost:5173",
-                "http://127.0.0.1:5173",
-            ]
+            self.CORS_ORIGINS = []
+        # In development, always allow both localhost and 127.0.0.1 (browser treats them as different origins)
+        if self.ENVIRONMENT != "production":
+            _dev_origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://127.0.0.1:3000"]
+            for origin in _dev_origins:
+                if origin not in self.CORS_ORIGINS:
+                    self.CORS_ORIGINS.append(origin)
 
         # ---------------- Email (Forgot-password / reset) ----------------
         self.FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
@@ -60,7 +71,9 @@ class Settings:
         self.SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
         self.SMTP_USER: str = os.getenv("SMTP_USER", "").strip()
         self.SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "").strip()
-        self.SMTP_FROM_EMAIL: str = os.getenv("SMTP_FROM_EMAIL", self.SMTP_USER or "noreply@publicvoice.rw").strip()
+        self.SMTP_FROM_EMAIL: str = os.getenv(
+            "SMTP_FROM_EMAIL", self.SMTP_USER or "noreply@publicvoice.rw"
+        ).strip()
         self.SMTP_USE_TLS: bool = self._to_bool(os.getenv("SMTP_USE_TLS", "true"))
         # Comma-separated emails to notify when a new report is submitted (optional)
         self.ADMIN_NOTIFY_EMAILS: str = os.getenv("ADMIN_NOTIFY_EMAILS", "").strip()

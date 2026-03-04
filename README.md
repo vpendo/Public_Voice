@@ -1,16 +1,110 @@
 # PublicVoice
 
-- **DEMO of Public Voice:** [https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing](https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing)
+Civic engagement platform for Rwanda: citizens report issues in English or Kinyarwanda; AI translates and structures reports for admins.
+
+- **Demo video:** [Demo (Google Drive)](https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing)
+- **Repository:** [GitHub – Public_Voice](https://github.com/vpendo/Public_Voice)
+- **Deployed app:** *(add your Netlify/Render or installable link here)*
 
 ---
 
-## How to run the project
+## Capstone submission (Attempt 1 & 2)
 
-See **[RUN.md](RUN.md)** for step-by-step instructions. Summary:
+| Requirement | Status |
+|-------------|--------|
+| **Attempt 1:** Repo with README (install/run + related files) | This README |
+| **Attempt 1:** 5‑min video (focus on **core features**: report submission, AI structuring, admin dashboard; minimal sign‑up/sign‑in) | Link above |
+| **Attempt 1:** Link to deployed app or installable (APK/.exe) | Add link above when ready |
+| **Attempt 2:** Zip of the same repo | Create zip from repo root |
 
-1. **Backend** (from `Backend`): create venv, `pip install -r requirements.txt`, copy `env.example` to `.env`, run `python -m scripts.create_admin`, then `uvicorn main:app --reload --host 0.0.0.0 --port 8000`.
-2. **Frontend** (from `Frontend`): `pnpm install` (or `npm install`), then `pnpm dev` (or `npm run dev`).
-3. Open **http://localhost:5173** and log in or register.
+For **Testing Results**, **Analysis**, **Discussion**, and **Recommendations**, use the template in **[TESTING-AND-ANALYSIS.md](TESTING-AND-ANALYSIS.md)** (screenshots, different strategies/data/specs, then paste into your report or Canvas).
+
+---
+
+## Install and run (step by step)
+
+### Prerequisites
+
+- **Node.js** 18+ and **pnpm** or **npm**
+- **Python** 3.10+ and **pip**
+- **PostgreSQL** (optional; SQLite used if `DATABASE_URL` is not set)
+
+### Step 1 – Clone and open the project
+
+```bash
+git clone https://github.com/vpendo/Public_Voice.git
+cd Public_Voice
+```
+
+### Step 2 – Backend
+
+```bash
+cd Backend
+python -m venv venv
+```
+
+Activate the virtual environment:
+
+- **Windows (PowerShell):** `.\venv\Scripts\Activate.ps1` or `venv\Scripts\activate`
+- **macOS/Linux:** `source venv/bin/activate`
+
+Then:
+
+```bash
+pip install -r requirements.txt
+copy env.example .env   # Windows
+# cp env.example .env   # macOS/Linux
+```
+
+Edit `.env`: set **SECRET_KEY** (e.g. `openssl rand -hex 32`). Optional: **DATABASE_URL**, **CORS_ORIGINS**, **OPENAI_API_KEY** (for AI report structuring).
+
+Create an admin user (for admin login):
+
+```bash
+python -m scripts.create_admin
+```
+
+Start the API:
+
+```bash
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
+```
+
+API: **http://localhost:8000** · Docs: **http://localhost:8000/docs**
+
+### Step 3 – Frontend (new terminal)
+
+```bash
+cd Public_Voice/Frontend
+pnpm install
+# Or: npm install
+```
+
+Optional: create `Frontend/.env` with `VITE_API_URL=http://127.0.0.1:8000`.
+
+```bash
+pnpm dev
+# Or: npm run dev
+```
+
+Open **http://localhost:5173**.
+
+### Step 4 – Verify
+
+- Register a citizen → submit a report (try Kinyarwanda or informal English if **OPENAI_API_KEY** is set).
+- Log in as admin → view reports and “Structured report (AI)”; respond to an issue.
+
+### Related files to the project
+
+| Purpose | Location |
+|--------|----------|
+| Backend entry, API routes | `Backend/main.py`, `Backend/routers/` |
+| Report & AI processing | `Backend/routers/reports.py`, `Backend/services/ai_processor.py` |
+| Auth (JWT, login, register) | `Backend/routers/auth.py`, `Backend/core/security.py` |
+| Database models | `Backend/models/`, `Backend/schemas/` |
+| Frontend app & pages | `Frontend/src/`, `Frontend/src/Pages/`, `Frontend/src/Components/` |
+| Config (env) | `Backend/env.example`, `Backend/.env` (do not commit `.env`) |
+| Full structure | See [Project structure](#project-structure) below. |
 
 ---
 

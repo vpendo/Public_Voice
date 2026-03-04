@@ -8,6 +8,14 @@ import secrets
 import uuid
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+
+
+def _utc_now_comparable_with(dt: datetime | None):
+    """Return current UTC time in the same tz awareness as dt (naive for SQLite, aware for PostgreSQL)."""
+    now_utc = datetime.now(timezone.utc)
+    if dt is not None and getattr(dt, "tzinfo", None) is not None:
+        return now_utc
+    return now_utc.replace(tzinfo=None)
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
@@ -171,7 +179,7 @@ def login_verify_otp(
     )
     if not otp_row:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code.")
-    if otp_row.expires_at < datetime.now(timezone.utc):
+    if otp_row.expires_at < _utc_now_comparable_with(otp_row.expires_at):
         db.delete(otp_row)
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired. Sign in again and request a new code.")
@@ -201,7 +209,7 @@ def verify_email(
     )
     if not otp_row:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code.")
-    if otp_row.expires_at < datetime.now(timezone.utc):
+    if otp_row.expires_at < _utc_now_comparable_with(otp_row.expires_at):
         db.delete(otp_row)
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired. Request a new one.")
@@ -383,7 +391,7 @@ def reset_password(
         )
         if not otp_row:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Invalid or expired code.")
-        if otp_row.expires_at < datetime.now(timezone.utc):
+        if otp_row.expires_at < _utc_now_comparable_with(otp_row.expires_at):
             db.delete(otp_row)
             db.commit()
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired. Request a new one from the login page.")

@@ -5,15 +5,34 @@ Run: pytest tests/test_reports.py -v
 import pytest
 from fastapi.testclient import TestClient
 
+# Allowed by schemas/report.py (cell-level)
+ALLOWED_CATEGORIES = (
+    "service_delivery",
+    "land_property",
+    "infrastructure_utilities",
+    "social_community",
+    "administrative",
+)
+ALLOWED_INSTITUTIONS = (
+    "cell_office",
+    "sector_office",
+    "district_authority",
+    "social_affairs_officer",
+    "land_bureau",
+    "other",
+)
 
-def _report_payload(**overrides: str) -> dict:
+
+def _report_payload(**overrides) -> dict:
     base = {
         "name": "Test User",
         "phone": "+250788123456",
-        "location": "Kigali, Gasabo",
-        "institution": "district",
-        "category": "roads",
+        "district": "Gasabo",
+        "sector": "Remera",
+        "institution": "district_authority",
+        "category": "infrastructure_utilities",
         "description": "Potholes on the main road near the market.",
+        "consent": True,
     }
     base.update(overrides)
     return base
@@ -28,7 +47,7 @@ def test_create_report_success(client: TestClient, auth_headers: dict) -> None:
     assert r.status_code == 201
     data = r.json()
     assert data["name"] == "Test User"
-    assert data["category"] == "roads"
+    assert data["category"] == "infrastructure_utilities"
     assert data["status"] == "pending"
     assert "id" in data
     assert "created_at" in data
@@ -38,18 +57,20 @@ def test_create_report_different_data(client: TestClient, auth_headers: dict) ->
     r = client.post(
         "/api/reports",
         json=_report_payload(
-            category="water",
-            institution="sector",
-            location="Musanze, Nyabihu",
+            category="infrastructure_utilities",
+            institution="sector_office",
+            district="Musanze",
+            sector="Nyabihu",
             description="No water supply in the village for two weeks.",
         ),
         headers=auth_headers,
     )
     assert r.status_code == 201
     data = r.json()
-    assert data["category"] == "water"
-    assert data["institution"] == "sector"
-    assert "Musanze" in data["location"]
+    assert data["category"] == "infrastructure_utilities"
+    assert data["institution"] == "sector_office"
+    assert data.get("district") == "Musanze"
+    assert data.get("sector") == "Nyabihu"
 
 
 def test_create_report_unauthorized(client: TestClient) -> None:
@@ -59,6 +80,10 @@ def test_create_report_unauthorized(client: TestClient) -> None:
 
 def test_list_my_reports_empty(client: TestClient) -> None:
     """Use a fresh user with no reports so /api/reports/mine returns []."""
+    from models.base import SessionLocal
+    from models.user import User
+    from models.otp import OTP
+
     client.post(
         "/api/auth/register",
         json={
@@ -67,12 +92,40 @@ def test_list_my_reports_empty(client: TestClient) -> None:
             "password": "TestPass123!",
         },
     )
+    db = SessionLocal()
+    try:
+        user = db.query(User).filter(User.email == "empty_reports@test.rw").first()
+        assert user is not None
+        user.email_verified = True
+        db.commit()
+    finally:
+        db.close()
+
     login_r = client.post(
         "/api/auth/login",
         json={"email": "empty_reports@test.rw", "password": "TestPass123!"},
     )
     assert login_r.status_code == 200
-    token = login_r.json()["access_token"]
+    data = login_r.json()
+    assert data.get("requires_otp") is True
+    email = data["email"]
+
+    db = SessionLocal()
+    try:
+        otp_row = (
+            db.query(OTP)
+            .filter(OTP.email == email, OTP.purpose == "login")
+            .order_by(OTP.created_at.desc())
+            .first()
+        )
+        assert otp_row is not None
+        code = otp_row.code
+    finally:
+        db.close()
+
+    verify_r = client.post("/api/auth/login/verify-otp", json={"email": email, "code": code})
+    assert verify_r.status_code == 200
+    token = verify_r.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
     r = client.get("/api/reports/mine", headers=headers)
     assert r.status_code == 200

@@ -1,8 +1,9 @@
 """
 AI/NLP smart processing for citizen issue reports (cell-level).
-Uses OpenAI SDK v2 (responses.create). Aligned with Report schema categories/institutions.
+Uses OpenAI Chat Completions API. Aligned with Report schema categories/institutions.
 """
 
+import json
 import logging
 from typing import Any, Optional
 
@@ -30,7 +31,6 @@ ALLOWED_INSTITUTIONS = {
 
 ALLOWED_URGENCY = {"low", "medium", "high", "emergency"}
 
-# Problem types (subset used for AI suggestion; full set in schemas)
 PROBLEM_TYPE_HINTS = {
     "service_delivery": ["delay_assistance", "no_response", "service_not_delivered", "other"],
     "land_property": ["boundary_conflict", "ownership_dispute", "inheritance", "registration_issue"],
@@ -39,17 +39,21 @@ PROBLEM_TYPE_HINTS = {
     "administrative": ["not_followed_up", "poor_communication", "delayed_decision", "misconduct"],
 }
 
-SYSTEM_PROMPT = """You are a civic issue processing assistant for PublicVoice, used in Rwanda at Cell level (Ministry of Local Government decentralised governance).
+SYSTEM_PROMPT = """You are a civic issue processing assistant for PublicVoice, used in Rwanda at Cell level.
 
-Process citizen-submitted issue text that may be in Kinyarwanda or informal English. Output ONLY a single valid JSON object with these keys:
-- structured_description: clear, formal summary in English (or keep original if already clear)
-- suggested_title: short title (optional)
-- suggested_category: one of service_delivery, land_property, infrastructure_utilities, social_community, administrative
-- suggested_institution: one of cell_office, sector_office, district_authority, social_affairs_officer, land_bureau, other
-- suggested_problem_type: optional, one of the problem types for the suggested category (e.g. water_shortage, road_damage for infrastructure_utilities)
-- suggested_urgency: optional, one of low, medium, high, emergency
+Process citizen-submitted issue text that may be in Kinyarwanda or informal English.
+Return ONLY a single valid JSON object with these keys:
 
-Use empty string "" for any key if not inferable. Do not add extra keys."""
+- structured_description
+- suggested_title
+- suggested_category
+- suggested_institution
+- suggested_problem_type
+- suggested_urgency
+
+Use empty string "" for keys that cannot be inferred.
+Do not add extra keys.
+"""
 
 
 def process_issue_text(
@@ -57,8 +61,8 @@ def process_issue_text(
     category: Optional[str] = None,
 ) -> Optional[dict[str, Any]]:
     """
-    Process raw citizen text via AI. Returns structured dict for Report creation.
-    If category is provided, AI can use it to suggest problem_type.
+    Process raw citizen text via AI.
+    Returns structured dict for Report creation.
     """
     if not settings.OPENAI_API_KEY:
         logger.info("OPENAI_API_KEY not set — skipping AI processing.")
@@ -67,14 +71,24 @@ def process_issue_text(
     try:
         return _call_openai(raw_text, category=category)
     except Exception as e:
-        logger.error("AI processing failed: %s", str(e))
+        logger.exception("AI processing failed: %s", e)
         return None
 
 
-def _call_openai(raw_text: str, category: Optional[str] = None) -> Optional[dict[str, Any]]:
+def _call_openai(
+    raw_text: str,
+    category: Optional[str] = None,
+) -> Optional[dict[str, Any]]:
     from openai import OpenAI
 
-    client = OpenAI(api_key=settings.OPENAI_API_KEY)
+    client_kwargs: dict[str, Any] = {
+        "api_key": settings.OPENAI_API_KEY,
+        "timeout": 30.0,
+    }
+    if getattr(settings, "OPENAI_API_BASE", None) and str(settings.OPENAI_API_BASE).strip():
+        client_kwargs["base_url"] = settings.OPENAI_API_BASE.strip()
+    client = OpenAI(**client_kwargs)
+
     model = settings.OPENAI_MODEL or "gpt-4o-mini"
 
     user_content = f"""
@@ -86,24 +100,39 @@ Process this citizen issue text and return ONLY the JSON object.
 ---
 """
 
-    response = client.responses.create(
+    response = client.chat.completions.create(
         model=model,
-        input=[
+        messages=[
             {"role": "system", "content": SYSTEM_PROMPT},
             {"role": "user", "content": user_content},
         ],
         temperature=0.2,
-        max_output_tokens=1024,
+        max_tokens=1000,
         response_format={"type": "json_object"},
     )
 
-    data = getattr(response, "output_parsed", None)
-    if not data:
-        logger.warning("AI returned empty or invalid output")
+    if not response.choices:
+        logger.warning("AI returned no choices")
+        return None
+
+    content = response.choices[0].message.content
+    if not content:
+        logger.warning("AI returned empty content")
+        return None
+
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError:
+        logger.warning("AI response not valid JSON")
+        return None
+
+    if not isinstance(data, dict):
+        logger.warning("AI response JSON not an object")
         return None
 
     logger.info("Raw AI response: %s", data)
-    return _validate_and_normalize(data, category=category)
+
+    return _validate_and_normalize(data, category)
 
 
 def _validate_and_normalize(
@@ -112,26 +141,38 @@ def _validate_and_normalize(
 ) -> dict[str, Any]:
     result: dict[str, Any] = {}
 
+    # Description
     desc = (data.get("structured_description") or "").strip()
     if desc:
         result["structured_description"] = desc[:10000]
 
+    # Title
     title = (data.get("suggested_title") or "").strip()
     if title:
         result["suggested_title"] = title[:255]
 
+    # Category
     cat = (data.get("suggested_category") or "").strip().lower().replace(" ", "_")
-    result["suggested_category"] = cat if cat in ALLOWED_CATEGORIES else (category if category in ALLOWED_CATEGORIES else None)
+    if cat in ALLOWED_CATEGORIES:
+        result["suggested_category"] = cat
+    elif category in ALLOWED_CATEGORIES:
+        result["suggested_category"] = category
+    else:
+        result["suggested_category"] = None
 
+    # Institution
     inst = (data.get("suggested_institution") or "").strip().lower().replace(" ", "_")
-    result["suggested_institution"] = inst if inst in ALLOWED_INSTITUTIONS else None
+    if inst in ALLOWED_INSTITUTIONS:
+        result["suggested_institution"] = inst
 
+    # Problem Type
     ptype = (data.get("suggested_problem_type") or "").strip().lower().replace(" ", "_")
-    if ptype:
-        allowed_for_cat = PROBLEM_TYPE_HINTS.get(result.get("suggested_category") or category or "")
-        if allowed_for_cat and ptype in allowed_for_cat:
-            result["suggested_problem_type"] = ptype
+    final_category = result.get("suggested_category") or category
+    allowed_for_cat = PROBLEM_TYPE_HINTS.get(final_category or "")
+    if ptype and allowed_for_cat and ptype in allowed_for_cat:
+        result["suggested_problem_type"] = ptype
 
+    # Urgency
     urgency = (data.get("suggested_urgency") or "").strip().lower()
     if urgency in ALLOWED_URGENCY:
         result["suggested_urgency"] = urgency
