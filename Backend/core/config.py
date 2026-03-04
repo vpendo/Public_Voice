@@ -7,10 +7,11 @@ from pathlib import Path
 from typing import List, Optional
 from dotenv import load_dotenv
 
-# Load .env from Backend folder so it works regardless of current working directory
+# Load .env: first from cwd (when you run from Backend/), then from Backend folder explicitly
 _backend_dir = Path(__file__).resolve().parent.parent
 _env_file = _backend_dir / ".env"
-load_dotenv(_env_file)
+load_dotenv()  # cwd – e.g. when running from Backend/
+load_dotenv(_env_file)  # explicit – so Backend/.env is always tried
 
 
 class Settings:

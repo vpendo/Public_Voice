@@ -47,6 +47,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
+    expose_headers=["*"],
 )
 
 
@@ -65,8 +66,16 @@ def _get_validation_errors(exc: RequestValidationError) -> list:
     return getattr(exc, "detail", []) or []
 
 
+def _cors_headers(request: Request):
+    """Return CORS headers for the request origin if allowed (so errors still have CORS)."""
+    origin = request.headers.get("origin", "").strip()
+    if origin and origin in settings.cors_origin_list:
+        return {"Access-Control-Allow-Origin": origin, "Access-Control-Allow-Credentials": "true"}
+    return {}
+
+
 @app.exception_handler(RequestValidationError)
-async def validation_exception_handler(_request: Request, exc: RequestValidationError):
+async def validation_exception_handler(request: Request, exc: RequestValidationError):
     """Return 422 with a single clear message for the frontend."""
     try:
         detail = _get_validation_errors(exc)
@@ -77,6 +86,25 @@ async def validation_exception_handler(_request: Request, exc: RequestValidation
     return JSONResponse(
         status_code=422,
         content={"detail": message},
+        headers=_cors_headers(request),
+    )
+
+
+@app.exception_handler(Exception)
+async def global_exception_handler(request: Request, exc: Exception):
+    """Ensure 500 responses include CORS headers so the browser doesn't show a CORS error."""
+    from fastapi import HTTPException
+    if isinstance(exc, HTTPException):
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"detail": exc.detail} if isinstance(exc.detail, str) else exc.detail,
+            headers=_cors_headers(request),
+        )
+    logger.exception("Unhandled exception: %s", exc)
+    return JSONResponse(
+        status_code=500,
+        content={"detail": "Internal server error"},
+        headers=_cors_headers(request),
     )
 
 
@@ -103,9 +131,11 @@ async def root():
 
 @app.get("/api")
 async def health_check():
+    ai_key_set = bool((getattr(settings, "OPENAI_API_KEY", None) or "").strip())
     return {
         "status": "healthy",
         "message": "PublicVoice API is running",
+        "ai_translation_enabled": ai_key_set,
     }
 
 

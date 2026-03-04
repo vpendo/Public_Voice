@@ -1,3 +1,4 @@
+import logging
 from collections import defaultdict
 from datetime import datetime, timedelta
 from typing import Annotated, List, Optional
@@ -102,7 +103,7 @@ def create_report(
     problem_type = payload.problem_type
     urgency = payload.urgency or "medium"
 
-    # AI: structure/translate description, optionally suggest title, institution, category
+    # AI: structure/translate description (Kinyarwanda → English), optionally suggest title, institution, category
     ai_result = process_issue_text(raw_description, category=category)
     if ai_result:
         structured_description = ai_result.get("structured_description") or structured_description
@@ -111,8 +112,13 @@ def create_report(
         category = ai_result.get("suggested_category") or category
         if ai_result.get("suggested_problem_type"):
             problem_type = ai_result.get("suggested_problem_type") or problem_type
+        if not structured_description:
+            logging.getLogger(__name__).warning("AI returned no structured_description for report (first 50 chars): %s", raw_description[:50])
     else:
-        print(f"[INFO] AI processing skipped or failed for report: {raw_description[:50]}...")
+        logging.getLogger(__name__).warning(
+            "Report saved WITHOUT AI translation. Check: 1) OPENAI_API_KEY in Backend/.env 2) Backend terminal for 'OPENAI_API_KEY is empty' or 'AI processing failed'. Raw (50 chars): %s",
+            raw_description[:50],
+        )
 
     tracking_id = _generate_tracking_id(db)
     location_str = _build_location_string(

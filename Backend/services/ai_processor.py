@@ -42,17 +42,18 @@ PROBLEM_TYPE_HINTS = {
 SYSTEM_PROMPT = """You are a civic issue processing assistant for PublicVoice, used in Rwanda at Cell level.
 
 Process citizen-submitted issue text that may be in Kinyarwanda or informal English.
+
+IMPORTANT: structured_description MUST be in English. If the input is in Kinyarwanda, translate it to English. If the input is already in English (formal or informal), rewrite it as a clear, formal summary in English. Never leave structured_description in Kinyarwanda.
+
 Return ONLY a single valid JSON object with these keys:
+- structured_description (required; clear summary in English; translate from Kinyarwanda if needed)
+- suggested_title (short title in English, or "")
+- suggested_category (one of: service_delivery, land_property, infrastructure_utilities, social_community, administrative)
+- suggested_institution (one of: cell_office, sector_office, district_authority, social_affairs_officer, land_bureau, other)
+- suggested_problem_type (from the category, or "")
+- suggested_urgency (one of: low, medium, high, emergency, or "")
 
-- structured_description
-- suggested_title
-- suggested_category
-- suggested_institution
-- suggested_problem_type
-- suggested_urgency
-
-Use empty string "" for keys that cannot be inferred.
-Do not add extra keys.
+Use empty string "" only for optional keys that cannot be inferred. Do not add extra keys.
 """
 
 
@@ -64,11 +65,15 @@ def process_issue_text(
     Process raw citizen text via AI.
     Returns structured dict for Report creation.
     """
-    if not settings.OPENAI_API_KEY:
-        logger.info("OPENAI_API_KEY not set — skipping AI processing.")
+    key = (settings.OPENAI_API_KEY or "").strip()
+    if not key:
+        logger.warning(
+            "OPENAI_API_KEY is empty or not set. Add OPENAI_API_KEY=sk-... to Backend/.env and restart the server."
+        )
         return None
 
     try:
+        logger.info("Calling OpenAI for report translation (description length=%s)", len(raw_text or ""))
         return _call_openai(raw_text, category=category)
     except Exception as e:
         logger.exception("AI processing failed: %s", e)
@@ -141,8 +146,11 @@ def _validate_and_normalize(
 ) -> dict[str, Any]:
     result: dict[str, Any] = {}
 
-    # Description
-    desc = (data.get("structured_description") or "").strip()
+    # Description (accept common variants from the model)
+    desc = (
+        (data.get("structured_description") or data.get("structured_summary") or data.get("summary") or "")
+        .strip()
+    )
     if desc:
         result["structured_description"] = desc[:10000]
 
