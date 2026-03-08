@@ -1,37 +1,29 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Lock, Eye, EyeOff, ArrowRight, Mail, ArrowLeft, Megaphone } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Megaphone, Phone, User, Mail, Lock } from 'lucide-react';
 import { LanguageSwitcher } from '../Components/LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
+import { apiClient } from '../api/client';
 
 const LOGIN_IMAGE = '/Image/home%203.jpg';
 
 export default function Login() {
   const { t } = useLanguage();
-  const { login, loginVerifyOtp, refreshUser, requestPasswordReset } = useAuth();
+  const { login, loginVerifyOtp, refreshUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const [formData, setFormData] = useState({ email: '', password: '' });
-  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
+  const [formData, setFormData] = useState({ phone: '', fullName: '', email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const [showForgotPassword, setShowForgotPassword] = useState(false);
-  const [forgotEmail, setForgotEmail] = useState('');
-  const [forgotLoading, setForgotLoading] = useState(false);
-  const [forgotError, setForgotError] = useState<string | null>(null);
-  const [forgotSuccess, setForgotSuccess] = useState<string | null>(null);
   const [showOtpStep, setShowOtpStep] = useState(false);
-  const [otpEmail, setOtpEmail] = useState('');
+  const [otpPhone, setOtpPhone] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [devOtpFromLogin, setDevOtpFromLogin] = useState<string | null>(null);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
-
-  const passwordError = passwordTouched && !formData.password.trim();
 
   useEffect(() => {
     if (location.state?.message) {
@@ -52,48 +44,166 @@ export default function Login() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    setPasswordTouched(true);
-    const email = formData.email.trim();
-    const password = formData.password;
-    if (!email || !password) {
-      setError('Please enter both email and password.');
+    
+    // Admin login with email + password
+    if (isAdminLogin) {
+      const email = formData.email.trim();
+      const password = formData.password.trim();
+      if (!email) {
+        setError('Please enter your email address.');
+        return;
+      }
+      if (!password) {
+        setError('Please enter your password.');
+        return;
+      }
+      setLoading(true);
+      try {
+        const { data } = await apiClient.post<{
+          access_token: string;
+          token_type?: string;
+          expires_in_minutes?: number;
+          user?: {
+            id: number;
+            full_name: string;
+            email?: string;
+            role: string;
+            is_admin?: boolean;
+          };
+          is_admin?: boolean;
+        }>('/api/auth/login', {
+          email: email.toLowerCase(),
+          password: password,
+        });
+        
+        if (data.access_token) {
+          // Store token first
+          localStorage.setItem('publicvoice_token', data.access_token);
+          
+          // Determine if admin from login response (most reliable)
+          // Check data.is_admin first, then data.user?.role
+          const userRoleLower = (data.user?.role ?? '').trim().toLowerCase();
+          const isAdminFromResponse = data.is_admin === true || 
+            userRoleLower === 'admin' || userRoleLower === 'superadmin';
+          
+          // Determine redirect path based on user role from login response
+          const from = location.state?.from?.pathname;
+          let targetPath: string;
+          
+          if (isAdminFromResponse) {
+            // Admin: Always go to admin dashboard (or specific admin page if coming from one)
+            if (from && from.startsWith('/admin')) {
+              targetPath = from;
+            } else {
+              targetPath = '/admin/dashboard';
+            }
+            sessionStorage.setItem('publicvoice_redirect_to_admin', '1');
+            console.log('[Admin Login] Redirecting to:', targetPath, { is_admin: data.is_admin, role: data.user?.role });
+          } else {
+            // Regular users: Go to user dashboard
+            if (from && (from.startsWith('/user') || from === '/report')) {
+              targetPath = from;
+            } else {
+              targetPath = '/user/dashboard';
+            }
+            console.log('[User Login] Redirecting to:', targetPath);
+          }
+          
+          // For admin login, use hard redirect to ensure AuthContext state is fully synced
+          // This ensures ProtectedRoute sees the updated token and user
+          if (isAdminFromResponse) {
+            // Hard redirect for admin to ensure clean state
+            window.location.href = targetPath;
+          } else {
+            // For regular users, refresh user and navigate normally
+            try {
+              await refreshUser();
+            } catch (err) {
+              console.error('Failed to refresh user:', err);
+            }
+            navigate(targetPath, { replace: true });
+          }
+        } else {
+          setError('Invalid response from server');
+        }
+      } catch (err: any) {
+        // Handle network errors (backend not running)
+        if (err?.code === 'ERR_NETWORK' || err?.message?.includes('Network Error') || err?.message?.includes('ERR_CONNECTION_REFUSED')) {
+          setError('Cannot connect to server. Please make sure the backend is running on http://127.0.0.1:8000');
+          return;
+        }
+        
+        // Handle HTTP errors
+        const status = err?.response?.status;
+        const detail = err?.response?.data?.detail || err?.message || 'Login failed';
+        
+        if (status === 401) {
+          // Provide specific error messages for admin login
+          if (detail.includes('No account found')) {
+            setError('No admin account found with this email address. Please check your email.');
+          } else if (detail.includes('no password set')) {
+            setError('This admin account has no password. Please reset it using: python -m scripts.reset_admin_password');
+          } else if (detail.includes('Invalid password')) {
+            setError('Incorrect password. Please try again or reset your password.');
+          } else {
+            setError('Invalid email or password. Please check your credentials.');
+          }
+        } else {
+          setError(detail);
+        }
+      } finally {
+        setLoading(false);
+      }
       return;
     }
-    if (!email.includes('@') || !email.includes('.')) {
-      setError('Please enter a valid email address.');
+    
+    // User login with phone + full name
+    const phone = formData.phone.trim();
+    const fullName = formData.fullName.trim();
+    if (!phone) {
+      setError('Please enter your phone number.');
+      return;
+    }
+    if (!fullName) {
+      setError('Please enter your full name.');
       return;
     }
     setLoading(true);
-    const result = await login(email, password);
+    const result = await login(phone, fullName);
+    setLoading(false);
+    
+    // Debug logging
+    console.log('[Login] Result:', {
+      ok: result.ok,
+      requires_otp: result.requires_otp,
+      phone: result.phone,
+      dev_otp: result.dev_otp,
+      error: result.error,
+    });
+    
     if (!result.ok) {
-      setLoading(false);
       setError(result.error ?? 'Login failed');
       return;
     }
-    setLoading(false);
-    if (result.requires_otp && result.email) {
+    if (result.requires_otp && result.phone) {
+      console.log('[Login] Setting OTP step with dev_otp:', result.dev_otp);
+      // Set OTP state first
+      const otpValue = result.dev_otp ?? null;
+      setDevOtpFromLogin(otpValue);
+      setOtpCode(otpValue ?? '');
+      setOtpPhone(result.phone);
       setShowOtpStep(true);
-      setOtpEmail(result.email);
-      setOtpCode(result.dev_otp ?? '');
-      setDevOtpFromLogin(result.dev_otp ?? null);
       setOtpError(null);
       setError(null);
+      
+      // Log for debugging
+      if (otpValue) {
+        console.log('[Login] OTP code to display:', otpValue);
+      } else {
+        console.warn('[Login] No OTP received in response');
+      }
       return;
     }
-    const me = await refreshUser();
-    const user = me ?? result.user;
-    const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-    const isAdmin = result.is_admin === true || (user?.role ?? '').trim().toLowerCase() === 'admin';
-    const targetPath =
-      from && (from.startsWith('/user') || from.startsWith('/admin') || from === '/report')
-        ? from
-        : isAdmin
-          ? '/admin/dashboard'
-          : '/user/dashboard';
-    if (isAdmin) {
-      sessionStorage.setItem('publicvoice_redirect_to_admin', '1');
-    }
-    navigate(targetPath, { replace: true });
   };
 
   const handleOtpSubmit = async (e: React.FormEvent) => {
@@ -101,11 +211,11 @@ export default function Login() {
     setOtpError(null);
     const code = otpCode.trim();
     if (!code || code.length !== 6) {
-      setOtpError(t.login.enterCode ?? 'Enter the 6-digit code from your email.');
+      setOtpError('Enter the 6-digit code from your phone.');
       return;
     }
     setOtpLoading(true);
-    const result = await loginVerifyOtp(otpEmail, code);
+    const result = await loginVerifyOtp(otpPhone, code);
     setOtpLoading(false);
     if (!result.ok) {
       setOtpError(result.error ?? 'Invalid or expired code.');
@@ -114,7 +224,8 @@ export default function Login() {
     const me = await refreshUser();
     const user = me ?? result.user;
     const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
-    const isAdmin = result.is_admin === true || (user?.role ?? '').trim().toLowerCase() === 'admin';
+    const roleLower = (user?.role ?? '').trim().toLowerCase();
+    const isAdmin = result.is_admin === true || roleLower === 'admin' || roleLower === 'superadmin';
     const targetPath =
       from && (from.startsWith('/user') || from.startsWith('/admin') || from === '/report')
         ? from
@@ -129,27 +240,6 @@ export default function Login() {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
-    if (e.target.name === 'password') setPasswordTouched(true);
-  };
-
-  const handleForgotSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setForgotError(null);
-    setForgotSuccess(null);
-    // Use the same value shown in the input (forgotEmail or prefill from login formData.email)
-    const email = (forgotEmail || formData.email).trim();
-    if (!email || !email.includes('@') || !email.includes('.')) {
-      setForgotError('Please enter a valid email address.');
-      return;
-    }
-    setForgotLoading(true);
-    const result = await requestPasswordReset(email);
-    setForgotLoading(false);
-    if (!result.ok) {
-      setForgotError(result.error ?? 'Request failed');
-      return;
-    }
-    setForgotSuccess(t.login.resetCodeSent ?? "If an account exists for this email, we've sent a verification code. Check your inbox, then enter the code and set a new password.");
   };
 
   return (
@@ -188,86 +278,76 @@ export default function Login() {
 
             {/* Headline */}
             <p className="text-sm mt-4 mb-8 text-slate-500">
-              {showForgotPassword
-                ? t.login.forgotPasswordTitle
-                : showOtpStep
-                  ? (t.login.otpStepTitle ?? 'Enter verification code')
+              {showOtpStep
+                ? 'Enter verification code'
+                : isAdminLogin
+                  ? 'Admin Login'
                   : t.login.signInHeadline}
             </p>
 
-            {/* Forgot password view */}
-            {showForgotPassword ? (
-              <>
-                {forgotError && (
-                  <div className="mb-4 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600">
-                    {forgotError}
-                  </div>
-                )}
-                {forgotSuccess && (
-                  <div className="mb-4 p-3 rounded-xl text-sm bg-green-50 border border-green-200 text-green-600 space-y-2">
-                    <p>{forgotSuccess}</p>
-                    <p className="pt-2 border-t border-green-200">
-                      <Link
-                        to="/reset-password"
-                        state={{ email: (forgotEmail || formData.email).trim().toLowerCase() }}
-                        className="font-semibold text-[var(--color-primary)] hover:underline"
-                      >
-                        {t.login.enterCodeAndReset ?? 'Enter code and set new password →'}
-                      </Link>
-                    </p>
-                  </div>
-                )}
-                {!forgotSuccess && (
-                  <form onSubmit={handleForgotSubmit} className="space-y-5">
-                    <p className="text-slate-600 text-sm mb-4">{t.login.forgotPasswordInstructionsCode ?? t.login.forgotPasswordInstructions}</p>
-                    <div>
-                      <label htmlFor="forgot-email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                        {t.login.email}
-                      </label>
-                      <div className="relative">
-                        <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                          <Mail size={18} />
-                        </span>
-                        <input
-                          type="email"
-                          id="forgot-email"
-                          value={forgotEmail || formData.email}
-                          onChange={(e) => setForgotEmail(e.target.value)}
-                          className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                          placeholder={t.login.emailPlaceholder}
-                        />
-                      </div>
-                    </div>
-                    <button
-                      type="submit"
-                      disabled={forgotLoading}
-                      className={`w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-white font-semibold rounded-xl transition-colors ${
-                        forgotLoading ? 'bg-[var(--color-primary)] opacity-70' : 'bg-[var(--color-primary)] hover:opacity-95'
-                      }`}
-                    >
-                      {forgotLoading ? '...' : (t.login.sendResetCode ?? t.login.sendResetLink)}
-                    </button>
-                  </form>
-                )}
+            {/* Admin/User Toggle */}
+            {!showOtpStep && (
+              <div className="mb-6 flex items-center justify-center gap-2 p-1 bg-slate-100 rounded-lg">
                 <button
                   type="button"
                   onClick={() => {
-                    setShowForgotPassword(false);
-                    setForgotError(null);
-                    setForgotSuccess(null);
+                    setIsAdminLogin(false);
+                    setError(null);
+                    setFormData({ phone: '', fullName: '', email: '', password: '' });
                   }}
-                  className="mt-4 w-full inline-flex items-center justify-center gap-2 text-sm text-slate-500 hover:text-[var(--color-primary)] transition-colors"
+                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    !isAdminLogin
+                      ? 'bg-white text-[var(--color-primary)] shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
                 >
-                  <ArrowLeft size={16} />
-                  {t.login.backToSignIn}
+                  User Login
                 </button>
-              </>
-            ) : showOtpStep ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setIsAdminLogin(true);
+                    setError(null);
+                    setFormData({ phone: '', fullName: '', email: '', password: '' });
+                  }}
+                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
+                    isAdminLogin
+                      ? 'bg-white text-[var(--color-primary)] shadow-sm'
+                      : 'text-slate-600 hover:text-slate-900'
+                  }`}
+                >
+                  Admin Login
+                </button>
+              </div>
+            )}
+
+            {showOtpStep ? (
               <>
-                <p className="text-sm text-slate-500 mb-4">{t.login.otpStepSubtitle ?? 'We sent a 6-digit code to your email. Enter it below.'}</p>
-                {devOtpFromLogin && (
-                  <div className="mb-4 p-3 rounded-xl text-sm bg-amber-50 border border-amber-200 text-amber-800">
-                    <span className="font-medium">Development:</span> Your code is <strong className="font-mono text-lg">{devOtpFromLogin}</strong>
+                <p className="text-sm text-slate-500 mb-4">We sent a 6-digit code to your phone. Enter it below.</p>
+                {devOtpFromLogin ? (
+                  <div className="mb-4 p-4 rounded-xl text-sm bg-amber-50 border-2 border-amber-300 text-amber-900">
+                    <div className="flex items-start gap-2">
+                      <Phone className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                      <div className="flex-1">
+                        <p className="font-semibold mb-1">Development Mode - OTP Code:</p>
+                        <p className="text-base">
+                          <span className="font-medium">Your verification code is:</span>{' '}
+                          <strong className="font-mono text-2xl tracking-widest text-amber-900 bg-amber-100 px-3 py-1 rounded inline-block">
+                            {devOtpFromLogin}
+                          </strong>
+                        </p>
+                        <p className="text-xs mt-2 text-amber-700">
+                          (Use this code to verify your phone number)
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                ) : (
+                  <div className="mb-4 p-3 rounded-xl text-sm bg-blue-50 border border-blue-200 text-blue-800">
+                    <p className="font-medium">Check your phone for the 6-digit verification code.</p>
+                    <p className="text-xs mt-1 text-blue-700">
+                      If you don't receive the code, check the browser console or try again.
+                    </p>
                   </div>
                 )}
                 {otpError && (
@@ -278,9 +358,9 @@ export default function Login() {
                 <form onSubmit={handleOtpSubmit} className="space-y-5">
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                      {t.login.email}
+                      Phone Number
                     </label>
-                    <p className="text-slate-700 font-medium">{otpEmail}</p>
+                    <p className="text-slate-700 font-medium">{otpPhone}</p>
                   </div>
                   <div>
                     <label htmlFor="login-otp-code" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
@@ -333,11 +413,11 @@ export default function Login() {
             {error && (
               <div className="mb-4 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600">
                 {error}
-                {(error.toLowerCase().includes('not verified') || error.toLowerCase().includes('verification')) && formData.email.trim() && (
+                {(error.toLowerCase().includes('not verified') || error.toLowerCase().includes('verification')) && formData.phone.trim() && (
                   <p className="mt-2">
                     <Link
-                      to="/verify-email"
-                      state={{ email: formData.email.trim().toLowerCase() }}
+                      to="/verify-phone"
+                      state={{ phone: formData.phone.trim() }}
                       className="font-semibold text-[var(--color-primary)] hover:underline"
                     >
                       Enter verification code →
@@ -349,84 +429,99 @@ export default function Login() {
 
             {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Email */}
-              <div>
-                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                  {t.login.email}
-                </label>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Mail size={18} />
-                  </span>
-                  <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                    placeholder={t.login.emailPlaceholder}
-                  />
-                </div>
-              </div>
+              {isAdminLogin ? (
+                <>
+                  {/* Admin Login: Email */}
+                  <div>
+                    <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Mail size={18} />
+                      </span>
+                      <input
+                        type="email"
+                        id="email"
+                        name="email"
+                        value={formData.email}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                        placeholder="admin@example.com"
+                      />
+                    </div>
+                  </div>
 
-              {/* Password */}
-              <div>
-                <div className="flex items-center justify-between mb-2">
-                  <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider text-slate-500">
-                    {t.login.password}
-                  </label>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setShowForgotPassword(true);
-                      setForgotEmail(formData.email);
-                    }}
-                    className="text-sm font-medium text-[var(--color-primary)] hover:underline"
-                  >
-                    {t.login.forgotPassword}
-                  </button>
-                </div>
-                <div className="relative">
-                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Lock size={18} />
-                  </span>
-                  <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    name="password"
-                    value={formData.password}
-                    onChange={handleChange}
-                    onBlur={() => setPasswordTouched(true)}
-                    required
-                    className={`w-full pl-11 pr-12 py-3.5 rounded-xl border transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] ${
-                      passwordError ? 'border-red-600' : 'border-slate-200'
-                    } text-slate-900 bg-slate-50/80`}
-                    placeholder={t.login.passwordPlaceholder}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
-                </div>
-                {passwordError && <p className="mt-1.5 text-sm text-red-600">{t.login.passwordRequired}</p>}
-              </div>
+                  {/* Admin Login: Password */}
+                  <div>
+                    <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Lock size={18} />
+                      </span>
+                      <input
+                        type="password"
+                        id="password"
+                        name="password"
+                        value={formData.password}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                        placeholder="Enter your password"
+                      />
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* User Login: Full Name */}
+                  <div>
+                    <label htmlFor="fullName" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                      Full Name
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <User size={18} />
+                      </span>
+                      <input
+                        type="text"
+                        id="fullName"
+                        name="fullName"
+                        value={formData.fullName}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                        placeholder="Enter your full name"
+                      />
+                    </div>
+                  </div>
 
-              {/* Remember Me */}
-              <label className="flex items-center gap-2 cursor-pointer">
-                <input
-                  type="checkbox"
-                  checked={rememberMe}
-                  onChange={(e) => setRememberMe(e.target.checked)}
-                  className="w-4 h-4 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
-                />
-                <span className="text-sm text-slate-900">{t.login.rememberMe}</span>
-              </label>
+                  {/* User Login: Phone Number */}
+                  <div>
+                    <label htmlFor="phone" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                        <Phone size={18} />
+                      </span>
+                      <input
+                        type="tel"
+                        id="phone"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleChange}
+                        required
+                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                        placeholder="+250788123456"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
 
               {/* Submit */}
               <button
@@ -445,7 +540,7 @@ export default function Login() {
             </>
             )}
 
-            {!showForgotPassword && !showOtpStep && (
+            {!showOtpStep && (
               <>
                 <p className="mt-8 text-center text-sm text-slate-500">
                   {t.login.noAccount}{' '}

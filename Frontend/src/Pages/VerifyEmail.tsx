@@ -1,20 +1,20 @@
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Mail, ArrowRight, ArrowLeft, Home } from 'lucide-react';
+import { Phone, ArrowRight, ArrowLeft, Home } from 'lucide-react';
 import { LanguageSwitcher } from '../Components/LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { apiClient } from '../api/client';
 
 const REGISTER_IMAGE = '/Image/home%203.jpg';
 
-export default function VerifyEmail() {
+export default function VerifyPhone() {
   const { t } = useLanguage();
   const navigate = useNavigate();
   const location = useLocation();
-  const state = location.state as { email?: string; dev_otp?: string } | null;
-  const emailFromState = state?.email ?? '';
+  const state = location.state as { phone?: string; dev_otp?: string } | null;
+  const phoneFromState = state?.phone ?? '';
   const devOtpFromState = state?.dev_otp ?? '';
-  const [email, setEmail] = useState(emailFromState || '');
+  const [phone, setPhone] = useState(phoneFromState || '');
   const [code, setCode] = useState(devOtpFromState || '');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
@@ -26,9 +26,9 @@ export default function VerifyEmail() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!trimmedEmail || !code.trim()) {
-      setError('Please enter your email and the 6-digit code.');
+    const trimmedPhone = phone.trim();
+    if (!trimmedPhone || !code.trim()) {
+      setError('Please enter your phone number and the 6-digit code.');
       return;
     }
     if (code.trim().length !== 6) {
@@ -37,43 +37,66 @@ export default function VerifyEmail() {
     }
     setLoading(true);
     try {
-      await apiClient.post('/api/auth/verify-email', {
-        email: trimmedEmail,
+      await apiClient.post('/api/auth/verify-phone', {
+        phone: trimmedPhone,
         code: code.trim(),
       });
-      setSuccess(t.verifyEmail.success);
+      setSuccess('Phone verified successfully. You can now log in.');
       setTimeout(() => {
-        navigate('/login', { state: { message: t.verifyEmail.success } });
+        navigate('/login', { state: { message: 'Phone verified successfully. You can now log in.' } });
       }, 1500);
     } catch (err: unknown) {
       const msg =
         err && typeof err === 'object' && 'response' in err
           ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
           : null;
-      setError(typeof msg === 'string' ? msg : t.verifyEmail.invalidCode);
+      setError(typeof msg === 'string' ? msg : 'Invalid or expired code.');
     } finally {
       setLoading(false);
     }
   };
 
   const handleResend = async () => {
-    const trimmedEmail = email.trim().toLowerCase();
-    if (!trimmedEmail) {
-      setError('Enter your email first.');
+    const trimmedPhone = phone.trim();
+    if (!trimmedPhone) {
+      setError('Enter your phone number first.');
       return;
     }
     setError(null);
     setResendSent(false);
     setResendLoading(true);
     try {
-      await apiClient.post('/api/auth/resend-otp', { email: trimmedEmail });
+      const response = await apiClient.post<{ message: string; dev_otp?: string }>('/api/auth/resend-otp', { phone: trimmedPhone });
       setResendSent(true);
+      // Update OTP code if dev_otp is returned
+      if (response.data.dev_otp) {
+        setCode(response.data.dev_otp);
+        setSuccess(`Code sent! OTP: ${response.data.dev_otp}`);
+      } else if (response.data.message) {
+        // Extract OTP from message if present (format: "message (OTP: 123456)")
+        const otpMatch = response.data.message.match(/OTP:\s*(\d{6})/);
+        if (otpMatch) {
+          setCode(otpMatch[1]);
+          setSuccess(response.data.message);
+        } else {
+          setSuccess(response.data.message);
+        }
+      }
     } catch (err: unknown) {
-      const msg =
-        err && typeof err === 'object' && 'response' in err
-          ? (err as { response?: { data?: { detail?: string } } }).response?.data?.detail
-          : null;
-      setError(typeof msg === 'string' ? msg : 'Failed to resend code.');
+      let errorMsg = 'Failed to resend code.';
+      if (err && typeof err === 'object') {
+        if ('code' in err && err.code === 'ERR_NETWORK' || 'message' in err && typeof err.message === 'string' && err.message.includes('ERR_CONNECTION_REFUSED')) {
+          errorMsg = 'Cannot connect to server. Please make sure the backend is running.';
+        } else if ('response' in err) {
+          const response = (err as { response?: { data?: { detail?: string }; status?: number } }).response;
+          if (response?.status === 403) {
+            errorMsg = 'Access forbidden. Please check your connection.';
+          } else if (response?.data?.detail) {
+            errorMsg = response.data.detail;
+          }
+        }
+      }
+      setError(errorMsg);
     } finally {
       setResendLoading(false);
     }
@@ -87,10 +110,10 @@ export default function VerifyEmail() {
         <img src={REGISTER_IMAGE} alt="Public Voice" className="absolute inset-0 w-full h-full object-cover" />
         <div className="absolute inset-0 flex flex-col justify-center items-center text-center px-8 lg:px-12 bg-gradient-to-br from-[var(--color-primary)]/60 via-slate-900/60 to-slate-900/90">
           <div className="w-16 h-16 rounded-2xl flex items-center justify-center mb-6 shadow-lg bg-white/20">
-            <Mail className="w-8 h-8 text-white" />
+            <Phone className="w-8 h-8 text-white" />
           </div>
-          <h2 className="text-3xl xl:text-4xl font-bold text-white mb-3">{v.title}</h2>
-          <p className="text-white/90 text-lg max-w-sm">{v.subtitle}</p>
+          <h2 className="text-3xl xl:text-4xl font-bold text-white mb-3">Verify Phone Number</h2>
+          <p className="text-white/90 text-lg max-w-sm">Enter the verification code sent to your phone</p>
         </div>
       </div>
 
@@ -115,12 +138,35 @@ export default function VerifyEmail() {
               <span className="block h-0.5 rounded-full mt-0.5 w-full bg-[var(--color-primary)]" />
             </Link>
 
-            <h1 className="text-xl font-bold text-slate-900 mt-6 mb-2">{v.title}</h1>
-            <p className="text-slate-500 text-sm mb-6">{v.subtitle}</p>
+            <h1 className="text-xl font-bold text-slate-900 mt-6 mb-2">Verify Phone Number</h1>
+            <p className="text-slate-500 text-sm mb-6">Enter the verification code sent to your phone</p>
 
             {devOtpFromState && (
-              <div className="mb-4 p-3 rounded-xl text-sm bg-amber-50 border border-amber-200 text-amber-800">
-                <span className="font-medium">Development:</span> Your code is <strong className="font-mono text-lg">{devOtpFromState}</strong>
+              <div className="mb-4 p-4 rounded-xl text-sm bg-amber-50 border-2 border-amber-300 text-amber-900">
+                <div className="flex items-start gap-2">
+                  <Phone className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
+                  <div className="flex-1">
+                    <p className="font-semibold mb-1">Development Mode - OTP Code:</p>
+                    <p className="text-base">
+                      <span className="font-medium">Your verification code is:</span>{' '}
+                      <strong className="font-mono text-2xl tracking-widest text-amber-900 bg-amber-100 px-3 py-1 rounded inline-block">
+                        {devOtpFromState}
+                      </strong>
+                    </p>
+                    <p className="text-xs mt-2 text-amber-700">
+                      (SMS sending is disabled in development. Use this code to verify your phone.)
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            {!devOtpFromState && (
+              <div className="mb-4 p-3 rounded-xl text-sm bg-blue-50 border border-blue-200 text-blue-800">
+                <p className="font-medium">Check your phone for the 6-digit verification code.</p>
+                <p className="text-xs mt-1 text-blue-700">
+                  If you don't receive the code, click "Resend code" below.
+                </p>
               </div>
             )}
 
@@ -140,28 +186,28 @@ export default function VerifyEmail() {
 
             <form onSubmit={handleVerify} className="space-y-5">
               <div>
-                <label htmlFor="verify-email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                  Email
+                <label htmlFor="verify-phone" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                  Phone Number
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Mail size={18} />
+                    <Phone size={18} />
                   </span>
                   <input
-                    type="email"
-                    id="verify-email"
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    type="tel"
+                    id="verify-phone"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     required
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                    placeholder="your.email@example.com"
+                    placeholder="+250788123456"
                   />
                 </div>
               </div>
 
               <div>
                 <label htmlFor="verify-code" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                  {v.codeLabel}
+                  Verification Code
                 </label>
                 <input
                   type="text"
@@ -172,7 +218,7 @@ export default function VerifyEmail() {
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
                   required
                   className="w-full px-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900 text-center text-2xl tracking-widest font-mono"
-                  placeholder={v.codePlaceholder}
+                  placeholder="000000"
                 />
               </div>
 
@@ -181,7 +227,7 @@ export default function VerifyEmail() {
                 disabled={loading}
                 className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 text-white font-semibold rounded-xl bg-[var(--color-primary)] hover:opacity-95 disabled:opacity-70 transition-opacity"
               >
-                {loading ? '...' : v.button}
+                {loading ? '...' : 'Verify Phone'}
                 {!loading && <ArrowRight size={18} className="text-white" />}
               </button>
             </form>
@@ -193,7 +239,7 @@ export default function VerifyEmail() {
                 disabled={resendLoading}
                 className="font-semibold text-[var(--color-primary)] hover:underline disabled:opacity-70"
               >
-                {resendLoading ? '...' : v.resend}
+                {resendLoading ? '...' : 'Resend Code'}
               </button>
             </p>
 
@@ -203,7 +249,7 @@ export default function VerifyEmail() {
                 className="inline-flex items-center gap-1.5 text-sm text-slate-500 hover:text-[var(--color-primary)] transition-colors"
               >
                 <ArrowLeft size={14} />
-                {v.backToLogin}
+                Back to Login
               </Link>
             </p>
           </div>

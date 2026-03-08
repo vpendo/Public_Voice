@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Lock, Mail, ArrowRight, ArrowLeft, User, Megaphone, Eye, EyeOff, Home } from 'lucide-react';
+import { ArrowRight, ArrowLeft, User, Megaphone, Home, Phone, CreditCard } from 'lucide-react';
 import { LanguageSwitcher } from '../Components/LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,35 +13,39 @@ export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
-    email: '',
-    password: '',
+    phone: '',
+    nationalId: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-
-  const validatePassword = (p: string): string | null => {
-    if (p.length < 8) return 'Password must be at least 8 characters';
-    if (!/\d/.test(p)) return 'Password must contain at least one number';
-    if (!/[a-zA-Z]/.test(p)) return 'Password must contain at least one letter';
-    return null;
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    const pwdError = validatePassword(formData.password);
-    if (pwdError) {
-      setError(pwdError);
+    if (!formData.phone.trim()) {
+      setError('Phone number is required');
+      return;
+    }
+    const cleanedNationalId = formData.nationalId.trim().replace(/\s+/g, '').replace(/-/g, '');
+    if (!cleanedNationalId) {
+      setError('National ID is required');
+      return;
+    }
+    if (!/^\d+$/.test(cleanedNationalId)) {
+      setError('National ID must contain only digits');
+      return;
+    }
+    if (cleanedNationalId.length !== 16) {
+      setError('Rwanda National ID must be exactly 16 digits');
       return;
     }
     setLoading(true);
-    const result = await registerUser(formData.fullName, formData.email, formData.password);
+    const result = await registerUser(formData.fullName, formData.phone, cleanedNationalId);
     setLoading(false);
-    if (result.ok && result.email) {
-      navigate('/verify-email', { state: { email: result.email, dev_otp: result.dev_otp } });
+    if (result.ok && result.phone) {
+      navigate('/verify-phone', { state: { phone: result.phone, dev_otp: result.dev_otp } });
     } else if (result.ok) {
-      navigate('/verify-email', { state: { email: formData.email.trim().toLowerCase(), dev_otp: result.dev_otp } });
+      navigate('/verify-phone', { state: { phone: formData.phone.trim(), dev_otp: result.dev_otp } });
     } else {
       setError(result.error ?? 'Registration failed');
     }
@@ -123,57 +127,50 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Email */}
+              {/* Phone Number */}
               <div>
-                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                  {t.register.email}
+                <label htmlFor="phone" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                  Phone Number
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Mail size={18} />
+                    <Phone size={18} />
                   </span>
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
+                    type="tel"
+                    id="phone"
+                    name="phone"
+                    value={formData.phone}
                     onChange={handleChange}
                     required
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                    placeholder={t.register.emailPlaceholder}
+                    placeholder="+250788123456"
                   />
                 </div>
               </div>
 
-              {/* Password */}
+              {/* National ID */}
               <div>
-                <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                  {t.register.password}
+                <label htmlFor="nationalId" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                  National ID
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Lock size={18} />
+                    <CreditCard size={18} />
                   </span>
                   <input
-                    type={showPassword ? 'text' : 'password'}
-                    id="password"
-                    name="password"
-                    value={formData.password}
+                    type="text"
+                    id="nationalId"
+                    name="nationalId"
+                    value={formData.nationalId}
                     onChange={handleChange}
                     required
-                    className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                    placeholder={t.register.passwordPlaceholder}
+                    maxLength={16}
+                    pattern="[0-9]{16}"
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                    placeholder="Enter 16-digit National ID"
                   />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 transition-colors p-1"
-                    aria-label={showPassword ? 'Hide password' : 'Show password'}
-                  >
-                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-                  </button>
                 </div>
-                <p className="mt-1.5 text-xs text-slate-400">At least 8 characters, one letter and one number.</p>
               </div>
 
               {/* Submit */}

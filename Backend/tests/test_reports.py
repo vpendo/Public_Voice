@@ -88,33 +88,33 @@ def test_list_my_reports_empty(client: TestClient) -> None:
         "/api/auth/register",
         json={
             "full_name": "Empty Reports User",
-            "email": "empty_reports@test.rw",
-            "password": "TestPass123!",
+            "phone": "+250788555555",
+            "national_id": "5555555555555555",
         },
     )
     db = SessionLocal()
     try:
-        user = db.query(User).filter(User.email == "empty_reports@test.rw").first()
+        user = db.query(User).filter(User.phone == "+250788555555").first()
         assert user is not None
-        user.email_verified = True
+        user.phone_verified = True
         db.commit()
     finally:
         db.close()
 
     login_r = client.post(
         "/api/auth/login",
-        json={"email": "empty_reports@test.rw", "password": "TestPass123!"},
+        json={"phone": "+250788555555", "full_name": "Empty Reports User"},
     )
     assert login_r.status_code == 200
     data = login_r.json()
     assert data.get("requires_otp") is True
-    email = data["email"]
+    phone = data["phone"]
 
     db = SessionLocal()
     try:
         otp_row = (
             db.query(OTP)
-            .filter(OTP.email == email, OTP.purpose == "login")
+            .filter(OTP.phone == phone, OTP.purpose == "login")
             .order_by(OTP.created_at.desc())
             .first()
         )
@@ -123,7 +123,7 @@ def test_list_my_reports_empty(client: TestClient) -> None:
     finally:
         db.close()
 
-    verify_r = client.post("/api/auth/login/verify-otp", json={"email": email, "code": code})
+    verify_r = client.post("/api/auth/login/verify-otp", json={"phone": phone, "code": code})
     assert verify_r.status_code == 200
     token = verify_r.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}

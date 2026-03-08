@@ -4,51 +4,35 @@ Civic engagement platform for Rwanda: citizens report issues in English or Kinya
 
 - **Demo video:** [Demo (Google Drive)](https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing)
 - **Repository:** [GitHub – Public_Voice](https://github.com/vpendo/Public_Voice)
-- **Deployed app:** *(add your Netlify/Render or installable link here)*
+- **Deployed app:** [https://publicvoice1.netlify.app](https://publicvoice1.netlify.app)
 
 ---
 
-## Capstone submission (Attempt 1 & 2)
-
-| Requirement | Status |
-|-------------|--------|
-| **Attempt 1:** Repo with README (install/run + related files) | This README |
-| **Attempt 1:** 5‑min video (focus on **core features**: report submission, AI structuring, admin dashboard; minimal sign‑up/sign‑in) | Link above |
-| **Attempt 1:** Link to deployed app or installable (APK/.exe) | Add link above when ready |
-| **Attempt 2:** Zip of the same repo | Create zip from repo root |
-
-For **Testing Results**, **Analysis**, **Discussion**, and **Recommendations**, use the template in **[TESTING-AND-ANALYSIS.md](TESTING-AND-ANALYSIS.md)** (screenshots, different strategies/data/specs, then paste into your report or Canvas).
-
----
-
-## Install and run (step by step)
+## Install and Run (Step by Step)
 
 ### Prerequisites
 
-- **Node.js** 18+ and **pnpm** or **npm**
+- **Node.js** 18+ and **pnpm** (or npm)
 - **Python** 3.10+ and **pip**
 - **PostgreSQL** (optional; SQLite used if `DATABASE_URL` is not set)
 
-### Step 1 – Clone and open the project
+### Step 1: Clone Repository
 
 ```bash
 git clone https://github.com/vpendo/Public_Voice.git
 cd Public_Voice
 ```
 
-### Step 2 – Backend
+### Step 2: Backend Setup
 
 ```bash
 cd Backend
 python -m venv venv
 ```
 
-Activate the virtual environment:
-
-- **Windows (PowerShell):** `.\venv\Scripts\Activate.ps1` or `venv\Scripts\activate`
+**Activate virtual environment:**
+- **Windows:** `venv\Scripts\activate`
 - **macOS/Linux:** `source venv/bin/activate`
-
-Then:
 
 ```bash
 pip install -r requirements.txt
@@ -56,364 +40,107 @@ copy env.example .env   # Windows
 # cp env.example .env   # macOS/Linux
 ```
 
-Edit `.env`: set **SECRET_KEY** (e.g. `openssl rand -hex 32`). Optional: **DATABASE_URL**, **CORS_ORIGINS**, **OPENAI_API_KEY** (for AI report structuring).
+**Edit `.env` file:**
+- `SECRET_KEY` - required (generate: `openssl rand -hex 32`)
+- `DATABASE_URL` - optional (PostgreSQL connection string)
+- `CORS_ORIGINS` - frontend URL (e.g. `http://localhost:5173`)
+- `OPENAI_API_KEY` - optional (for AI report processing)
+- `AFRICAS_TALKING_USERNAME` - optional (for SMS OTP)
+- `AFRICAS_TALKING_API_KEY` - optional (for SMS OTP)
 
-Create an admin user (for admin login):
-
+**Create admin user:**
 ```bash
 python -m scripts.create_admin
 ```
 
-Start the API:
-
+**Start backend:**
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-API: **http://localhost:8000** · Docs: **http://localhost:8000/docs**
+Backend runs at: **http://localhost:8000**  
+API Docs: **http://localhost:8000/docs**
 
-### Step 3 – Frontend (new terminal)
-
-```bash
-cd Public_Voice/Frontend
-pnpm install
-# Or: npm install
-```
-
-Optional: create `Frontend/.env` with `VITE_API_URL=http://127.0.0.1:8000`.
-
-```bash
-pnpm dev
-# Or: npm run dev
-```
-
-Open **http://localhost:5173**.
-
-### Step 4 – Verify
-
-- Register a citizen → submit a report (try Kinyarwanda or informal English if **OPENAI_API_KEY** is set).
-- Log in as admin → view reports and “Structured report (AI)”; respond to an issue.
-
-### Related files to the project
-
-| Purpose | Location |
-|--------|----------|
-| Backend entry, API routes | `Backend/main.py`, `Backend/routers/` |
-| Report & AI processing | `Backend/routers/reports.py`, `Backend/services/ai_processor.py` |
-| Auth (JWT, login, register) | `Backend/routers/auth.py`, `Backend/core/security.py` |
-| Database models | `Backend/models/`, `Backend/schemas/` |
-| Frontend app & pages | `Frontend/src/`, `Frontend/src/Pages/`, `Frontend/src/Components/` |
-| Config (env) | `Backend/env.example`, `Backend/.env` (do not commit `.env`) |
-| Full structure | See [Project structure](#project-structure) below. |
-
----
-
-## Description
-
-**PublicVoice** is a civic engagement platform for Rwanda that connects citizens with local authorities. Citizens can report community issues (e.g. roads, water, security, sanitation) in **English or Kinyarwanda**; the platform uses **AI/NLP** to translate, rewrite into formal English, and structure reports so admins see clear, actionable content. It promotes transparency, accountability, and data-driven governance.
-
-### What it does
-
-- **Citizens** – Register, submit issues (with optional language switch EN/RW), track status, and read admin responses.
-- **Admins** – Log in to a dedicated dashboard, view stats and all reports, respond to issues, and manage users. AI-processed reports show both the original submission and the structured (translated/formal) version.
-- **Public** – Home, Services, About, Contact; report a problem; multi-language UI (English / Kinyarwanda).
-
----
-
-## Technology Used
-
-| Layer    | Technology |
-|----------|------------|
-| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, React Router, Axios |
-| **Backend**  | FastAPI, Python 3.10+, JWT (HS256), bcrypt, Pydantic |
-| **Database** | SQLite (development) or PostgreSQL (production) |
-| **AI/NLP**   | OpenAI API (optional): translation Kinyarwanda → English, formal rewriting, structuring into JSON fields |
-
----
-
-## GitHub Repository
-
-- **Repository:** [https://github.com/vpendo/Public_Voice](https://github.com/vpendo/Public_Voice)
-
----
-
-## How to Set Up the Environment and the Project
-
-### Prerequisites
-
-- **Node.js** 18+ and **pnpm** or **npm** (frontend)
-- **Python** 3.10+ and **pip** (backend)
-- **PostgreSQL** (optional; SQLite used if `DATABASE_URL` is not set)
-
-### 1. Clone the repository
-
-```bash
-git clone https://github.com/vpendo/Public_Voice.git
-cd Public_Voice
-```
-
-### 2. Frontend setup
-
-```bash
-cd Frontend
-pnpm install
-# Or: npm install
-```
-
-Create a `.env` file (optional; for local backend URL):
-
-```env
-VITE_API_URL=http://127.0.0.1:8000
-```
-
-Run the frontend:
-
-```bash
-pnpm dev
-# Or: npm run dev
-```
-
-- **App:** http://localhost:5173
-
-### 3. Backend setup
+### Step 3: Frontend Setup
 
 Open a new terminal:
 
 ```bash
-cd Public_Voice/Backend
-python -m venv venv
-```
-
-**Activate the virtual environment:**
-
-- **Windows:** `source venv/Scripts/activate`
-- **macOS/Linux:** `source venv/bin/activate`
-
-```bash
-pip install -r requirements.txt
-```
-
-Copy environment file and edit:
-
-```bash
-# Windows
-copy env.example .env
-# macOS/Linux
-cp env.example .env
-```
-
-Edit `.env`:
-
-- **SECRET_KEY** – required (e.g. `openssl rand -hex 32`)
-- **DATABASE_URL** – optional; omit for SQLite
-- **CORS_ORIGINS** – e.g. `http://localhost:5173`
-- **OPENAI_API_KEY** – optional; set for AI/NLP (translation, formal rewriting, structuring of reports)
-
-Create an admin user (admins do not use Register; they log in only):
-
-```bash
-python -m scripts.create_admin
-```
-
-Run the API:
-
-```bash
-uvicorn main:app --reload --host 0.0.0.0 --port 8000
-```
-
-- **API:** http://localhost:8000  
-- **Swagger:** http://localhost:8000/docs  
-
-### 4. Verify
-
-- Register a citizen account → User dashboard.
-- Log in with the admin account → Admin dashboard.
-- Submit an issue; respond as admin. If `OPENAI_API_KEY` is set, Kinyarwanda/informal text is processed and shown as “Structured report (AI)” in the admin view.
-
-### 5. Run tests (local)
-
-**Backend** (from `Backend` folder; uses in-memory SQLite):
-
-```bash
-cd Backend
-pip install -r requirements.txt
-pytest tests/ -v
-```
-
-**Frontend** (from `Frontend` folder):
-
-```bash
-cd Frontend
+cd Public_Voice/Frontend
 pnpm install
-pnpm test:run
 ```
 
-See `Backend/tests/README.md` and `Frontend/src/test/README.md` for details.
-
----
-
-## Design Process and User Interface
-
-- **Design considerations:** The UI prioritizes clarity and accessibility for citizens and admins. Public pages (Home, Services, About, Contact) use a consistent navbar and footer; citizen and admin areas use dedicated layouts (sidebar navigation, role-based routes).
-- **Responsive design:** Layouts are built with Tailwind CSS: responsive breakpoints, flexible grids, and mobile-friendly navigation so the app works on phones and desktops.
-- **Style guide:** Tailwind utility classes for spacing, typography, and colors; shared components (Navbar, Footer, Card, LanguageSwitcher) keep the look consistent. Multi-language (English / Kinyarwanda) is supported via a central i18n content file.
-
-
----
-
-## Database Schema
-
-The application uses two main tables (SQLite in development, PostgreSQL in production).
-
-| Table    | Purpose |
-|----------|---------|
-| **users** | Citizens and admins: auth (email, hashed password), role (User/Admin), profile. |
-| **reports** | Issue reports: title, contact (name, phone, location), institution, category, raw_description, structured_description (AI), admin_response, status (pending/resolved/rejected). |
-
-**users**
-
-| Column           | Type        | Notes |
-|-----------------|-------------|--------|
-| id              | Integer     | Primary key |
-| full_name       | String(255) | Not null |
-| email           | String(255) | Unique, not null |
-| hashed_password | String(255) | Not null |
-| role            | String(50)  | `User` or `Admin` |
-| created_at      | DateTime    | Server default |
-
-**reports**
-
-| Column                 | Type        | Notes |
-|------------------------|-------------|--------|
-| id                     | Integer     | Primary key |
-| user_id                | Integer     | FK → users.id (nullable for anonymous-style flow) |
-| title                  | String(255) | Optional |
-| name, phone, location  | String      | Required |
-| institution, category  | String      | Required; category enum: roads, water, security, sanitation, etc. |
-| raw_description        | Text        | User’s original text |
-| structured_description | Text        | AI-processed (translated/formal) version, optional |
-| admin_response         | Text        | Admin reply, optional |
-| status                 | String(50)  | `pending`, `resolved`, `rejected` |
-| created_at             | DateTime    | Server default |
-
----
-
-
-
-## Designs and Screenshots
-
-
-
-### Homepage
-Landing page, hero section, and services overview.
-
-![Homepage](Screenshots/home.png)
-
-### Services
-Our Services – report problems, smart categorization, track & feedback.
-
-![Services](Screenshots/Services.png)
-
-### About
-About PublicVoice, mission, and vision.
-
-![About](Screenshots/About.png)
-
-### Contact
-Contact form and information.
-
-![Contact](Screenshots/Contact%20(2).png)
-
-### Register
-Citizen registration with language switch (EN/RW).
-
-![Register](Screenshots/Register.png)
-
-### Login
-Sign in for citizens and admins, with language switch.
-
-![Login](Screenshots/Login.png)
-
-### User Dashboard
-Overview, Submit Issue, and My Issues.
-
-![User Dashboard](Screenshots/User%20Dasboard.png)
-
-### Admin Dashboard
-Stats, charts, recent reports, and respond to issues.
-
-![Admin Dashboard](Screenshots/Admin%20Dashboard.png)
-
-### Report
-Submit an issue (with language switch and optional AI structuring).
-
-![Report](Screenshots/Report.png)
-
----
-
-## Deployment Plan
-
-### Frontend – Netlify
-
-1. Build the frontend: `cd Frontend && pnpm build` (output in `dist/`).
-2. In [Netlify](https://www.netlify.com/), create a new site and connect the GitHub repo.
-3. **Build settings:**
-   - **Base directory:** `Frontend`
-   - **Build command:** `pnpm install && pnpm build` (or `npm run build`)
-   - **Publish directory:** `Frontend/dist`
-4. **Environment variables:** Set `VITE_API_URL` to your production backend URL (e.g. `https://your-app.onrender.com`).
-5. **Redirects:** Add a redirect rule so SPA routing works: `/*` → `/index.html` (status 200).
-
-### Backend – Render
-
-1. In [Render](https://render.com/), create a new **Web Service** and connect the GitHub repo.
-2. **Build & run:**
-   - **Root directory:** `Backend` (or leave blank if repo root is the backend).
-   - **Build command:** `pip install -r requirements.txt`
-   - **Start command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
-3. **Environment variables:** Set at least:
-   - `SECRET_KEY` (strong random value)
-   - `DATABASE_URL` (Render PostgreSQL or external Postgres)
-   - `CORS_ORIGINS` (your Netlify frontend URL, e.g. `https://your-site.netlify.app`)
-   - `OPENAI_API_KEY` (optional, for AI/NLP)
-4. Use **PostgreSQL** in production; ensure the backend can reach it and tables are created (backend creates them on startup).
-
-### Summary
-
-| Component  | Platform | Notes |
-|------------|----------|--------|
-| **Frontend** | Netlify | Static build from `Frontend/dist`, `VITE_API_URL` → Render URL |
-| **Backend**  | Render  | Web Service, Uvicorn, PostgreSQL, CORS set to Netlify URL |
-
----
-
-## Project structure
-
+**Optional:** Create `.env` file:
+```env
+VITE_API_URL=http://127.0.0.1:8000
 ```
-Public_Voice/
-├── README.md           # This file
-├── Screenshots/        # Home.png, Services.png, About.png, Contact (2).png, Register.png, Login.png, User Dasboard.png, Admin Dashboard.png, Report.png
-├── Frontend/
-│   ├── public/        # Static assets (e.g. Image/)
-│   ├── src/
-│   │   ├── Components/
-│   │   ├── Pages/
-│   │   ├── Routes/
-│   │   ├── contexts/
-│   │   ├── i18n/
-│   │   └── api/
-│   ├── package.json
-│   └── vite.config.ts
-└── Backend/
-    ├── core/
-    ├── models/
-    ├── schemas/
-    ├── routers/
-    ├── services/      # e.g. ai_processor.py
-    ├── main.py
-    ├── requirements.txt
-    └── env.example
+
+**Start frontend:**
+```bash
+pnpm dev
 ```
+
+Frontend runs at: **http://localhost:5173**
+
+### Step 4: Verify Installation
+
+1. Open **http://localhost:5173**
+2. Register a citizen account (phone number + National ID)
+3. Submit a report
+4. Login as admin (use email and password from `create_admin`)
+5. View and respond to reports in admin dashboard
+
+---
+
+## How to Use
+
+### For Citizens
+
+1. **Register:** Click "Register" → Enter full name, phone number, and National ID (16 digits)
+2. **Verify Phone:** Enter OTP code sent to your phone
+3. **Login:** Use phone number and full name
+4. **Submit Issue:** Go to "Submit Issue" → Fill form → Submit
+5. **Track Reports:** View "My Issues" to see status and admin responses
+
+### For Admins
+
+1. **Login:** Use email and password (created via `create_admin` script)
+2. **Dashboard:** View statistics and recent reports
+3. **All Issues:** Browse all submitted reports
+4. **Respond:** Click on a report → Add response → Update status
+5. **Users:** View and manage user accounts
+
+---
+
+## Related Files
+
+| Purpose | Location |
+|---------|----------|
+| Backend API | `Backend/main.py`, `Backend/routers/` |
+| Authentication | `Backend/routers/auth.py` |
+| Reports | `Backend/routers/reports.py` |
+| Database Models | `Backend/models/` |
+| Frontend Pages | `Frontend/src/Pages/` |
+| Frontend Components | `Frontend/src/Components/` |
+| Configuration | `Backend/.env`, `Frontend/.env` |
+
+---
+
+## Technology Stack
+
+- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS
+- **Backend:** FastAPI, Python 3.10+, JWT, bcrypt
+- **Database:** SQLite (dev) / PostgreSQL (production)
+- **AI/NLP:** OpenAI API (optional)
+
+---
+
+## Deployment
+
+- **Frontend:** [Netlify](https://publicvoice1.netlify.app)
+- **Backend:** [Render](https://public-voice1.onrender.com)
+
+---
 
 ## License
 

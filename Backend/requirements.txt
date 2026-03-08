@@ -11,3 +11,6 @@ python-multipart==0.0.12
 email-validator>=2.0.0
 openai==1.31.0
 httpx==0.28.1
+twilio>=8.0.0
+africastalking>=1.2.6
+requests>=2.31.0

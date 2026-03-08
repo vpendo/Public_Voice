@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type FormEvent, type ChangeEvent } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { assetUrl } from '../../../api/config';
@@ -20,12 +20,12 @@ export function Profile() {
     setFullName(user?.full_name ?? '');
   }, [user?.full_name]);
 
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setMessage(lang === 'English' ? 'Password change will be available in a future update.' : 'Guhindura ijambobanga kuzasobanukirwa mu mihindagurikire y\'igihe kizaza.');
   };
 
-  const handleProfileSubmit = async (e: React.FormEvent) => {
+  const handleProfileSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setProfileError(null);
     if (!fullName.trim()) {
@@ -49,7 +49,7 @@ export function Profile() {
     setTimeout(() => setProfileSuccess(null), 3000);
   };
 
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFileChange = (e: ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) {
       setSelectedFile(null);
@@ -155,9 +155,15 @@ export function Profile() {
             </form>
             <dl className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-6 pt-6 border-t border-slate-100">
               <div className="rounded-xl bg-slate-50 p-4">
-                <dt className="text-xs font-medium text-slate-500 uppercase tracking-wider">{p.email}</dt>
-                <dd className="mt-1 text-slate-900 font-medium">{user?.email ?? '—'}</dd>
+                <dt className="text-xs font-medium text-slate-500 uppercase tracking-wider">{p.phone ?? 'Phone Number'}</dt>
+                <dd className="mt-1 text-slate-900 font-medium">{user?.phone ?? '—'}</dd>
               </div>
+              {user?.national_id && (
+                <div className="rounded-xl bg-slate-50 p-4">
+                  <dt className="text-xs font-medium text-slate-500 uppercase tracking-wider">{p.nationalId ?? 'National ID'}</dt>
+                  <dd className="mt-1 text-slate-900 font-medium">{user.national_id}</dd>
+                </div>
+              )}
               <div className="rounded-xl bg-slate-50 p-4 sm:col-span-2">
                 <dt className="text-xs font-medium text-slate-500 uppercase tracking-wider">{p.role}</dt>
                 <dd className="mt-1">

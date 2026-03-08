@@ -38,39 +38,43 @@ def client() -> TestClient:
 
 @pytest.fixture
 def auth_headers(client: TestClient) -> dict:
-    """Register a user, verify email, login (2FA), verify OTP, then return Bearer token."""
+    """Register a user, verify phone, login (OTP), verify OTP, then return Bearer token."""
+    # Register user with phone and national_id
     client.post(
         "/api/auth/register",
         json={
             "full_name": "Test Citizen",
-            "email": "citizen@test.rw",
-            "password": "TestPass123!",
+            "phone": "+250788123456",
+            "national_id": "1234567890123456",
         },
     )
     db = SessionLocal()
     try:
-        user = db.query(User).filter(User.email == "citizen@test.rw").first()
+        user = db.query(User).filter(User.phone == "+250788123456").first()
         if user:
-            user.email_verified = True
+            user.phone_verified = True
             db.commit()
     finally:
         db.close()
+    # Login with phone and full_name
     r = client.post(
         "/api/auth/login",
-        json={"email": "citizen@test.rw", "password": "TestPass123!"},
+        json={"phone": "+250788123456", "full_name": "Test Citizen"},
     )
     assert r.status_code == 200, r.text
     data = r.json()
-    assert data.get("requires_otp") is True, "Expected 2FA step"
-    email = data["email"]
+    assert data.get("requires_otp") is True, "Expected OTP step"
+    phone = data["phone"]
+    # Get OTP from database
     db = SessionLocal()
     try:
-        otp_row = db.query(OTP).filter(OTP.email == email, OTP.purpose == "login").order_by(OTP.created_at.desc()).first()
+        otp_row = db.query(OTP).filter(OTP.phone == phone, OTP.purpose == "login").order_by(OTP.created_at.desc()).first()
         assert otp_row is not None
         code = otp_row.code
     finally:
         db.close()
-    r2 = client.post("/api/auth/login/verify-otp", json={"email": email, "code": code})
+    # Verify OTP
+    r2 = client.post("/api/auth/login/verify-otp", json={"phone": phone, "code": code})
     assert r2.status_code == 200, r2.text
     token = r2.json()["access_token"]
     return {"Authorization": f"Bearer {token}"}

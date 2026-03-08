@@ -1,26 +1,15 @@
 # PublicVoice Frontend
 
-## Description
-
-React + TypeScript frontend for **PublicVoice**, a civic engagement platform for Rwanda. Citizens report community issues, view and track their reports, and switch language (English / Kinyarwanda). Admins manage and respond to reports. Built with React 19, Vite, Tailwind CSS, and React Router.
-
-**Tools:** React 19, TypeScript, Vite, Tailwind CSS 4, React Router DOM, Axios, Lucide React.
+React + TypeScript frontend for PublicVoice civic engagement platform.
 
 ---
 
-## GitHub Repository
-
-- **Repo:** [Add your GitHub repo link here]
-- Example: `https://github.com/your-username/Public_Voice`
-
----
-
-## How to Set Up the Environment and the Project
+## Install and Run
 
 ### Prerequisites
 
 - Node.js 18+
-- pnpm or npm
+- pnpm (or npm)
 
 ### Setup
 
@@ -29,52 +18,65 @@ cd Public_Voice/Frontend
 pnpm install
 ```
 
-Or use `npm install`.
+### Configuration
 
-### Environment (optional)
-
-Create `.env` in the Frontend folder:
+**Optional:** Create `.env` file:
 
 ```env
 VITE_API_URL=http://127.0.0.1:8000
 ```
 
-If not set, the app uses `http://127.0.0.1:8000`. Ensure the backend is running.
-
-### Run
+### Run Development Server
 
 ```bash
 pnpm dev
 ```
 
-- **App:** http://localhost:5173
+App runs at: **http://localhost:5173**
 
-### Build (production)
+### Build for Production
 
 ```bash
 pnpm build
 ```
 
-Output: `dist/`
+Output: `dist/` folder
 
 ---
 
-## Designs
+## Project Structure
 
-- **Figma mockups / wireframes:** [Add link or path to your Figma file or docs/wireframes]
-- **Screenshots of app interfaces:** [Add path e.g. docs/screenshots or embed images]
-
-Key screens: Home, Login, Register, Report, User Dashboard (overview, Submit Issue, My Issues, Issue detail, Profile), Admin Dashboard (stats, All Issues, Respond, Users), language switcher (EN/RW).
+```
+Frontend/
+├── src/
+│   ├── Components/     # Reusable components
+│   ├── Pages/          # Page components
+│   ├── Routes/         # Routing configuration
+│   ├── contexts/       # React contexts (Auth, Language)
+│   ├── api/            # API client configuration
+│   └── i18n/           # Language translations
+├── public/             # Static assets
+└── package.json
+```
 
 ---
 
-## Deployment Plan (Netlify)
+## Deployment (Netlify)
 
-1. Connect the GitHub repo to **Netlify**.
-2. **Build command:** `pnpm build` or `npm run build`.
-3. **Publish directory:** `dist`.
-4. **Base directory:** `Frontend` (if repo root is above Frontend).
-5. **Environment variables:** Set `VITE_API_URL` to your production API URL (e.g. your Render backend URL).
-6. **Redirects:** SPA routing is in `netlify.toml` (all routes to index.html).
+1. Connect GitHub repository to Netlify
+2. Set base directory: `Frontend`
+3. Build command: `pnpm install && pnpm build`
+4. Publish directory: `Frontend/dist`
+5. Set environment variable: `VITE_API_URL` (production backend URL)
 
-After deployment, set the backend CORS_ORIGINS to your Netlify URL.
+---
+
+## Technology
+
+- React 19
+- TypeScript
+- Vite
+- Tailwind CSS 4
+- React Router DOM
+- Axios
+- Lucide React

@@ -58,8 +58,9 @@ def get_current_user(
 def get_current_admin(
     current_user: Annotated[User, Depends(get_current_user)],
 ) -> User:
-    """Require authenticated user to be an Admin."""
-    if current_user.role.lower() != "admin":
+    """Require authenticated user to be an Admin or SuperAdmin."""
+    role_lower = current_user.role.lower() if current_user.role else ""
+    if role_lower not in ("admin", "superadmin"):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="Admin access required",

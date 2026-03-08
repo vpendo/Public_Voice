@@ -15,7 +15,7 @@ import Contact from '../Pages/Contact';
 import Services from '../Pages/Services';
 import Login from '../Pages/Login';
 import Register from '../Pages/Register';
-import VerifyEmail from '../Pages/VerifyEmail';
+import VerifyPhone from '../Pages/VerifyEmail';
 import ResetPassword from '../Pages/ResetPassword';
 import Report from '../Pages/Report';
 import { UserDashboardLayout } from '../Pages/Dashboard/user/UserDashboardLayout';
@@ -33,9 +33,14 @@ import { Respond } from '../Pages/Dashboard/admin/Respond';
 import { Users } from '../Pages/Dashboard/admin/Users';
 
 function DashboardRedirect() {
-  const { isAdmin, isLoadingUser } = useAuth();
-  if (isLoadingUser) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-slate-500">Loading...</p></div>;
-  return <Navigate to={isAdmin ? '/admin/dashboard' : '/user/dashboard'} replace />;
+  try {
+    const { isAdmin, isLoadingUser } = useAuth();
+    if (isLoadingUser) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-slate-500">Loading...</p></div>;
+    return <Navigate to={isAdmin ? '/admin/dashboard' : '/user/dashboard'} replace />;
+  } catch (error) {
+    // Fallback if AuthProvider is not available
+    return <Navigate to="/login" replace />;
+  }
 }
 
 function AppLayout({ children, lang, setLang }: { children: React.ReactNode; lang: Language; setLang: (lang: Language) => void }) {
@@ -44,7 +49,7 @@ function AppLayout({ children, lang, setLang }: { children: React.ReactNode; lan
   const hideNavFooter =
     path === '/login' ||
     path === '/register' ||
-    path === '/verify-email' ||
+    path === '/verify-phone' ||
     path === '/reset-password' ||
     path.startsWith('/user/') ||
     path.startsWith('/admin/');
@@ -84,7 +89,7 @@ export function AppRoute() {
               <Route path="/services" element={<Services />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/verify-email" element={<VerifyEmail />} />
+              <Route path="/verify-phone" element={<VerifyPhone />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="/report"

@@ -7,8 +7,11 @@ const TOKEN_KEY = 'publicvoice_token';
 export interface UserInfo {
   id: number;
   full_name: string;
-  email: string;
+  phone?: string | null;
+  national_id?: string | null;
+  email?: string | null;
   role: string;
+  phone_verified?: boolean;
   admin_category?: string | null;
   admin_scope_level?: string | null;
   scope_district?: string | null;
@@ -24,28 +27,28 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoadingUser: boolean;
 
-  login: (email: string, password: string) => Promise<{
+  login: (phone: string, fullName: string) => Promise<{
     ok: boolean;
     error?: string;
     user?: UserInfo;
     is_admin?: boolean;
     requires_otp?: boolean;
-    email?: string;
-    dev_otp?: string; // ✅ included
+    phone?: string;
+    dev_otp?: string;
   }>;
 
-  loginVerifyOtp: (email: string, code: string) => Promise<{
+  loginVerifyOtp: (phone: string, code: string) => Promise<{
     ok: boolean;
     error?: string;
     user?: UserInfo;
     is_admin?: boolean;
   }>;
 
-  register: (fullName: string, email: string, password: string) => Promise<{
+  register: (fullName: string, phone: string, nationalId: string) => Promise<{
     ok: boolean;
     error?: string;
-    email?: string;
-    dev_otp?: string; // ✅ included
+    phone?: string;
+    dev_otp?: string;
   }>;
 
   requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string }>;
@@ -140,67 +143,62 @@ export function AuthProvider({ children }: AuthProviderProps) {
   // ✅ LOGIN
   const login = useCallback(
     async (
-      email: string,
-      password: string
+      phone: string,
+      fullName: string
     ): Promise<{
       ok: boolean;
       error?: string;
       user?: UserInfo;
       is_admin?: boolean;
       requires_otp?: boolean;
-      email?: string;
+      phone?: string;
       dev_otp?: string;
     }> => {
       try {
         const { data } = await apiClient.post<{
-          access_token?: string;
           requires_otp?: boolean;
-          email?: string;
+          phone?: string;
           dev_otp?: string;
-          user?: UserInfo;
-          is_admin?: boolean;
         }>('/api/auth/login', {
-          email: email.trim().toLowerCase(),
-          password,
+          phone: phone.trim(),
+          full_name: fullName.trim(),
         });
 
-        if (data.requires_otp === true && data.email) {
+        // Debug logging
+        console.log('[AuthContext] Login response:', {
+          requires_otp: data.requires_otp,
+          phone: data.phone,
+          dev_otp: data.dev_otp,
+        });
+
+        if (data.requires_otp === true && data.phone) {
           return {
             ok: true,
             requires_otp: true,
-            email: data.email,
+            phone: data.phone,
             dev_otp: data.dev_otp,
           };
         }
 
-        if (!data.access_token) return { ok: false, error: 'Invalid response' };
-
-        persistToken(data.access_token);
-
-        if (data.user) {
-          setUser(data.user);
-          return { ok: true, user: data.user, is_admin: data.is_admin === true };
-        }
-
-        const me = await fetchUser();
-        return { ok: true, user: me ?? undefined, is_admin: data.is_admin === true };
+        return { ok: false, error: 'Invalid response' };
       } catch (err) {
+        console.error('[AuthContext] Login error:', err);
         return { ok: false, error: getErrorMessage(err) };
       }
     },
-    [persistToken, fetchUser]
+    []
   );
 
   // ✅ VERIFY LOGIN OTP
   const loginVerifyOtp = useCallback(
-    async (email: string, code: string) => {
+    async (phone: string, code: string) => {
       try {
         const { data } = await apiClient.post<{
           access_token: string;
           user?: UserInfo;
           is_admin?: boolean;
         }>('/api/auth/login/verify-otp', {
-          email: email.trim().toLowerCase(),
+          phone: phone.trim(),
           code: code.trim(),
         });
 
@@ -226,23 +224,23 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const register = useCallback(
     async (
       fullName: string,
-      email: string,
-      password: string
-    ): Promise<{ ok: boolean; error?: string; email?: string; dev_otp?: string }> => {
+      phone: string,
+      nationalId: string
+    ): Promise<{ ok: boolean; error?: string; phone?: string; dev_otp?: string }> => {
       try {
         const { data } = await apiClient.post<{
           message: string;
-          email: string;
+          phone: string;
           dev_otp?: string;
         }>('/api/auth/register', {
           full_name: fullName.trim(),
-          email: email.trim().toLowerCase(),
-          password,
+          phone: phone.trim(),
+          national_id: nationalId.trim(),
         });
 
         return {
           ok: true,
-          email: data.email ?? email.trim().toLowerCase(),
+          phone: data.phone ?? phone.trim(),
           dev_otp: data.dev_otp,
         };
       } catch (err) {
@@ -309,7 +307,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     token,
     user,
     isAuthenticated: !!token,
-    isAdmin: (user?.role ?? '').trim().toLowerCase() === 'admin',
+    isAdmin: (user?.role ?? '').trim().toLowerCase() === 'admin' || (user?.role ?? '').trim().toLowerCase() === 'superadmin',
     isLoadingUser,
     login,
     loginVerifyOtp,

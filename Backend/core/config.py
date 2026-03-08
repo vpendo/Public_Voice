@@ -25,9 +25,10 @@ class Settings:
         self.DEBUG: bool = self._to_bool(os.getenv("DEBUG", "false"))
 
         # ---------------- Database ----------------
+        # PostgreSQL is used in production (Render). SQLite is fallback for local dev only.
         self.DATABASE_URL: str = os.getenv(
             "DATABASE_URL",
-            "sqlite:///./publicvoice.db"  # fallback for dev
+            "sqlite:///./publicvoice.db"  # fallback for local dev only; production uses PostgreSQL
         )
 
         # ---------------- JWT / Security ----------------
@@ -52,19 +53,24 @@ class Settings:
             raise ValueError("SECRET_KEY must be set in production")
 
         # ---------------- CORS ----------------
-        _cors_raw = os.getenv(
-            "CORS_ORIGINS",
-            "http://localhost:5173,http://localhost:3000,http://127.0.0.1:5173"
-        )
+        # Default includes both local development and deployed frontend URLs
+        _cors_default = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,https://publicvoice1.netlify.app"
+        _cors_raw = os.getenv("CORS_ORIGINS", _cors_default)
         self.CORS_ORIGINS = [o.strip() for o in _cors_raw.split(",") if o.strip()]
         if not self.CORS_ORIGINS:
             self.CORS_ORIGINS = []
-        # In development, always allow both localhost and 127.0.0.1 (browser treats them as different origins)
-        if self.ENVIRONMENT != "production":
-            _dev_origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://127.0.0.1:3000"]
-            for origin in _dev_origins:
-                if origin not in self.CORS_ORIGINS:
-                    self.CORS_ORIGINS.append(origin)
+        
+        # Always ensure localhost origins are included for local development
+        # This ensures local frontend can connect even if CORS_ORIGINS only has production URL
+        _dev_origins = ["http://localhost:5173", "http://127.0.0.1:5173", "http://localhost:3000", "http://127.0.0.1:3000"]
+        for origin in _dev_origins:
+            if origin not in self.CORS_ORIGINS:
+                self.CORS_ORIGINS.append(origin)
+        
+        # Always ensure deployed frontend URL is included
+        _prod_frontend = "https://publicvoice1.netlify.app"
+        if _prod_frontend not in self.CORS_ORIGINS:
+            self.CORS_ORIGINS.append(_prod_frontend)
 
         # ---------------- Email (Forgot-password / reset) ----------------
         self.FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
@@ -79,10 +85,28 @@ class Settings:
         # Comma-separated emails to notify when a new report is submitted (optional)
         self.ADMIN_NOTIFY_EMAILS: str = os.getenv("ADMIN_NOTIFY_EMAILS", "").strip()
 
+        # ---------------- SMS (OTP sending) ----------------
+        # Twilio configuration
+        self.TWILIO_ACCOUNT_SID: str = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
+        self.TWILIO_AUTH_TOKEN: str = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
+        self.TWILIO_PHONE_NUMBER: str = os.getenv("TWILIO_PHONE_NUMBER", "").strip()
+        self.TWILIO_FROM_NUMBER: str = os.getenv("TWILIO_FROM_NUMBER", "").strip()  # Alternative to TWILIO_PHONE_NUMBER
+        
+        # Africa's Talking configuration
+        self.AFRICAS_TALKING_USERNAME: str = os.getenv("AFRICAS_TALKING_USERNAME", "").strip()
+        self.AFRICAS_TALKING_API_KEY: str = os.getenv("AFRICAS_TALKING_API_KEY", "").strip()
+
     @property
     def email_configured(self) -> bool:
         """True if SMTP is configured so we can send password-reset emails."""
         return bool(self.SMTP_HOST and self.SMTP_USER and self.SMTP_PASSWORD)
+
+    @property
+    def sms_configured(self) -> bool:
+        """True if SMS provider (Twilio or Africa's Talking) is configured."""
+        twilio_configured = bool(self.TWILIO_ACCOUNT_SID and self.TWILIO_AUTH_TOKEN and (self.TWILIO_PHONE_NUMBER or self.TWILIO_FROM_NUMBER))
+        africastalking_configured = bool(self.AFRICAS_TALKING_USERNAME and self.AFRICAS_TALKING_API_KEY)
+        return twilio_configured or africastalking_configured
 
     def _to_bool(self, value: str) -> bool:
         """Convert string env variable to bool."""

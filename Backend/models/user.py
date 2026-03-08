@@ -11,6 +11,7 @@ from models.base import Base
 
 
 class UserRole(str, enum.Enum):
+    SUPER_ADMIN = "SuperAdmin"
     ADMIN = "Admin"
     USER = "User"
 
@@ -20,15 +21,17 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     full_name = Column(String(255), nullable=False)
-    email = Column(String(255), unique=True, index=True, nullable=False)
-    hashed_password = Column(String(255), nullable=False)
+    phone = Column(String(50), unique=True, index=True, nullable=True)  # Required for users, optional for admins
+    national_id = Column(String(50), unique=True, index=True, nullable=True)  # National ID for users
+    email = Column(String(255), unique=True, index=True, nullable=True)  # Optional, mainly for admins
+    hashed_password = Column(String(255), nullable=True)  # Optional for phone-based auth
 
     # Password reset (for forgot-password flow)
     reset_token = Column(String(255), nullable=True, index=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
 
-    # Email verification (OTP sent on register)
-    email_verified = Column(Boolean, nullable=False, default=False)
+    # Phone verification (OTP sent on register/login)
+    phone_verified = Column(Boolean, nullable=False, default=False)
     role = Column(String(50), nullable=False, default=UserRole.USER.value)
     # When set, this admin only sees and manages reports for this category. Null = all categories.
     admin_category = Column(String(50), nullable=True, index=True)

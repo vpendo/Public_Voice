@@ -1,27 +1,15 @@
 # PublicVoice Backend
 
-## Description
-
-FastAPI backend for **PublicVoice**, a civic engagement platform. Provides JWT auth (register citizens, login for User and Admin), report APIs (submit, list mine, list all for admin, update status and response), and user listing for admins. Uses SQLite in dev and PostgreSQL in production.
-
-**Tools:** Python 3.10+, FastAPI, SQLAlchemy, JWT (HS256), bcrypt, Pydantic. Optional: PostgreSQL.
+FastAPI backend for PublicVoice civic engagement platform.
 
 ---
 
-## GitHub Repository
-
-- **Repo:** [https://github.com/vpendo/Public_Voice.git]  
-  `
-
----
-
-## How to Set Up the Environment and the Project
+## Install and Run
 
 ### Prerequisites
 
 - Python 3.10+
-- pip  
-- PostgreSQL (optional; SQLite used if `DATABASE_URL` is not set)
+- pip
 
 ### Setup
 
@@ -30,162 +18,78 @@ cd Public_Voice/Backend
 python -m venv venv
 ```
 
-**Activate venv:**
-
-- Windows: `venv\Scripts\activate`
-            `source venv/Scripts/activate`
-
-- macOS/Linux: `source venv/bin/activate`
+**Activate virtual environment:**
+- **Windows:** `venv\Scripts\activate`
+- **macOS/Linux:** `source venv/bin/activate`
 
 ```bash
 pip install -r requirements.txt
+copy env.example .env   # Windows
+# cp env.example .env   # macOS/Linux
 ```
 
 ### Configuration
 
-```bash
-# Windows
-copy env.example .env
-# macOS/Linux
-cp env.example .env
-```
+Edit `.env` file:
 
-Edit `.env`:
+**Required:**
+- `SECRET_KEY` - Generate: `openssl rand -hex 32`
 
-- **SECRET_KEY** – required; use a long random string (e.g. `openssl rand -hex 32`).
-- **DATABASE_URL** – optional; if set, use PostgreSQL. If not set, SQLite is used (`./publicvoice.db`).
-- **CORS_ORIGINS** – allowed frontend origins (e.g. `http://localhost:5173` for dev).
-- **OPENAI_API_KEY** – optional but required for **AI/NLP report processing**. When set, citizen report text (e.g. Kinyarwanda or informal English) is sent to the API for:
-  - **Translation** (Kinyarwanda → English)
-  - **Formal rewriting** (informal → formal)
-  - **Structuring** (title, category, institution)
-  The result is stored as `structured_description` and shown to admins in the dashboard. Without this key, only the raw submission is stored. Get an API key from [OpenAI](https://platform.openai.com/api-keys). Example: `OPENAI_API_KEY=sk-your-key-here`
-- **Email (forgot password)** – optional. To send password-reset links by email, set:
-  - **FRONTEND_URL** – base URL of your frontend (e.g. `http://localhost:5173` or `https://your-app.com`). Used to build the reset link in the email.
-  - **SMTP_HOST** – e.g. `smtp.gmail.com`, `smtp.outlook.com`
-  - **SMTP_PORT** – usually `587` (TLS) or `465` (SSL)
-  - **SMTP_USER** – your email address
-  - **SMTP_PASSWORD** – app password (for Gmail, create one under Google Account → Security → 2-Step Verification → App passwords)
-  - **SMTP_FROM_EMAIL** – optional; defaults to SMTP_USER
-  - **SMTP_USE_TLS** – `true` (default) or `false`
-  If these are not set, forgot-password still creates a reset token; in **DEBUG** mode the API returns the token so the frontend can show a “Reset password” link on the page for development.
+**Optional:**
+- `DATABASE_URL` - PostgreSQL connection string (defaults to SQLite)
+- `CORS_ORIGINS` - Frontend URLs (comma-separated)
+- `OPENAI_API_KEY` - For AI report processing
+- `AFRICAS_TALKING_USERNAME` - For SMS OTP (use `sandbox` for testing)
+- `AFRICAS_TALKING_API_KEY` - For SMS OTP
 
-### Create admin user
-
-Admins do not register via the app. Create one from the Backend folder with venv activated:
+### Create Admin User
 
 ```bash
 python -m scripts.create_admin
 ```
 
-Enter email, full name, and password when prompted. Or use env vars:
+Enter email, full name, and password when prompted.
+
+### Run Backend
 
 ```bash
-# Windows PowerShell
-$env:CREATE_ADMIN_EMAIL="admin@example.com"; $env:CREATE_ADMIN_PASSWORD="YourSecurePass1"; python -m scripts.create_admin
-
-# macOS/Linux
-CREATE_ADMIN_EMAIL=admin@example.com CREATE_ADMIN_PASSWORD=YourSecurePass1 python -m scripts.create_admin
+uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Password rules: at least 8 characters, one letter and one digit.
-
-**Cell / Sector / District dashboards:** You can create admins that see only reports from a specific area. When prompted, choose a **geographic scope**: `all` (default), `district`, `sector`, or `cell`, then enter the district/sector/cell names (must match how citizens enter them in reports). Examples:
-
-```bash
-# Interactive: run and choose scope when prompted
-python -m scripts.create_admin
-
-# CLI: cell admin (district → sector → cell)
-python -m scripts.create_admin cell@example.com "Cell Admin" "" Pass123 cell "Gasabo" "Remera" "Gikondo"
-
-# CLI: sector admin
-python -m scripts.create_admin sector@example.com "Sector Admin" "" Pass123 sector "Gasabo" "Remera" ""
-
-# CLI: district admin
-python -m scripts.create_admin district@example.com "District Admin" "" Pass123 district "Gasabo" "" ""
-```
-
-If the `admin_scope_level` / `scope_district` / `scope_sector` / `scope_cell` columns are missing on the `users` table, run once:
-
-```bash
-python -m scripts.add_admin_scope_columns
-```
-
-**Fix a mistake (wrong sector/district/cell):** To update an existing admin’s scope or category:
-
-```bash
-python -m scripts.update_admin_scope celladmin@gmail.com
-```
-
-Then enter the correct sector (and district/cell if needed) when prompted. Or pass everything on the command line:
-
-```bash
-python -m scripts.update_admin_scope celladmin@gmail.com --scope-level cell --district Gasabo --sector Remera --cell Gikondo
-```
-
-### See your admin account (which email to use for admin login)
-
-To see which account is the admin (e.g. if you forgot the email you used):
-
-```bash
-python -m scripts.show_admin
-```
-
-This prints the admin user’s **ID**, **email**, and **name**. Use that email and the password you set when you ran `create_admin` to log in as admin in the app.
-
-You can also run `python -m scripts.create_admin` again: if an admin already exists, it will print that admin’s id and email and exit without creating a new one.
-
-### Run
-
-```bash
-uvicorn main:app --reload 
-```
-
-- **API:** http://localhost:8000  
-- **Swagger:** http://localhost:8000/docs  
+- **API:** http://localhost:8000
+- **Docs:** http://localhost:8000/docs
 
 ---
 
-## Designs
+## API Endpoints
 
-- **Figma mockups / wireframes:** [Add link or path, e.g. repo root `docs/wireframes/`]
-- **Screenshots of app interfaces:** [Add path or images; backend is API-only; screenshots refer to the frontend that consumes this API]
-
-API design: REST; auth via JWT Bearer; endpoints documented at `/docs`.
-
----
-
-## Deployment Plan (Render)
-
-1. Create a **Web Service** on **Render**; connect the GitHub repo.
-2. **Root directory:** `Backend` (if repo root is above Backend).
-3. **Build command:** `pip install -r requirements.txt`
-4. **Start command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`  
-   (Render sets `PORT`; use `$PORT` in the command.)
-5. **Environment variables (required):**
-   - `SECRET_KEY` – long random string (e.g. from `openssl rand -hex 32`).
-   - `DATABASE_URL` – PostgreSQL connection string (use Render’s PostgreSQL add-on or external DB).
-   - `CORS_ORIGINS` – frontend origin(s), e.g. `https://your-app.netlify.app` (no trailing slash).
-6. **Database:** Add a PostgreSQL database on Render; use its internal URL as `DATABASE_URL`. Tables are created on first startup via `init_db()`. Create an admin with `python -m scripts.create_admin` (run locally with prod `DATABASE_URL` or via a one-off job if you add it).
-
-After deploy, use the Render service URL (e.g. `https://your-app.onrender.com`) as the frontend `VITE_API_URL`.
+- `POST /api/auth/register` - Register citizen (phone + National ID)
+- `POST /api/auth/login` - Login (phone + full name for users, email + password for admins)
+- `POST /api/auth/login/verify-otp` - Verify OTP code
+- `GET /api/auth/me` - Get current user
+- `POST /api/reports` - Submit report
+- `GET /api/reports/mine` - Get user's reports
+- `GET /api/reports` - Get all reports (admin only)
+- `PATCH /api/reports/{id}/respond` - Respond to report (admin only)
 
 ---
 
-### Troubleshooting: CORS and "Connection refused"
+## Testing
 
-- **"ERR_CONNECTION_REFUSED" / "Failed to load resource: net::ERR_FAILED"**  
-  The backend is not running or not reachable. Start it from the Backend folder:
-  ```bash
-  uvicorn main:app --reload --host 127.0.0.1 --port 8000
-  ```
-  Then open the frontend at `http://localhost:5173` again.
+```bash
+pytest tests/ -v
+```
 
-- **"Blocked by CORS policy: No 'Access-Control-Allow-Origin' header"**  
-  1. Make sure the backend is running (see above).  
-  2. In the Backend folder, ensure `.env` has the frontend origin(s) (no trailing slash, comma-separated if several):
-     ```
-     CORS_ORIGINS=http://localhost:5173,http://127.0.0.1:5173
-     ```
-  3. Restart the backend after changing `.env`.
+---
+
+## Deployment (Render)
+
+1. Create Web Service on Render
+2. Connect GitHub repository
+3. Set root directory: `Backend`
+4. Build command: `pip install -r requirements.txt`
+5. Start command: `uvicorn main:app --host 0.0.0.0 --port $PORT`
+6. Set environment variables:
+   - `SECRET_KEY`
+   - `DATABASE_URL`
+   - `CORS_ORIGINS`
