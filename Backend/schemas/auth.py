@@ -3,6 +3,8 @@ Auth request/response schemas with validation.
 """
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
+from core.phone import normalize_phone_rwanda
+
 
 class UserRegister(BaseModel):
     """User registration – validated input."""
@@ -14,11 +16,11 @@ class UserRegister(BaseModel):
     @field_validator("phone")
     @classmethod
     def normalize_phone(cls, v: str) -> str:
-        """Normalize phone number - remove spaces and ensure it starts with + or digits."""
+        """Normalize phone to canonical Rwanda format so login lookup matches."""
         cleaned = v.strip().replace(" ", "").replace("-", "")
         if not cleaned:
             raise ValueError("Phone number cannot be empty")
-        return cleaned
+        return normalize_phone_rwanda(cleaned)
 
     @field_validator("national_id")
     @classmethod
@@ -45,11 +47,13 @@ class UserLogin(BaseModel):
     @field_validator("phone")
     @classmethod
     def normalize_phone(cls, v: str | None) -> str | None:
-        """Normalize phone number."""
+        """Normalize phone to canonical Rwanda format so lookup matches registered user."""
         if v is None:
             return None
         cleaned = v.strip().replace(" ", "").replace("-", "")
-        return cleaned if cleaned else None
+        if not cleaned:
+            return None
+        return normalize_phone_rwanda(cleaned)
 
     @model_validator(mode="after")
     def require_phone_or_email_password(self):
@@ -82,11 +86,10 @@ class VerifyPhoneRequest(BaseModel):
     @field_validator("phone")
     @classmethod
     def normalize_phone(cls, v: str) -> str:
-        """Normalize phone number."""
         cleaned = v.strip().replace(" ", "").replace("-", "")
         if not cleaned:
             raise ValueError("Phone number cannot be empty")
-        return cleaned
+        return normalize_phone_rwanda(cleaned)
 
 
 class ResendOtpRequest(BaseModel):
@@ -97,11 +100,10 @@ class ResendOtpRequest(BaseModel):
     @field_validator("phone")
     @classmethod
     def normalize_phone(cls, v: str) -> str:
-        """Normalize phone number."""
         cleaned = v.strip().replace(" ", "").replace("-", "")
         if not cleaned:
             raise ValueError("Phone number cannot be empty")
-        return cleaned
+        return normalize_phone_rwanda(cleaned)
 
 
 class UserResponse(BaseModel):
@@ -152,11 +154,10 @@ class LoginVerifyOtpRequest(BaseModel):
     @field_validator("phone")
     @classmethod
     def normalize_phone(cls, v: str) -> str:
-        """Normalize phone number."""
         cleaned = v.strip().replace(" ", "").replace("-", "")
         if not cleaned:
             raise ValueError("Phone number cannot be empty")
-        return cleaned
+        return normalize_phone_rwanda(cleaned)
 
 
 class ForgotPasswordRequest(BaseModel):

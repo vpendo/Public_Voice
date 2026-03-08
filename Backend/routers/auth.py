@@ -18,11 +18,12 @@ def _utc_now_comparable_with(dt: datetime | None):
     return now_utc.replace(tzinfo=None)
 from typing import Annotated
 
-from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
+from fastapi import APIRouter, Body, Depends, File, Form, HTTPException, UploadFile, status
 from sqlalchemy.orm import Session
 
 from core.config import settings
 from core.security import hash_password, verify_password, create_access_token
+from core.phone import normalize_phone_rwanda
 from core.email import send_otp_email
 from core.sms import send_otp_sms
 from core.deps import get_current_user, CurrentUser
@@ -52,6 +53,19 @@ OTP_EXPIRE_MINUTES = 15
 
 def _generate_otp_code() -> str:
     return "".join(secrets.choice("0123456789") for _ in range(6))
+
+
+def _get_user_by_phone(db: Session, phone: str):
+    """Find user by phone (canonical +250...). If stored as legacy 0..., find and migrate to canonical."""
+    user = db.query(User).filter(User.phone == phone).first()
+    if not user and phone.startswith("+250") and len(phone) == 13:
+        legacy = "0" + phone[4:]
+        user = db.query(User).filter(User.phone == legacy).first()
+        if user:
+            user.phone = phone
+            db.commit()
+            db.refresh(user)
+    return user
 
 
 @router.post("/register", response_model=RegisterResponse)
@@ -155,12 +169,32 @@ def _build_login_response(user: User) -> LoginResponse:
     )
 
 
+LOGIN_EXAMPLES = {
+    "user_login": {
+        "summary": "User login (phone + full name)",
+        "description": "Citizen login. Send only phone and full_name. Backend sends OTP; then call POST /api/auth/login/verify-otp with phone and code.",
+        "value": {"phone": "+250788123456", "full_name": "William"},
+    },
+    "admin_login": {
+        "summary": "Admin login (email + password)",
+        "description": "Admin login. Send only email and password. Returns access_token directly.",
+        "value": {"email": "admin@example.com", "password": "your_password"},
+    },
+}
+
+
 @router.post("/login")
 def login(
-    payload: UserLogin,
+    payload: Annotated[
+        UserLogin,
+        Body(
+            example={"phone": "0782130814", "full_name": "William"},
+            openapi_examples=LOGIN_EXAMPLES,
+        ),
+    ],
     db: Annotated[Session, Depends(get_db)],
 ) -> LoginResponse | LoginRequiresOtpResponse:
-    """Login with phone number (users) or email+password (admins). For phone, sends OTP; for email+password, returns token directly."""
+    """Login with phone number (users) or email+password (admins). For phone, sends OTP; for email+password, returns token directly. Send only one set: either (phone + full_name) or (email + password), not both."""
     # Admin login with email+password (backward compatibility)
     if payload.email and payload.password:
         email = payload.email.lower().strip()
@@ -196,7 +230,7 @@ def login(
         )
     phone = payload.phone.strip()
     full_name = payload.full_name.strip()
-    user = db.query(User).filter(User.phone == phone).first()
+    user = _get_user_by_phone(db, phone)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
@@ -265,7 +299,7 @@ def login_verify_otp(
         db.delete(otp_row)
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired. Sign in again and request a new code.")
-    user = db.query(User).filter(User.phone == phone).first()
+    user = _get_user_by_phone(db, phone)
     if not user:
         db.delete(otp_row)
         db.commit()
@@ -295,7 +329,7 @@ def verify_phone(
         db.delete(otp_row)
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired. Request a new one.")
-    user = db.query(User).filter(User.phone == phone).first()
+    user = _get_user_by_phone(db, phone)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found.")
     user.phone_verified = True
@@ -311,7 +345,7 @@ def resend_otp(
 ) -> dict:
     """Resend verification OTP to phone."""
     phone = payload.phone.strip()
-    user = db.query(User).filter(User.phone == phone).first()
+    user = _get_user_by_phone(db, phone)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No account found for this phone number.")
     if getattr(user, "phone_verified", False):
