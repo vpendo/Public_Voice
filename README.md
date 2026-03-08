@@ -2,9 +2,41 @@
 
 Civic engagement platform for Rwanda: citizens report issues in English or Kinyarwanda; AI translates and structures reports for admins.
 
-- **Demo video:** [Demo (Google Drive)](https://drive.google.com/file/d/1-N_4nZKiPHvMZzfMwZx7Uq5VgjI_OPDy/view?usp=sharing)
+- **Demo video:** [Demo (Google Drive)](https://drive.google.com/file/d/1pxpAqEp2TsBnOkESI6ZwRrnRnn7_e3JC/view?usp=sharing)
 - **Repository:** [GitHub – Public_Voice](https://github.com/vpendo/Public_Voice)
-- **Deployed app:** [https://publicvoice1.netlify.app](https://publicvoice1.netlify.app)
+- **Deployed app:** [Frontend](https://publicvoice1.netlify.app)
+
+[Backend](https://public-voice1.onrender.com/docs#/)
+
+### Screenshots
+
+**Tests** – Backend test run (pytest). Auth, reports, and API tests passing.
+
+![Tests](Screenshots/Tests.png)
+
+**Phone OTP** – OTP code sent to the user’s phone for login or registration verification.
+
+![Phone OTP](Screenshots/phone_OTP.png)
+
+**Created issue** – Success view after a citizen submits a new report/issue.
+
+![Created issue](Screenshots/created_issue.png)
+
+**Get report by ID** – API or admin view of a single report’s details.
+
+![Get report by ID](Screenshots/get_report_by_id.png)
+
+**All users** – Admin view listing registered users (citizens and admins).
+
+![All users](Screenshots/all_user.png)
+
+**Pending report** – Admin dashboard showing reports awaiting review or action.
+
+![Pending report](Screenshots/pending_report.png)
+
+**Register API** – Swagger/OpenAPI docs for the citizen registration endpoint.
+
+![Register API](Screenshots/register_API.png)
 
 ---
 
@@ -31,7 +63,7 @@ python -m venv venv
 ```
 
 **Activate virtual environment:**
-- **Windows:** `venv\Scripts\activate`
+- **Windows:** ` source venv\Scripts\activate`
 - **macOS/Linux:** `source venv/bin/activate`
 
 ```bash
