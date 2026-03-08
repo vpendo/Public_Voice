@@ -4,7 +4,7 @@ Civic engagement platform for Rwanda: citizens report issues in English or Kinya
 
 - **Repository:** [GitHub – Public_Voice](https://github.com/vpendo/Public_Voice)
 - **Deployed app:** [Frontend](https://publicvoice1.netlify.app) · [Backend API docs](https://public-voice1.onrender.com/docs)
-- **Demo video (5 min):** [Demo (Google Drive)](https://drive.google.com/file/d/1pxpAqEp2TsBnOkESI6ZwRrnRnn7_e3JC/view?usp=sharing)
+- **Demo video ** [Demo (Google Drive)](https://drive.google.com/file/d/1pxpAqEp2TsBnOkESI6ZwRrnRnn7_e3JC/view?usp=sharing)
 
 ---
 
