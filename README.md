@@ -241,12 +241,7 @@ Frontend runs at: **http://localhost:5173**
 
 ---
 
-## Submission (per guidelines)
 
-- **Attempt 1:** This repo (README with install/run, related files, testing results, analysis, discussion, recommendations, deployment) + 5‑min demo video + link to deployed app.
-- **Attempt 2:** Zip file of this repository.
-
----
 
 ## License
 
