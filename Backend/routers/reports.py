@@ -240,12 +240,27 @@ def get_report_stats(
     db: Annotated[Session, Depends(get_db)],
     current_admin: CurrentAdmin,
     months: int = Query(6, ge=1, le=24, description="Months of trend data"),
+    period: Optional[str] = Query(None, description="Filter by period: today, week, month, all"),
 ) -> ReportStatsResponse:
     """Dashboard stats: total, by status, category, urgency, monthly trend. Admin only."""
     base = db.query(Report)
     if getattr(current_admin, "admin_category", None):
         base = base.filter(Report.category == current_admin.admin_category)
     base = _apply_admin_scope(base, current_admin)
+    
+    # Apply time period filter
+    now = datetime.utcnow()
+    if period == "today":
+        today_start = now.replace(hour=0, minute=0, second=0, microsecond=0)
+        base = base.filter(Report.created_at >= today_start)
+    elif period == "week":
+        week_start = now - timedelta(days=7)
+        base = base.filter(Report.created_at >= week_start)
+    elif period == "month":
+        month_start = now - timedelta(days=30)
+        base = base.filter(Report.created_at >= month_start)
+    # "all" or None means no time filter
+    
     reports = base.all()
     total = len(reports)
     by_status = defaultdict(int)
@@ -270,6 +285,37 @@ def get_report_stats(
         by_urgency=dict(by_urgency),
         monthly_trend=monthly_trend,
     )
+
+
+@router.get("/pending-count")
+def get_pending_reports_count(
+    db: Annotated[Session, Depends(get_db)],
+    current_admin: CurrentAdmin,
+) -> dict:
+    """Get count of pending/unsolved reports for reminders. Admin only."""
+    query = db.query(Report)
+    if getattr(current_admin, "admin_category", None):
+        query = query.filter(Report.category == current_admin.admin_category)
+    query = _apply_admin_scope(query, current_admin)
+    
+    # Count unsolved reports (pending, in_review, new)
+    unsolved = query.filter(
+        Report.status.in_(["pending", "in_review", "new"])
+    ).count()
+    
+    # Count today's reports
+    today_start = datetime.utcnow().replace(hour=0, minute=0, second=0, microsecond=0)
+    today_count = query.filter(Report.created_at >= today_start).count()
+    
+    # Count this week's reports
+    week_start = datetime.utcnow() - timedelta(days=7)
+    week_count = query.filter(Report.created_at >= week_start).count()
+    
+    return {
+        "unsolved_count": unsolved,
+        "today_count": today_count,
+        "week_count": week_count,
+    }
 
 
 @router.get("/export")

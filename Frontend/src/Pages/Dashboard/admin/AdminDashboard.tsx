@@ -12,7 +12,6 @@ import {
   BarChart3,
   PieChart,
   Shield,
-  Bell,
 } from 'lucide-react';
 
 interface ReportItem {
@@ -65,6 +64,8 @@ const URGENCY_LABELS: Record<string, string> = {
   emergency: 'Emergency',
 };
 
+type TimePeriod = 'all' | 'today' | 'week' | 'month';
+
 export function AdminDashboard() {
   const { t } = useLanguage();
   const CATEGORY_LABELS = getCategoryLabels(t);
@@ -73,21 +74,39 @@ export function AdminDashboard() {
   const [reports, setReports] = useState<ReportItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [timePeriod, setTimePeriod] = useState<TimePeriod>('all');
+  const [pendingCount, setPendingCount] = useState({ unsolved_count: 0, today_count: 0, week_count: 0 });
 
   useEffect(() => {
     let cancelled = false;
     async function fetchData() {
       try {
-        const [usersRes, statsRes, reportsRes] = await Promise.all([
+        const params: Record<string, any> = { limit: 10 };
+        if (timePeriod === 'today') {
+          const today = new Date().toISOString().split('T')[0];
+          params.date_from = today;
+        } else if (timePeriod === 'week') {
+          const weekAgo = new Date();
+          weekAgo.setDate(weekAgo.getDate() - 7);
+          params.date_from = weekAgo.toISOString().split('T')[0];
+        } else if (timePeriod === 'month') {
+          const monthAgo = new Date();
+          monthAgo.setDate(monthAgo.getDate() - 30);
+          params.date_from = monthAgo.toISOString().split('T')[0];
+        }
+        
+        const [usersRes, statsRes, reportsRes, pendingRes] = await Promise.all([
           apiClient.get<{ id: number }[]>('/api/users'),
-          apiClient.get<ReportStats>('/api/reports/stats'),
-          apiClient.get<ReportItem[]>('/api/reports', { params: { limit: 10 } }),
+          apiClient.get<ReportStats>('/api/reports/stats', { params: { period: timePeriod } }),
+          apiClient.get<ReportItem[]>('/api/reports', { params }),
+          apiClient.get<{ unsolved_count: number; today_count: number; week_count: number }>('/api/reports/pending-count'),
         ]);
         if (cancelled) return;
         const usersList = Array.isArray(usersRes.data) ? usersRes.data : [];
         setUsersCount(usersList.length);
         setStats(statsRes.data ?? null);
         setReports(Array.isArray(reportsRes.data) ? reportsRes.data : []);
+        setPendingCount(pendingRes.data ?? { unsolved_count: 0, today_count: 0, week_count: 0 });
         setError(null);
       } catch {
         if (!cancelled) {
@@ -101,7 +120,7 @@ export function AdminDashboard() {
     }
     fetchData();
     return () => { cancelled = true; };
-  }, []);
+  }, [timePeriod, t]);
 
   const byStatus = stats?.by_status ?? {};
   const pending = byStatus.pending ?? 0;
@@ -136,7 +155,8 @@ export function AdminDashboard() {
   const maxTrend = Math.max(1, ...monthlyTrend.map((d) => d.count));
 
   const urgentCount = (stats?.by_urgency?.emergency ?? 0) + (stats?.by_urgency?.high ?? 0);
-  const showNotificationBanner = pending > 0 || urgentCount > 0;
+  const unsolvedCount = pendingCount.unsolved_count || (pending + inReview);
+  const showNotificationBanner = unsolvedCount > 0;
 
   const recentReports = [...reports]
     .sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
@@ -170,29 +190,32 @@ export function AdminDashboard() {
 
   return (
     <div className="space-y-8 font-sans">
-      {/* In-app notification banner when there are pending or urgent reports */}
+      {/* Reminder banner for unsolved issues */}
       {showNotificationBanner && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50/90 px-6 py-4 flex flex-wrap items-center gap-4">
+        <div className="rounded-2xl border border-red-200 bg-red-50/90 px-6 py-4 flex flex-wrap items-center gap-4">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-100 flex items-center justify-center text-amber-700">
-              <Bell size={20} />
+            <div className="w-10 h-10 rounded-xl bg-red-100 flex items-center justify-center text-red-700">
+              <AlertCircle size={20} />
             </div>
             <div>
-              <p className="font-semibold text-amber-900">
-                {pending > 0 && urgentCount > 0
-                  ? `${pending} pending report(s) · ${urgentCount} urgent need attention`
-                  : pending > 0
-                    ? `${pending} report(s) pending review`
-                    : `${urgentCount} urgent report(s) need attention`}
+              <p className="font-semibold text-red-900">
+                {unsolvedCount} unsolved issue{unsolvedCount !== 1 ? 's' : ''} need your attention
               </p>
-              <p className="text-sm text-amber-800">Review and update status from the reports table.</p>
+              <p className="text-sm text-red-800">
+                {pending > 0 && inReview > 0
+                  ? `${pending} pending · ${inReview} in review`
+                  : pending > 0
+                    ? `${pending} pending review`
+                    : `${inReview} in review`}
+                {urgentCount > 0 && ` · ${urgentCount} urgent`}
+              </p>
             </div>
           </div>
           <Link
-            to="/admin/issues"
-            className="ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-amber-600 text-white text-sm font-medium hover:bg-amber-700"
+            to="/admin/issues?status=pending"
+            className="ml-auto inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-red-600 text-white text-sm font-medium hover:bg-red-700"
           >
-            View reports
+            View unsolved
             <ArrowRight size={16} />
           </Link>
         </div>
@@ -212,21 +235,86 @@ export function AdminDashboard() {
             {formatDate(new Date().toISOString())} · {t.admin.dateReports}
           </p>
         </div>
-        <Link
-          to="/admin/issues"
-          className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[var(--color-primary)] hover:opacity-95 transition-opacity shadow-md"
-        >
-          {t.admin.viewAllIssues}
-          <ArrowRight size={16} />
-        </Link>
+        <div className="flex items-center gap-3">
+          {/* Time period filter */}
+          <div className="flex items-center gap-2 bg-white rounded-xl border border-slate-200 p-1">
+            <button
+              onClick={() => setTimePeriod('all')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                timePeriod === 'all'
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              All
+            </button>
+            <button
+              onClick={() => setTimePeriod('today')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                timePeriod === 'today'
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              Today ({pendingCount.today_count})
+            </button>
+            <button
+              onClick={() => setTimePeriod('week')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                timePeriod === 'week'
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              This Week ({pendingCount.week_count})
+            </button>
+            <button
+              onClick={() => setTimePeriod('month')}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors ${
+                timePeriod === 'month'
+                  ? 'bg-[var(--color-primary)] text-white'
+                  : 'text-slate-600 hover:bg-slate-50'
+              }`}
+            >
+              This Month
+            </button>
+          </div>
+          <Link
+            to="/admin/issues"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-[var(--color-primary)] hover:opacity-95 transition-opacity shadow-md"
+          >
+            {t.admin.viewAllIssues}
+            <ArrowRight size={16} />
+          </Link>
+        </div>
       </div>
+
+      {/* Period summary */}
+      {timePeriod !== 'all' && (
+        <div className="rounded-2xl border border-blue-200 bg-blue-50/90 px-6 py-3 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-lg bg-blue-100 flex items-center justify-center text-blue-700">
+            <BarChart3 size={16} />
+          </div>
+          <div className="flex-1">
+            <p className="text-sm font-medium text-blue-900">
+              Showing reports from{' '}
+              {timePeriod === 'today' ? 'today' : timePeriod === 'week' ? 'the last 7 days' : 'the last 30 days'}
+            </p>
+            <p className="text-xs text-blue-700">
+              {totalReports} report{totalReports !== 1 ? 's' : ''} in this period
+            </p>
+          </div>
+        </div>
+      )}
 
       {/* Stat cards */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
         <div className="bg-white rounded-2xl border border-slate-200/80 shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm font-medium text-slate-500">{t.admin.totalReports}</p>
+              <p className="text-sm font-medium text-slate-500">
+                {timePeriod === 'all' ? t.admin.totalReports : `${t.admin.totalReports} (${timePeriod})`}
+              </p>
               <p className="mt-1 text-3xl font-bold text-slate-900">{totalReports}</p>
             </div>
             <div className="w-12 h-12 rounded-xl flex items-center justify-center bg-slate-100 text-slate-600">
