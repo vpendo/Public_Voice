@@ -2,43 +2,99 @@
 
 Civic engagement platform for Rwanda: citizens report issues in English or Kinyarwanda; AI translates and structures reports for admins.
 
-- **Demo video:** [Demo (Google Drive)](https://drive.google.com/file/d/1pxpAqEp2TsBnOkESI6ZwRrnRnn7_e3JC/view?usp=sharing)
 - **Repository:** [GitHub – Public_Voice](https://github.com/vpendo/Public_Voice)
-- **Deployed app:** [Frontend](https://publicvoice1.netlify.app)
+- **Deployed app:** [Frontend](https://publicvoice1.netlify.app) · [Backend API docs](https://public-voice1.onrender.com/docs)
+- **Demo video (5 min):** [Demo (Google Drive)](https://drive.google.com/file/d/1pxpAqEp2TsBnOkESI6ZwRrnRnn7_e3JC/view?usp=sharing)
 
-                    [Backend](https://public-voice1.onrender.com/docs#/)
+---
 
-### Screenshots
+## Testing Results [Screenshots with relevant demos]
 
-**Tests** – Backend test run (pytest). Auth, reports, and API tests passing.
+*Demonstration of the functionality under different testing strategies, with different data values, and performance on different hardware/software .*
+
+### 1. Different testing strategies
+
+Backend tests (pytest): auth, reports, API.
 
 ![Tests](Screenshots/Tests.png)
 
-**Phone OTP** – OTP code sent to the user’s phone for login or registration verification.
-
-![Phone OTP](Screenshots/phone_OTP.png)
-
-**Created issue** – Success view after a citizen submits a new report/issue.
-
-![Created issue](Screenshots/created_issue.png)
-
-**Get report by ID** – API or admin view of a single report’s details.
-
-![Get report by ID](Screenshots/get_report_by_id.png)
-
-**All users** – Admin view listing registered users (citizens and admins).
-
-![All users](Screenshots/all_user.png)
-
-**Pending report** – Admin dashboard showing reports awaiting review or action.
-
-![Pending report](Screenshots/pending_report.png)
-
-**Register API** – Swagger/OpenAPI docs for the citizen registration endpoint.
+API documentation and manual testing (Swagger): registration endpoint.
 
 ![Register API](Screenshots/register_API.png)
 
+### 2. Functionality with different data values
+
+OTP verification (phone flow).
+
+![Phone OTP](Screenshots/phone_OTP.png)
+
+Citizen submits a report — success state.
+
+![Created issue](Screenshots/created_issue.png)
+
+Admin view: single report details (GET report by ID).
+
+![Get report by ID](Screenshots/get_report_by_id.png)
+
+Admin: all users list.
+
+![All users](Screenshots/all_user.png)
+
+Admin: pending reports dashboard.
+
+![Pending report](Screenshots/pending_report.png)
+
+### 3. Performance on different specifications
+
+*Demonstration that the product runs correctly in different environments (per rubric).*
+
+| Specification / Environment | Result |
+|-----------------------------|--------|
+| Local development (Windows/Mac, SQLite) | App runs; pytest passes; manual testing OK |
+| Deployed (Netlify + Render, PostgreSQL) | Frontend and API live; auth and reports verified |
+| **Responsiveness on mobile** | UI adapts to small screens; admin dashboard, issues list, and report flow tested on mobile viewport |
+
+**Mobile responsiveness** — The app is responsive on mobile devices. Layout, navigation, and forms adapt to small screens; admin and citizen flows work on phones and tablets.
+
+![Mobile admin](Screenshots/mobile_admin.png)
+
+![Issues on mobile](Screenshots/issue_mobile.png)
+
+![Responded issue on mobile](Screenshots/image.png)
+
 ---
+
+## Analysis
+
+## Objectives achieved:
+The system allows citizens to report community issues through the platform using phone-number registration and OTP verification. Reports are stored and displayed in the admin dashboard where administrators can review and update their status. Testing through pytest and Swagger confirmed that authentication, reporting, and API endpoints work correctly.
+
+## Objectives missed or partial:
+Advanced AI features for automatically structuring and analyzing reports were not fully implemented due to time constraints. SMS-based reporting for citizens without internet access was also not completed.
+
+## Summary:
+Overall, the project successfully developed a working civic engagement platform that enables citizens to report issues and helps administrators manage them.
+
+---
+
+## Discussion
+
+*Importance of milestones and impact of the results (with supervisor).*
+
+**Milestones:** The main milestones included developing the reporting system, implementing OTP authentication, improving functionalities based on supervisor feedback, and deploying the system online.
+
+**Impact of results:** The platform supports civic engagement by providing citizens with a digital channel to report issues and enabling authorities to monitor community concerns more efficiently.
+
+---
+
+## Recommendations
+
+*Recommendations to the community and future work (with supervisor).*
+
+**For the community:** Local authorities could use platforms like PublicVoice to improve communication with citizens and better manage community issues.
+
+**Future work:** Future development should involve engaging citizens and local authorities to understand their needs and integrating AI APIs to automatically structure and categorize reported issues.
+
 
 ## Install and Run (Step by Step)
 
@@ -63,7 +119,7 @@ python -m venv venv
 ```
 
 **Activate virtual environment:**
-- **Windows:** ` source venv\Scripts\activate`
+- **Windows:** `venv\Scripts\activate`
 - **macOS/Linux:** `source venv/bin/activate`
 
 ```bash
@@ -169,8 +225,26 @@ Frontend runs at: **http://localhost:5173**
 
 ## Deployment
 
-- **Frontend:** [Netlify](https://publicvoice1.netlify.app)
-- **Backend:** [Render](https://public-voice1.onrender.com)
+*Clear deployment plan; system deployed and verified in the target environment (per rubric).*
+
+| Item | Detail |
+|------|--------|
+| **Frontend** | [Netlify](https://publicvoice1.netlify.app) — static site (Vite/React build) |
+| **Backend** | [Render](https://public-voice1.onrender.com) — FastAPI; [API docs](https://public-voice1.onrender.com/docs) |
+| **Tools** | Netlify (frontend), Render (backend), PostgreSQL on Render (or SQLite for dev) |
+| **Environments** | Production: Netlify + Render. Local: `pnpm dev` + `uvicorn` (see Install and Run above). |
+| **Verification** | Deployed app tested: frontend loads, API responds, auth and reports work (see Testing Results). |
+
+**Steps to reproduce deployment:**
+1. Frontend: connect repo to Netlify, build command `pnpm build`, publish directory `Frontend/dist`, set `VITE_API_URL` to backend URL.
+2. Backend: connect repo to Render, Web Service, start command `uvicorn main:app --host 0.0.0.0 --port $PORT`, add env vars (e.g. `SECRET_KEY`, `DATABASE_URL`, `CORS_ORIGINS`).
+
+---
+
+## Submission (per guidelines)
+
+- **Attempt 1:** This repo (README with install/run, related files, testing results, analysis, discussion, recommendations, deployment) + 5‑min demo video + link to deployed app.
+- **Attempt 2:** Zip file of this repository.
 
 ---
 
