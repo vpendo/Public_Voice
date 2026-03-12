@@ -83,7 +83,12 @@ def process_issue_text(
         logger.info("Calling OpenAI for report translation (description length=%s)", len(raw_text or ""))
         return _call_openai(raw_text, category=category)
     except Exception as e:
-        logger.exception("AI processing failed: %s", e)
+        # 429 / quota: report will still be saved with raw description by the router
+        err_msg = str(e).lower()
+        if "429" in err_msg or "quota" in err_msg or "rate" in err_msg:
+            logger.warning("OpenAI quota/rate limit: %s. Report will be saved with raw description.", e)
+        else:
+            logger.exception("AI processing failed: %s", e)
         return None
 
 

@@ -175,11 +175,12 @@ def test_validation_invalid_institution(client: TestClient, auth_headers: dict) 
 
 
 def test_create_report_ai_failure(client: TestClient, auth_headers: dict, monkeypatch) -> None:
-    """If the AI translation/formatting step fails, the report should not be saved."""
-    # make the AI stub return None to simulate an internal error
+    """If the AI step fails (e.g. quota), report is still saved with raw description."""
     monkeypatch.setattr("services.ai_processor.process_issue_text", lambda text, category=None: None)
     monkeypatch.setattr("routers.reports.process_issue_text", lambda text, category=None: None)
-    r = client.post("/api/reports", json=_report_payload(), headers=auth_headers)
-    assert r.status_code == 500
-    detail = r.json().get("detail", "")
-    assert "processing failed" in detail.lower()
+    payload = _report_payload()
+    r = client.post("/api/reports", json=payload, headers=auth_headers)
+    assert r.status_code == 201
+    data = r.json()
+    assert "tracking_id" in data
+    assert data.get("raw_description") == payload["description"]

@@ -106,13 +106,7 @@ def create_report(
     # AI: structure/translate description (Kinyarwanda → English, or informal → formal), suggest title/category etc.
     ai_result = process_issue_text(raw_description, category=category)
 
-    if ai_result is None:
-        raise HTTPException(
-            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-            detail="AI processing failed. Please try again later.",
-        )
-
-    if ai_result.get("structured_description"):
+    if ai_result and ai_result.get("structured_description"):
         # Use results from the AI response
         structured_description = ai_result.get("structured_description") or structured_description
         title = ai_result.get("suggested_title") or title
