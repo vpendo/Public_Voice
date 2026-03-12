@@ -38,7 +38,7 @@ async def lifespan(app: FastAPI):
             "SMTP not configured. OTP emails will NOT be sent. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD in .env to send OTP to email."
         )
     yield
-    # shutdown: nothing to close for SQLite/PSQL with current setup
+    # shutdown: nothing to close for PostgreSQL with current setup
 
 
 app = FastAPI(

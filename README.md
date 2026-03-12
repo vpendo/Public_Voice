@@ -105,7 +105,7 @@ Admins see both the **raw** citizen text and the **AI-structured** summary (when
 
 - **Node.js** 18+ and **pnpm** (or npm)
 - **Python** 3.10+ and **pip**
-- **PostgreSQL** (optional; SQLite used if `DATABASE_URL` is not set)
+- **PostgreSQL** (required for backend database)
 
 ### Step 1: Clone
 
@@ -191,7 +191,7 @@ App: **http://localhost:5173**
 |-------|--------------|
 | **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, React Router, Axios |
 | **Backend** | FastAPI, Python 3.10+, JWT, bcrypt |
-| **Database** | SQLite (dev) / PostgreSQL (production) |
+| **Database** | PostgreSQL (production) |
 | **AI** | OpenAI API (translation and structuring of report text) |
 | **Email** | SMTP (OTP for registration, login, and password reset) |
 

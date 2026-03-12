@@ -1,6 +1,6 @@
 # Backend tests (local)
 
-Run API tests against an in-memory SQLite database (your dev DB is not used).
+Run API tests against PostgreSQL. By default uses `publicvoice_test` DB; set `DATABASE_URL` to override.
 
 ## Setup
 

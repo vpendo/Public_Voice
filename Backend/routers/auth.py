@@ -11,7 +11,7 @@ from pathlib import Path
 
 
 def _utc_now_comparable_with(dt: datetime | None):
-    """Return current UTC time in the same tz awareness as dt (naive for SQLite, aware for PostgreSQL)."""
+    """Return current UTC time in the same tz awareness as dt (for PostgreSQL)."""
     now_utc = datetime.now(timezone.utc)
     if dt is not None and getattr(dt, "tzinfo", None) is not None:
         return now_utc
@@ -383,8 +383,10 @@ def forgot_password(
     email = payload.email.lower().strip()
     message = "If an account exists for this email, we've sent a verification code to reset your password. Check your inbox."
     dev_otp = None
+    user_found = False
     user = db.query(User).filter(User.email == email).first()
     if user:
+        user_found = True
         code = _generate_otp_code()
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=OTP_EXPIRE_MINUTES)
         db.query(OTP).filter(OTP.email == email, OTP.purpose == "reset_password").delete()
@@ -403,7 +405,7 @@ def forgot_password(
             dev_otp = code
         if is_dev:
             logger.info("DEBUG: Password reset OTP for %s is: %s", email, code)
-    return ForgotPasswordResponse(message=message, email=email, dev_otp=dev_otp)
+    return ForgotPasswordResponse(message=message, email=email, user_found=user_found, dev_otp=dev_otp)
 
 
 @router.post("/reset-password", response_model=ResetPasswordResponse)

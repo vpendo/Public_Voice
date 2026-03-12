@@ -145,6 +145,7 @@ class ForgotPasswordResponse(BaseModel):
 
     message: str
     email: str  # Echo so frontend can show reset form with email pre-filled
+    user_found: bool = False  # True if an account exists and OTP was sent (for UI message)
     dev_otp: str | None = None  # Only in development or when email not sent (for testing)
 
 

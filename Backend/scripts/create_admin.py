@@ -31,40 +31,19 @@ SCOPE_LEVELS = ("all", "district", "sector", "cell")
 
 
 def ensure_admin_scope_columns() -> None:
-    """Add admin scope columns if missing."""
-    url = str(engine.url)
+    """Add admin scope columns if missing (PostgreSQL)."""
     with engine.begin() as conn:
-        if "sqlite" in url:
-            r = conn.execute(text("PRAGMA table_info(users)"))
-            cols = [row[1] for row in r]
-            for col_name, col_type in [
-                ("admin_scope_level", "VARCHAR(20)"),
-                ("scope_district", "VARCHAR(255)"),
-                ("scope_sector", "VARCHAR(255)"),
-                ("scope_cell", "VARCHAR(255)"),
-            ]:
-                if col_name not in cols:
-                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {col_type}"))
-        else:
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_scope_level VARCHAR(20)"))
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_district VARCHAR(255)"))
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_sector VARCHAR(255)"))
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_cell VARCHAR(255)"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_scope_level VARCHAR(20)"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_district VARCHAR(255)"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_sector VARCHAR(255)"))
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS scope_cell VARCHAR(255)"))
 
 
 def ensure_admin_category_column() -> None:
-    """Add users.admin_category if missing (PostgreSQL or SQLite)."""
-    url = str(engine.url)
+    """Add users.admin_category if missing (PostgreSQL)."""
     with engine.begin() as conn:
-        if "sqlite" in url:
-            r = conn.execute(text("PRAGMA table_info(users)"))
-            cols = [row[1] for row in r]
-            if "admin_category" not in cols:
-                conn.execute(text("ALTER TABLE users ADD COLUMN admin_category VARCHAR(50)"))
-                print("Added column users.admin_category.")
-        else:
-            conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_category VARCHAR(50)"))
-            print("Ensured column users.admin_category exists.")
+        conn.execute(text("ALTER TABLE users ADD COLUMN IF NOT EXISTS admin_category VARCHAR(50)"))
+        print("Ensured column users.admin_category exists.")
 
 
 def main() -> None:

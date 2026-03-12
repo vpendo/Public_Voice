@@ -14,19 +14,11 @@ from sqlalchemy import create_engine, text
 from core.config import settings
 
 def main():
-    engine = create_engine(
-        settings.DATABASE_URL,
-        connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {},
-    )
-    is_sqlite = "sqlite" in settings.DATABASE_URL
-    col_name, sqlite_type, pg_type = "profile_image", "VARCHAR(512)", "VARCHAR(512)"
-    typ = sqlite_type if is_sqlite else pg_type
+    engine = create_engine(settings.DATABASE_URL)
+    col_name, pg_type = "profile_image", "VARCHAR(512)"
     with engine.connect() as conn:
         try:
-            if is_sqlite:
-                conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {typ}"))
-            else:
-                conn.execute(text(f"ALTER TABLE users ADD COLUMN IF NOT EXISTS {col_name} {typ}"))
+            conn.execute(text(f"ALTER TABLE users ADD COLUMN IF NOT EXISTS {col_name} {pg_type}"))
             conn.commit()
             print(f"Added column: users.{col_name}")
         except Exception as e:

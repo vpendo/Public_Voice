@@ -2,7 +2,7 @@
 One-time migration: add missing columns to reports table.
 Run from Backend folder: python -m scripts.migrate_reports_add_columns
 
-Works with SQLite and PostgreSQL.
+PostgreSQL only.
 """
 import os
 import sys
@@ -15,32 +15,23 @@ load_dotenv()
 from sqlalchemy import create_engine, text
 from core.config import settings
 
-# Columns to add: (name, type_sqlite, type_pg)
 REPORT_EXTRA_COLUMNS = [
-    ("user_id", "INTEGER", "INTEGER REFERENCES users(id)"),
-    ("title", "VARCHAR(255)", "VARCHAR(255)"),
-    ("structured_description", "TEXT", "TEXT"),
-    ("admin_response", "TEXT", "TEXT"),
-    ("priority", "VARCHAR(50) DEFAULT 'normal'", "VARCHAR(50) DEFAULT 'normal'"),
-    ("updated_at", "DATETIME DEFAULT CURRENT_TIMESTAMP", "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"),
+    ("user_id", "INTEGER REFERENCES users(id)"),
+    ("title", "VARCHAR(255)"),
+    ("structured_description", "TEXT"),
+    ("admin_response", "TEXT"),
+    ("priority", "VARCHAR(50) DEFAULT 'normal'"),
+    ("updated_at", "TIMESTAMP WITH TIME ZONE DEFAULT NOW()"),
 ]
 
 
 def main():
-    engine = create_engine(
-        settings.DATABASE_URL,
-        connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {},
-    )
-    is_sqlite = "sqlite" in settings.DATABASE_URL
+    engine = create_engine(settings.DATABASE_URL)
 
     with engine.connect() as conn:
-        for col_name, sqlite_type, pg_type in REPORT_EXTRA_COLUMNS:
-            typ = sqlite_type if is_sqlite else pg_type
+        for col_name, pg_type in REPORT_EXTRA_COLUMNS:
             try:
-                if is_sqlite:
-                    conn.execute(text(f"ALTER TABLE reports ADD COLUMN {col_name} {typ}"))
-                else:
-                    conn.execute(text(f"ALTER TABLE reports ADD COLUMN IF NOT EXISTS {col_name} {typ}"))
+                conn.execute(text(f"ALTER TABLE reports ADD COLUMN IF NOT EXISTS {col_name} {pg_type}"))
                 conn.commit()
                 print(f"Added column: reports.{col_name}")
             except Exception as e:

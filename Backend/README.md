@@ -22,7 +22,7 @@ FastAPI backend for the **Public Voice** civic engagement platform. Handles auth
 
 - **Python 3.10+**
 - **pip**
-- (Optional) **PostgreSQL** for production; SQLite is used if `DATABASE_URL` is not set.
+- **PostgreSQL** (required for database).
 
 ---
 
@@ -76,7 +76,7 @@ Copy `.env.example` to `.env` and adjust as needed.
 
 | Variable | Description |
 |----------|-------------|
-| `DATABASE_URL` | PostgreSQL URL in production, or SQLite for local dev (e.g. `sqlite:///./publicvoice.db`). |
+| `DATABASE_URL` | PostgreSQL connection URL (e.g. `postgresql://user:pass@host:5432/publicvoice`). |
 
 ### Security & CORS
 

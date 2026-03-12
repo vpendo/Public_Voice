@@ -3,7 +3,7 @@ One-time migration: add reset_token and reset_token_expires to users table
 (for forgot-password feature). Run from Backend folder:
   python -m scripts.migrate_users_add_reset_password
 
-Works with SQLite and PostgreSQL. Safe to run multiple times (skips if columns exist).
+PostgreSQL only. Safe to run multiple times (skips if columns exist).
 """
 import os
 import sys
@@ -16,28 +16,19 @@ load_dotenv()
 from sqlalchemy import create_engine, text
 from core.config import settings
 
-# (column_name, sqlite_type, pg_type)
 USER_RESET_COLUMNS = [
-    ("reset_token", "VARCHAR(255)", "VARCHAR(255)"),
-    ("reset_token_expires", "DATETIME", "TIMESTAMP WITH TIME ZONE"),
+    ("reset_token", "VARCHAR(255)"),
+    ("reset_token_expires", "TIMESTAMP WITH TIME ZONE"),
 ]
 
 
 def main():
-    engine = create_engine(
-        settings.DATABASE_URL,
-        connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {},
-    )
-    is_sqlite = "sqlite" in settings.DATABASE_URL
+    engine = create_engine(settings.DATABASE_URL)
 
     with engine.connect() as conn:
-        for col_name, sqlite_type, pg_type in USER_RESET_COLUMNS:
-            typ = sqlite_type if is_sqlite else pg_type
+        for col_name, pg_type in USER_RESET_COLUMNS:
             try:
-                if is_sqlite:
-                    conn.execute(text(f"ALTER TABLE users ADD COLUMN {col_name} {typ}"))
-                else:
-                    conn.execute(text(f"ALTER TABLE users ADD COLUMN IF NOT EXISTS {col_name} {typ}"))
+                conn.execute(text(f"ALTER TABLE users ADD COLUMN IF NOT EXISTS {col_name} {pg_type}"))
                 conn.commit()
                 print(f"Added column: users.{col_name}")
             except Exception as e:

@@ -51,7 +51,7 @@ interface AuthContextType {
     dev_otp?: string;
   }>;
 
-  requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string }>;
+  requestPasswordReset: (email: string) => Promise<{ ok: boolean; error?: string; user_found?: boolean; email?: string }>;
   resetPassword: (token: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
   resetPasswordWithOtp: (email: string, code: string, newPassword: string) => Promise<{ ok: boolean; error?: string }>;
   updateProfile: (data: { full_name?: string; profile_image?: File }) => Promise<{ ok: boolean; error?: string }>;
@@ -257,8 +257,11 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
   const requestPasswordReset = useCallback(async (email: string) => {
     try {
-      await apiClient.post('/api/auth/forgot-password', { email: email.trim().toLowerCase() });
-      return { ok: true };
+      const { data } = await apiClient.post<{ message: string; email: string; user_found?: boolean }>(
+        '/api/auth/forgot-password',
+        { email: email.trim().toLowerCase() }
+      );
+      return { ok: true, user_found: data?.user_found ?? false, email: data?.email };
     } catch (err) {
       return { ok: false, error: getErrorMessage(err) };
     }

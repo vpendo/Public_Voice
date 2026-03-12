@@ -1,15 +1,14 @@
 """
 Pytest fixtures for PublicVoice API tests.
-Uses in-memory SQLite so tests don't touch your dev database.
-Run from Backend folder: pytest tests/ -v
+Uses PostgreSQL (test DB or DATABASE_URL). Run from Backend folder: pytest tests/ -v
 """
 import os
 import sys
 
 import pytest
 
-# Use in-memory DB and test secret before any app imports
-os.environ["DATABASE_URL"] = "sqlite:///:memory:"
+# Use test DB and test secret before any app imports. Set DATABASE_URL to override (e.g. CI).
+os.environ.setdefault("DATABASE_URL", "postgresql://postgres:postgres@localhost:5432/publicvoice_test")
 os.environ["SECRET_KEY"] = "test-secret-key-for-pytest"
 os.environ.setdefault("DEBUG", "false")
 
@@ -65,7 +64,7 @@ def stub_ai(monkeypatch):
 @pytest.fixture
 def auth_headers(client: TestClient) -> dict:
     """Register a user (name, email, password), verify email, login, verify OTP, then return Bearer token.
-    If the user already exists (e.g. from a previous test using the same in-memory DB), skip register and just login.
+    If the user already exists (e.g. from a previous test), skip register and just login.
     """
     email = "authuser@example.com"
     password = "Pass1234"

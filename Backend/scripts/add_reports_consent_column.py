@@ -15,18 +15,11 @@ from core.config import settings
 
 
 def main():
-    engine = create_engine(
-        settings.DATABASE_URL,
-        connect_args={"check_same_thread": False} if "sqlite" in settings.DATABASE_URL else {},
-    )
-    is_sqlite = "sqlite" in settings.DATABASE_URL
+    engine = create_engine(settings.DATABASE_URL)
 
     with engine.connect() as conn:
         try:
-            if is_sqlite:
-                conn.execute(text("ALTER TABLE reports ADD COLUMN consent BOOLEAN DEFAULT 0"))
-            else:
-                conn.execute(text("ALTER TABLE reports ADD COLUMN IF NOT EXISTS consent BOOLEAN DEFAULT FALSE"))
+            conn.execute(text("ALTER TABLE reports ADD COLUMN IF NOT EXISTS consent BOOLEAN DEFAULT FALSE"))
             conn.commit()
             print("Added column: reports.consent")
         except Exception as e:

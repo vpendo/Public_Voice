@@ -25,10 +25,10 @@ class Settings:
         self.DEBUG: bool = self._to_bool(os.getenv("DEBUG", "false"))
 
         # ---------------- Database ----------------
-        # PostgreSQL is used in production (Render). SQLite is fallback for local dev only.
+        # PostgreSQL only. Set DATABASE_URL in .env (e.g. postgresql://user:pass@host:5432/dbname).
         self.DATABASE_URL: str = os.getenv(
             "DATABASE_URL",
-            "sqlite:///./publicvoice.db"  # fallback for local dev only; production uses PostgreSQL
+            "postgresql://postgres:postgres@localhost:5432/publicvoice"
         )
 
         # ---------------- JWT / Security ----------------

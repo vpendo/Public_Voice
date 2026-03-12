@@ -4,7 +4,7 @@ The constraint was likely created with old values (roads, water, electricity, et
 Current categories: service_delivery, land_property, infrastructure_utilities, social_community, administrative.
 
 Run from Backend folder: python -m scripts.drop_reports_category_constraint
-PostgreSQL only (SQLite does not have this constraint in this project).
+PostgreSQL only.
 """
 import sys
 from pathlib import Path
@@ -19,10 +19,6 @@ from core.config import settings
 
 
 def main():
-    if "sqlite" in settings.DATABASE_URL:
-        print("SQLite: no check_category_valid constraint to drop. Done.")
-        return
-
     engine = create_engine(settings.DATABASE_URL)
 
     with engine.connect() as conn:
