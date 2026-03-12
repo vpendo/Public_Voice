@@ -1,102 +1,105 @@
-# PublicVoice
+# Public Voice
 
-Civic engagement platform for Rwanda: citizens report issues in English or Kinyarwanda; AI translates and structures reports for admins.
-
-- **Repository:** [GitHub – Public_Voice](https://github.com/vpendo/Public_Voice)
-- **Deployed app:** [Frontend](https://publicvoice1.netlify.app) · [Backend API docs](https://public-voice1.onrender.com/docs)
-- **Demo video ** [Demo (Google Drive)](https://drive.google.com/file/d/1pxpAqEp2TsBnOkESI6ZwRrnRnn7_e3JC/view?usp=sharing)
+**Public Voice** is a civic engagement platform for Rwanda. Citizens report community issues in English or Kinyarwanda; the system translates and structures reports with AI so administrators can review and respond efficiently.
 
 ---
 
-## Testing Results [Screenshots with relevant demos]
+## Table of Contents
 
-*Demonstration of the functionality under different testing strategies, with different data values, and performance on different hardware/software .*
-
-### 1. Different testing strategies
-
-Backend tests (pytest): auth, reports, API.
-
-![Tests](Screenshots/Tests.png)
-
-API documentation and manual testing (Swagger): registration endpoint.
-
-![Register API](Screenshots/register_API.png)
-
-### 2. Functionality with different data values
-
-OTP verification (phone flow).
-
-![Phone OTP](Screenshots/phone_OTP.png)
-
-Citizen submits a report — success state.
-
-![Created issue](Screenshots/created_issue.png)
-
-Admin view: single report details (GET report by ID).
-
-![Get report by ID](Screenshots/get_report_by_id.png)
-
-Admin: all users list.
-
-![All users](Screenshots/all_user.png)
-
-Admin: pending reports dashboard.
-
-![Pending report](Screenshots/pending_report.png)
-
-### 3. Performance on different specifications
-
-*Demonstration that the product runs correctly in different environments (per rubric).*
-
-| Specification / Environment | Result |
-|-----------------------------|--------|
-| Local development (Windows/Mac, SQLite) | App runs; pytest passes; manual testing OK |
-| Deployed (Netlify + Render, PostgreSQL) | Frontend and API live; auth and reports verified |
-| **Responsiveness on mobile** | UI adapts to small screens; admin dashboard, issues list, and report flow tested on mobile viewport |
-
-**Mobile responsiveness** — The app is responsive on mobile devices. Layout, navigation, and forms adapt to small screens; admin and citizen flows work on phones and tablets.
-
-![Mobile admin](Screenshots/mobile_admin.png)
-
-![Issues on mobile](Screenshots/issue_mobile.png)
-
-![Responded issue on mobile](Screenshots/image.png)
+- [What is Public Voice?](#what-is-public-voice)
+- [Quick Start](#quick-start)
+- [How to Use the Platform](#how-to-use-the-platform)
+- [Installation (Step by Step)](#installation-step-by-step)
+- [Technology Stack](#technology-stack)
+- [Deployment](#deployment)
+- [Testing & Screenshots](#testing--screenshots)
+- [Project Structure](#project-structure)
+- [License](#license)
 
 ---
 
-## Analysis
+## What is Public Voice?
 
-## Objectives achieved:
-The system allows citizens to report community issues through the platform using phone-number registration and OTP verification. Reports are stored and displayed in the admin dashboard where administrators can review and update their status. Testing through pytest and Swagger confirmed that authentication, reporting, and API endpoints work correctly.
+| Feature | Description |
+|--------|-------------|
+| **Citizen reporting** | Citizens register with **name, email, and password**, verify their email via OTP, then log in and submit community issues (e.g. water, roads, land, administration). |
+| **AI-powered reports** | Report text (including Kinyarwanda) is sent to **OpenAI** for translation and structuring. Admins see both the original text and a clear English summary with suggested category and urgency. |
+| **Admin dashboard** | Administrators log in with **email and password** (and email OTP), view all reports, filter by status, and respond with updates. |
+| **Multi-language UI** | Frontend supports English and Kinyarwanda for a broader reach. |
 
-## Objectives missed or partial:
-Advanced AI features for automatically structuring and analyzing reports were not fully implemented due to time constraints. SMS-based reporting for citizens without internet access was also not completed.
+**Live links**
 
-## Summary:
-Overall, the project successfully developed a working civic engagement platform that enables citizens to report issues and helps administrators manage them.
-
----
-
-## Discussion
-
-*Importance of milestones and impact of the results (with supervisor).*
-
-**Milestones:** The main milestones included developing the reporting system, implementing OTP authentication, improving functionalities based on supervisor feedback, and deploying the system online.
-
-**Impact of results:** The platform supports civic engagement by providing citizens with a digital channel to report issues and enabling authorities to monitor community concerns more efficiently.
+- **App:** [publicvoice1.netlify.app](https://publicvoice1.netlify.app)
+- **API docs:** [public-voice1.onrender.com/docs](https://public-voice1.onrender.com/docs)
+- **Demo video:** [Google Drive](https://drive.google.com/file/d/1pxpAqEp2TsBnOkESI6ZwRrnRnn7_e3JC/view?usp=sharing)
 
 ---
 
-## Recommendations
+## Quick Start
 
-*Recommendations to the community and future work (with supervisor).*
+1. **Clone and open the project**
+   ```bash
+   git clone https://github.com/vpendo/Public_Voice.git
+   cd Public_Voice
+   ```
 
-**For the community:** Local authorities could use platforms like PublicVoice to improve communication with citizens and better manage community issues.
+2. **Backend** (from repo root)
+   ```bash
+   cd Backend
+   python -m venv venv
+   # Windows: venv\Scripts\activate
+   # macOS/Linux: source venv/bin/activate
+   pip install -r requirements.txt
+   copy .env.example .env   # then edit .env (see Backend/README.md)
+   python -m scripts.create_admin   # create an admin account
+   uvicorn main:app --reload --host 0.0.0.0 --port 8000
+   ```
+   API: **http://localhost:8000** · Docs: **http://localhost:8000/docs**
 
-**Future work:** Future development should involve engaging citizens and local authorities to understand their needs and integrating AI APIs to automatically structure and categorize reported issues.
+3. **Frontend** (new terminal)
+   ```bash
+   cd Frontend
+   pnpm install
+   pnpm dev
+   ```
+   App: **http://localhost:5173**
 
+4. **Try it**
+   - Register as a citizen (name, email, password) → verify email → log in → submit a report.
+   - Log in as admin (email + password from `create_admin`) → verify OTP → open dashboard and respond to reports.
 
-## Install and Run (Step by Step)
+---
+
+## How to Use the Platform
+
+### For Citizens
+
+| Step | Action |
+|------|--------|
+| 1. **Register** | Click **Register** → enter **full name**, **email**, and **password** (min 8 characters, one letter and one digit). |
+| 2. **Verify email** | Check your email for a 6-digit code (or use the code shown in dev mode). Enter it on the verify-email page. |
+| 3. **Log in** | Use your **email** and **password**. A second code is sent to your email; enter it to complete login. |
+| 4. **Submit an issue** | Go to **Submit Issue** (or **Report**). Fill in the form (description can be in English or Kinyarwanda). Submit. |
+| 5. **Track reports** | Open **My Issues** to see your reports, their status, and any admin responses. |
+
+**Forgot password?** On the login page, click **Forgot password?** → enter your email → use the code sent by email and set a new password on the reset page.
+
+### For Administrators
+
+| Step | Action |
+|------|--------|
+| 1. **Log in** | Use the **email** and **password** created via `python -m scripts.create_admin`. |
+| 2. **Verify OTP** | Enter the 6-digit code sent to your admin email. |
+| 3. **Dashboard** | View statistics and recent reports. |
+| 4. **All issues** | Browse, filter, and search all citizen reports. |
+| 5. **Respond** | Open a report → add a response and update status (e.g. pending → in progress → resolved). |
+| 6. **Users** | View registered users if the feature is enabled. |
+
+Admins see both the **raw** citizen text and the **AI-structured** summary (when OpenAI is configured).
+
+---
+
+## Installation (Step by Step)
 
 ### Prerequisites
 
@@ -104,144 +107,142 @@ Overall, the project successfully developed a working civic engagement platform 
 - **Python** 3.10+ and **pip**
 - **PostgreSQL** (optional; SQLite used if `DATABASE_URL` is not set)
 
-### Step 1: Clone Repository
+### Step 1: Clone
 
 ```bash
 git clone https://github.com/vpendo/Public_Voice.git
 cd Public_Voice
 ```
 
-### Step 2: Backend Setup
+### Step 2: Backend
 
 ```bash
 cd Backend
 python -m venv venv
 ```
 
-**Activate virtual environment:**
+Activate the virtual environment:
+
 - **Windows:** `venv\Scripts\activate`
 - **macOS/Linux:** `source venv/bin/activate`
 
 ```bash
 pip install -r requirements.txt
-copy env.example .env   # Windows
-# cp env.example .env   # macOS/Linux
+copy .env.example .env   # Windows
+# cp .env.example .env   # macOS/Linux
 ```
 
-**Edit `.env` file:**
-- `SECRET_KEY` - required (generate: `openssl rand -hex 32`)
-- `DATABASE_URL` - optional (PostgreSQL connection string)
-- `CORS_ORIGINS` - frontend URL (e.g. `http://localhost:5173`)
-- `OPENAI_API_KEY` - optional (for AI report processing)
-- `AFRICAS_TALKING_USERNAME` - optional (for SMS OTP)
-- `AFRICAS_TALKING_API_KEY` - optional (for SMS OTP)
+Edit **`.env`** (see [Backend/README.md](Backend/README.md) for full list):
 
-**Create admin user:**
+- **Required:** `SECRET_KEY` (e.g. `openssl rand -hex 32`)
+- **Optional:** `DATABASE_URL`, `CORS_ORIGINS`, `OPENAI_API_KEY`, SMTP for email OTP
+
+Create an admin user:
+
 ```bash
 python -m scripts.create_admin
 ```
 
-**Start backend:**
+Start the backend:
+
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-Backend runs at: **http://localhost:8000**  
-API Docs: **http://localhost:8000/docs**
+- API: **http://localhost:8000**
+- Interactive docs: **http://localhost:8000/docs**
 
-### Step 3: Frontend Setup
+### Step 3: Frontend
 
-Open a new terminal:
+Open a **new** terminal:
 
 ```bash
 cd Public_Voice/Frontend
 pnpm install
 ```
 
-**Optional:** Create `.env` file:
+Optional: create **`.env`**:
+
 ```env
 VITE_API_URL=http://127.0.0.1:8000
 ```
 
-**Start frontend:**
+Start the frontend:
+
 ```bash
 pnpm dev
 ```
 
-Frontend runs at: **http://localhost:5173**
+App: **http://localhost:5173**
 
-### Step 4: Verify Installation
+### Step 4: Verify
 
-1. Open **http://localhost:5173**
-2. Register a citizen account (phone number + National ID)
-3. Submit a report
-4. Login as admin (use email and password from `create_admin`)
-5. View and respond to reports in admin dashboard
-
----
-
-## How to Use
-
-### For Citizens
-
-1. **Register:** Click "Register" → Enter full name, phone number, and National ID (16 digits)
-2. **Verify Phone:** Enter OTP code sent to your phone
-3. **Login:** Use phone number and full name
-4. **Submit Issue:** Go to "Submit Issue" → Fill form → Submit
-5. **Track Reports:** View "My Issues" to see status and admin responses
-
-### For Admins
-
-1. **Login:** Use email and password (created via `create_admin` script)
-2. **Dashboard:** View statistics and recent reports
-3. **All Issues:** Browse all submitted reports
-4. **Respond:** Click on a report → Add response → Update status
-5. **Users:** View and manage user accounts
-
----
-
-## Related Files
-
-| Purpose | Location |
-|---------|----------|
-| Backend API | `Backend/main.py`, `Backend/routers/` |
-| Authentication | `Backend/routers/auth.py` |
-| Reports | `Backend/routers/reports.py` |
-| Database Models | `Backend/models/` |
-| Frontend Pages | `Frontend/src/Pages/` |
-| Frontend Components | `Frontend/src/Components/` |
-| Configuration | `Backend/.env`, `Frontend/.env` |
+1. Open http://localhost:5173.
+2. Register (name, email, password) → verify email → log in with email + password + OTP.
+3. Submit a report.
+4. Log in as admin (email + password from `create_admin`) → OTP → dashboard.
+5. Open a report and add a response.
 
 ---
 
 ## Technology Stack
 
-- **Frontend:** React 19, TypeScript, Vite, Tailwind CSS
-- **Backend:** FastAPI, Python 3.10+, JWT, bcrypt
-- **Database:** SQLite (dev) / PostgreSQL (production)
-- **AI/NLP:** OpenAI API (optional)
+| Layer | Technologies |
+|-------|--------------|
+| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, React Router, Axios |
+| **Backend** | FastAPI, Python 3.10+, JWT, bcrypt |
+| **Database** | SQLite (dev) / PostgreSQL (production) |
+| **AI** | OpenAI API (translation and structuring of report text) |
+| **Email** | SMTP (OTP for registration, login, and password reset) |
 
 ---
 
 ## Deployment
 
-*Clear deployment plan; system deployed and verified in the target environment (per rubric).*
+| Component | Service | URL |
+|------------|---------|-----|
+| **Frontend** | Netlify | [publicvoice1.netlify.app](https://publicvoice1.netlify.app) |
+| **Backend** | Render | [public-voice1.onrender.com](https://public-voice1.onrender.com) |
+| **API docs** | Render | [public-voice1.onrender.com/docs](https://public-voice1.onrender.com/docs) |
 
-| Item | Detail |
-|------|--------|
-| **Frontend** | [Netlify](https://publicvoice1.netlify.app) — static site (Vite/React build) |
-| **Backend** | [Render](https://public-voice1.onrender.com) — FastAPI; [API docs](https://public-voice1.onrender.com/docs) |
-| **Tools** | Netlify (frontend), Render (backend), PostgreSQL on Render (or SQLite for dev) |
-| **Environments** | Production: Netlify + Render. Local: `pnpm dev` + `uvicorn` (see Install and Run above). |
-| **Verification** | Deployed app tested: frontend loads, API responds, auth and reports work (see Testing Results). |
+**Frontend (Netlify):** Connect repo → base directory `Frontend` → build `pnpm install && pnpm build` → publish `Frontend/dist` → set `VITE_API_URL` to backend URL.
 
-**Steps to reproduce deployment:**
-1. Frontend: connect repo to Netlify, build command `pnpm build`, publish directory `Frontend/dist`, set `VITE_API_URL` to backend URL.
-2. Backend: connect repo to Render, Web Service, start command `uvicorn main:app --host 0.0.0.0 --port $PORT`, add env vars (e.g. `SECRET_KEY`, `DATABASE_URL`, `CORS_ORIGINS`).
+**Backend (Render):** Web Service → root `Backend` → build `pip install -r requirements.txt` → start `uvicorn main:app --host 0.0.0.0 --port $PORT` → set env vars (`SECRET_KEY`, `DATABASE_URL`, `OPENAI_API_KEY`, `CORS_ORIGINS`, etc.).
 
 ---
 
+## Testing & Screenshots
 
+Backend tests (pytest):
+
+```bash
+cd Backend && pytest tests/ -v
+```
+
+Manual testing: use the [API docs](http://localhost:8000/docs) (Swagger) for registration, login, and reports.
+
+Screenshots and testing notes are in the repository (e.g. Tests, Register API, OTP, report creation, admin views, mobile responsiveness). The app is responsive and works on mobile viewports.
+
+---
+
+## Project Structure
+
+| Purpose | Location |
+|---------|----------|
+| **Main docs** | This file (`README.md`) |
+| **Backend API** | `Backend/main.py`, `Backend/routers/` |
+| **Auth (email/password + OTP)** | `Backend/routers/auth.py` |
+| **Reports & AI** | `Backend/routers/reports.py`, `Backend/services/ai_processor.py` |
+| **Database models** | `Backend/models/` |
+| **Backend config** | `Backend/.env`, `Backend/.env.example` |
+| **Frontend app** | `Frontend/src/` |
+| **Pages (Login, Register, Dashboards)** | `Frontend/src/Pages/` |
+| **API client & auth context** | `Frontend/src/api/`, `Frontend/src/contexts/AuthContext.tsx` |
+| **Frontend config** | `Frontend/.env` |
+
+For more detail, see [Backend/README.md](Backend/README.md) and [Frontend/README.md](Frontend/README.md).
+
+---
 
 ## License
 

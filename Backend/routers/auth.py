@@ -23,9 +23,7 @@ from sqlalchemy.orm import Session
 
 from core.config import settings
 from core.security import hash_password, verify_password, create_access_token
-from core.phone import normalize_phone_rwanda
 from core.email import send_otp_email
-from core.sms import send_otp_sms
 from core.deps import get_current_user, CurrentUser
 from models.base import get_db
 from models.user import User
@@ -38,11 +36,12 @@ from schemas.auth import (
     LoginVerifyOtpRequest,
     UserResponse,
     RegisterResponse,
-    VerifyPhoneRequest,
+    VerifyEmailRequest,
     ResendOtpRequest,
     ForgotPasswordRequest,
     ForgotPasswordResponse,
     ResetPasswordRequest,
+    ResetPasswordResponse,
 )
 
 router = APIRouter(prefix="/api/auth", tags=["auth"])
@@ -55,17 +54,9 @@ def _generate_otp_code() -> str:
     return "".join(secrets.choice("0123456789") for _ in range(6))
 
 
-def _get_user_by_phone(db: Session, phone: str):
-    """Find user by phone (canonical +250...). If stored as legacy 0..., find and migrate to canonical."""
-    user = db.query(User).filter(User.phone == phone).first()
-    if not user and phone.startswith("+250") and len(phone) == 13:
-        legacy = "0" + phone[4:]
-        user = db.query(User).filter(User.phone == legacy).first()
-        if user:
-            user.phone = phone
-            db.commit()
-            db.refresh(user)
-    return user
+def _get_user_by_email(db: Session, email: str) -> User | None:
+    """Find user by email (lowercase)."""
+    return db.query(User).filter(User.email == email.lower().strip()).first()
 
 
 @router.post("/register", response_model=RegisterResponse)
@@ -73,67 +64,57 @@ def register(
     payload: UserRegister,
     db: Annotated[Session, Depends(get_db)],
 ) -> RegisterResponse:
-    """Register a new user (citizen). Sends OTP to phone for verification. Role is automatically 'User'."""
+    """Register a new user with name, email, and password. Sends OTP to email for verification. Role is 'User'."""
+    import logging
+    logger = logging.getLogger(__name__)
     try:
-        phone = payload.phone.strip()
-        existing_phone = db.query(User).filter(User.phone == phone).first()
-        if existing_phone:
+        email = payload.email.lower().strip()
+        if db.query(User).filter(User.email == email).first():
             raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail="Phone number already registered",
-            )
-        existing_nid = db.query(User).filter(User.national_id == payload.national_id.strip()).first()
-        if existing_nid:
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail="National ID already registered",
+                detail="Email already registered",
             )
         user = User(
             full_name=payload.full_name.strip(),
-            phone=phone,
-            national_id=payload.national_id.strip(),
+            email=email,
+            hashed_password=hash_password(payload.password),
             role="User",
-            phone_verified=False,
+            email_verified=False,
         )
         db.add(user)
         db.commit()
         db.refresh(user)
         code = _generate_otp_code()
         expires_at = datetime.now(timezone.utc) + timedelta(minutes=OTP_EXPIRE_MINUTES)
-        # Delete any existing OTPs for this phone and purpose
-        db.query(OTP).filter(OTP.phone == phone, OTP.purpose == "register").delete()
-        otp_row = OTP(phone=phone, code=code, purpose="register", expires_at=expires_at)
+        db.query(OTP).filter(OTP.email == email, OTP.purpose == "register").delete()
+        otp_row = OTP(email=email, code=code, purpose="register", expires_at=expires_at)
         db.add(otp_row)
         db.commit()
-        
-        # Send OTP via SMS
-        sms_sent = send_otp_sms(phone, code, "register")
-        
-        # In development, always return OTP for testing (even if SMS was sent)
-        # Also return if SMS failed (sandbox limitations, network issues, etc.)
-        is_dev = settings.ENVIRONMENT == "development" or settings.DEBUG
-        should_return_otp = is_dev or not sms_sent  # Return OTP if dev mode OR if SMS failed
-        
-        if is_dev:
-            import logging
-            logging.getLogger(__name__).info("DEBUG: Registration OTP for %s is: %s (SMS sent: %s)", phone, code, sms_sent)
-        
-        # Always include OTP in message for development/testing
-        if sms_sent:
-            message = f"OTP sent to your phone number via SMS. OTP: {code}"
+        email_sent = False
+        if settings.email_configured:
+            try:
+                send_otp_email(email, code, "register")
+                email_sent = True
+                logger.info("Registration OTP email sent to %s", email)
+            except Exception as e:
+                logger.exception("Failed to send registration OTP email to %s: %s", email, e)
         else:
-            message = f"OTP generated. OTP: {code} (SMS not sent - check sandbox settings or network)"
-        
+            logger.warning("SMTP not configured: OTP not sent by email. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD in .env")
+        if is_dev := (settings.ENVIRONMENT == "development" or settings.DEBUG):
+            logger.info("DEBUG: Registration OTP for %s is: %s (email_sent=%s)", email, code, email_sent)
+        message = "OTP sent to your email. Check your inbox and enter the code on the next screen."
+        if not email_sent:
+            message = "Email could not be sent (e.g. SMTP 535). Use the code below to verify."
+        # When email fails, return OTP so user can still verify and use the app.
         return RegisterResponse(
             message=message,
-            phone=phone,
-            dev_otp=code if should_return_otp else None,
+            email=email,
+            email_sent=email_sent,
+            dev_otp=code if not email_sent else None,
         )
     except HTTPException:
         raise
     except Exception as e:
-        import logging
-        logger = logging.getLogger(__name__)
         logger.exception("Registration error: %s", str(e))
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -153,6 +134,7 @@ def _build_login_response(user: User) -> LoginResponse:
         email=getattr(user, "email", None),
         role=role,
         phone_verified=getattr(user, "phone_verified", True),
+        email_verified=getattr(user, "email_verified", False),
         admin_category=getattr(user, "admin_category", None),
         admin_scope_level=getattr(user, "admin_scope_level", None),
         scope_district=getattr(user, "scope_district", None),
@@ -169,113 +151,58 @@ def _build_login_response(user: User) -> LoginResponse:
     )
 
 
-LOGIN_EXAMPLES = {
-    "user_login": {
-        "summary": "User login (phone + full name)",
-        "description": "Citizen login. Send only phone and full_name. Backend sends OTP; then call POST /api/auth/login/verify-otp with phone and code.",
-        "value": {"phone": "+250788123456", "full_name": "William"},
-    },
-    "admin_login": {
-        "summary": "Admin login (email + password)",
-        "description": "Admin login. Send only email and password. Returns access_token directly.",
-        "value": {"email": "admin@example.com", "password": "your_password"},
-    },
-}
-
-
 @router.post("/login")
 def login(
-    payload: Annotated[
-        UserLogin,
-        Body(
-            example={"phone": "0782130814", "full_name": "William"},
-            openapi_examples=LOGIN_EXAMPLES,
-        ),
-    ],
+    payload: UserLogin,
     db: Annotated[Session, Depends(get_db)],
-) -> LoginResponse | LoginRequiresOtpResponse:
-    """Login with phone number (users) or email+password (admins). For phone, sends OTP; for email+password, returns token directly. Send only one set: either (phone + full_name) or (email + password), not both."""
-    # Admin login with email+password (backward compatibility)
-    if payload.email and payload.password:
-        email = payload.email.lower().strip()
-        user = db.query(User).filter(User.email == email).first()
-        if not user:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="No account found with this email address",
-            )
-        if not user.hashed_password:
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="This account has no password set. Please reset the password using: python -m scripts.reset_admin_password",
-            )
-        if not verify_password(payload.password, user.hashed_password):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Invalid password",
-            )
-        # Admins don't need phone verification
-        return _build_login_response(user)
-    
-    # User login with phone + full_name (OTP-based)
-    if not payload.phone:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Phone number is required for user login",
-        )
-    if not payload.full_name or not payload.full_name.strip():
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Full name is required for user login",
-        )
-    phone = payload.phone.strip()
-    full_name = payload.full_name.strip()
-    user = _get_user_by_phone(db, phone)
+) -> LoginRequiresOtpResponse:
+    """Login with email and password. Backend sends OTP to email; then call POST /api/auth/login/verify-otp with email and code. Forgot password? Use POST /api/auth/forgot-password then /api/auth/reset-password."""
+    import logging
+    logger = logging.getLogger(__name__)
+    email = payload.email.lower().strip()
+    user = _get_user_by_email(db, email)
     if not user:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Phone number not registered",
+            detail="No account found with this email address",
         )
-    # Verify full name matches
-    if user.full_name.strip().lower() != full_name.lower():
+    if not user.hashed_password:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Full name does not match",
+            detail="This account has no password set. Use forgot-password to set one.",
         )
-    if not getattr(user, "phone_verified", False):
+    if not verify_password(payload.password, user.hashed_password):
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid password",
+        )
+    # Require email verification for regular users before they can complete login
+    if (user.role or "User").strip().lower() in ("user",) and not getattr(user, "email_verified", False):
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
-            detail="Phone number not verified. Please verify your phone number first.",
+            detail="Email not verified. Please verify your email first (check your inbox for the code).",
         )
     code = _generate_otp_code()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=OTP_EXPIRE_MINUTES)
-    db.query(OTP).filter(OTP.phone == phone, OTP.purpose == "login").delete()
-    otp_row = OTP(phone=phone, code=code, purpose="login", expires_at=expires_at)
+    db.query(OTP).filter(OTP.email == email, OTP.purpose == "login").delete()
+    otp_row = OTP(email=email, code=code, purpose="login", expires_at=expires_at)
     db.add(otp_row)
     db.commit()
-    
-    # Send OTP via SMS
-    sms_sent = send_otp_sms(phone, code, "login")
-    
-    # Always return OTP in development mode OR if SMS failed (for testing/fallback)
-    is_dev = settings.ENVIRONMENT == "development" or settings.DEBUG
-    should_return_otp = is_dev or not sms_sent  # Return OTP if dev mode OR if SMS failed
-    
-    # Log OTP for debugging (always log in dev, or if SMS failed)
-    import logging
-    logger = logging.getLogger(__name__)
-    if is_dev or not sms_sent:
-        logger.info("DEBUG: Login OTP for %s is: %s (SMS sent: %s, ENVIRONMENT: %s, DEBUG: %s)", 
-                   phone, code, sms_sent, settings.ENVIRONMENT, settings.DEBUG)
-    else:
-        logger.info("Login OTP sent via SMS to %s (not returning in response)", phone)
-    
-    # Always return OTP for now to help with development/testing
-    # In production, you can change this to only return if SMS failed
+    email_sent = False
+    if settings.email_configured:
+        try:
+            send_otp_email(email, code, "login")
+            email_sent = True
+            logger.info("Login OTP email sent to %s", email)
+        except Exception as e:
+            logger.exception("Failed to send login OTP email to %s: %s", email, e)
+    if settings.ENVIRONMENT == "development" or settings.DEBUG:
+        logger.info("DEBUG: Login OTP for %s is: %s (email_sent=%s)", email, code, email_sent)
+    # When email fails, return OTP so user can still complete login.
     return LoginRequiresOtpResponse(
         requires_otp=True,
-        phone=phone,
-        dev_otp=code,  # Always return OTP for development/testing
+        email=email,
+        dev_otp=code if not email_sent else None,
     )
 
 
@@ -284,12 +211,12 @@ def login_verify_otp(
     payload: LoginVerifyOtpRequest,
     db: Annotated[Session, Depends(get_db)],
 ) -> LoginResponse:
-    """Verify OTP sent to phone and return JWT + user."""
-    phone = payload.phone.strip()
+    """Verify OTP sent to email and return JWT + user."""
+    email = payload.email.lower().strip()
     code = payload.code.strip()
     otp_row = (
         db.query(OTP)
-        .filter(OTP.phone == phone, OTP.purpose == "login", OTP.code == code)
+        .filter(OTP.email == email, OTP.purpose == "login", OTP.code == code)
         .order_by(OTP.created_at.desc())
         .first()
     )
@@ -299,27 +226,27 @@ def login_verify_otp(
         db.delete(otp_row)
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired. Sign in again and request a new code.")
-    user = _get_user_by_phone(db, phone)
+    user = _get_user_by_email(db, email)
     if not user:
         db.delete(otp_row)
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found.")
-    db.query(OTP).filter(OTP.phone == phone, OTP.purpose == "login").delete()
+    db.query(OTP).filter(OTP.email == email, OTP.purpose == "login").delete()
     db.commit()
     return _build_login_response(user)
 
 
-@router.post("/verify-phone")
-def verify_phone(
-    payload: VerifyPhoneRequest,
+@router.post("/verify-email")
+def verify_email(
+    payload: VerifyEmailRequest,
     db: Annotated[Session, Depends(get_db)],
 ) -> dict:
-    """Verify phone with the 6-digit OTP sent after registration."""
-    phone = payload.phone.strip()
+    """Verify email with the 6-digit OTP sent after registration."""
+    email = payload.email.lower().strip()
     code = payload.code.strip()
     otp_row = (
         db.query(OTP)
-        .filter(OTP.phone == phone, OTP.purpose == "register", OTP.code == code)
+        .filter(OTP.email == email, OTP.purpose == "register", OTP.code == code)
         .order_by(OTP.created_at.desc())
         .first()
     )
@@ -329,13 +256,13 @@ def verify_phone(
         db.delete(otp_row)
         db.commit()
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Code expired. Request a new one.")
-    user = _get_user_by_phone(db, phone)
+    user = _get_user_by_email(db, email)
     if not user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User not found.")
-    user.phone_verified = True
-    db.query(OTP).filter(OTP.phone == phone, OTP.purpose == "register").delete()
+    user.email_verified = True
+    db.query(OTP).filter(OTP.email == email, OTP.purpose == "register").delete()
     db.commit()
-    return {"message": "Phone verified. You can now log in."}
+    return {"message": "Email verified. You can now log in."}
 
 
 @router.post("/resend-otp")
@@ -343,39 +270,33 @@ def resend_otp(
     payload: ResendOtpRequest,
     db: Annotated[Session, Depends(get_db)],
 ) -> dict:
-    """Resend verification OTP to phone."""
-    phone = payload.phone.strip()
-    user = _get_user_by_phone(db, phone)
+    """Resend verification OTP to email."""
+    import logging
+    logger = logging.getLogger(__name__)
+    email = payload.email.lower().strip()
+    user = _get_user_by_email(db, email)
     if not user:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No account found for this phone number.")
-    if getattr(user, "phone_verified", False):
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Phone already verified. You can log in.")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No account found for this email.")
+    if getattr(user, "email_verified", False):
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Email already verified. You can log in.")
     code = _generate_otp_code()
     expires_at = datetime.now(timezone.utc) + timedelta(minutes=OTP_EXPIRE_MINUTES)
-    db.query(OTP).filter(OTP.phone == phone, OTP.purpose == "register").delete()
-    otp_row = OTP(phone=phone, code=code, purpose="register", expires_at=expires_at)
+    db.query(OTP).filter(OTP.email == email, OTP.purpose == "register").delete()
+    otp_row = OTP(email=email, code=code, purpose="register", expires_at=expires_at)
     db.add(otp_row)
     db.commit()
-    
-    # Send OTP via SMS
-    sms_sent = send_otp_sms(phone, code, "register")
-    
-    # Always return OTP in development mode for testing
-    # Also return if SMS failed (sandbox limitations, network issues, etc.)
-    is_dev = settings.ENVIRONMENT == "development" or settings.DEBUG
-    should_return_otp = is_dev or not sms_sent  # Return OTP if dev mode OR if SMS failed
-    
-    if is_dev:
-        import logging
-        logging.getLogger(__name__).info("DEBUG: Resend OTP for %s is: %s (SMS sent: %s)", phone, code, sms_sent)
-    
-    # Always include OTP in message for development/testing
-    if sms_sent:
-        message = f"Verification code sent to your phone via SMS. OTP: {code}"
-    else:
-        message = f"Verification code generated. OTP: {code} (SMS not sent - check sandbox settings or network)"
-    
-    return {"message": message, "dev_otp": code if should_return_otp else None}
+    email_sent = False
+    if settings.email_configured:
+        try:
+            send_otp_email(email, code, "register")
+            email_sent = True
+            logger.info("Resend OTP email sent to %s", email)
+        except Exception as e:
+            logger.exception("Failed to resend OTP email to %s: %s", email, e)
+    if settings.ENVIRONMENT == "development" or settings.DEBUG:
+        logger.info("DEBUG: Resend OTP for %s is: %s (email_sent=%s)", email, code, email_sent)
+    message = "Verification code sent to your email. Check your inbox." if email_sent else "Email could not be sent. Use the code below to verify."
+    return {"message": message, "dev_otp": code if not email_sent else None}
 
 
 def _user_to_response(user: User) -> UserResponse:
@@ -387,6 +308,7 @@ def _user_to_response(user: User) -> UserResponse:
         email=getattr(user, "email", None),
         role=user.role or "User",
         phone_verified=getattr(user, "phone_verified", True),
+        email_verified=getattr(user, "email_verified", False),
         admin_category=getattr(user, "admin_category", None),
         admin_scope_level=getattr(user, "admin_scope_level", None),
         scope_district=getattr(user, "scope_district", None),
@@ -455,9 +377,12 @@ def forgot_password(
     payload: ForgotPasswordRequest,
     db: Annotated[Session, Depends(get_db)],
 ) -> ForgotPasswordResponse:
-    """Request a password reset. If the email exists, an OTP is sent to that email. User then uses the code on the reset-password page (with email + code + new password). Same message either way (no email enumeration)."""
+    """Request a password reset (use from login page 'Forgot password?'). Sends 6-digit OTP to email. Then call POST /api/auth/reset-password with email, code, and new_password."""
+    import logging
+    logger = logging.getLogger(__name__)
     email = payload.email.lower().strip()
     message = "If an account exists for this email, we've sent a verification code to reset your password. Check your inbox."
+    dev_otp = None
     user = db.query(User).filter(User.email == email).first()
     if user:
         code = _generate_otp_code()
@@ -466,24 +391,27 @@ def forgot_password(
         otp_row = OTP(email=email, code=code, purpose="reset_password", expires_at=expires_at)
         db.add(otp_row)
         db.commit()
+        email_sent = False
         if settings.email_configured:
             try:
                 send_otp_email(email, code, purpose="reset_password")
+                email_sent = True
             except Exception as e:
-                import logging
-                logging.getLogger(__name__).exception("Failed to send reset OTP: %s", e)
-        if settings.DEBUG:
-            import logging
-            logging.getLogger(__name__).info("DEBUG: Password reset OTP for %s is: %s", email, code)
-    return ForgotPasswordResponse(message=message)
+                logger.exception("Failed to send reset OTP email: %s", e)
+        is_dev = settings.ENVIRONMENT == "development" or settings.DEBUG
+        if is_dev or not email_sent:
+            dev_otp = code
+        if is_dev:
+            logger.info("DEBUG: Password reset OTP for %s is: %s", email, code)
+    return ForgotPasswordResponse(message=message, email=email, dev_otp=dev_otp)
 
 
-@router.post("/reset-password")
+@router.post("/reset-password", response_model=ResetPasswordResponse)
 def reset_password(
     payload: ResetPasswordRequest,
     db: Annotated[Session, Depends(get_db)],
-) -> dict:
-    """Reset password using either (1) token from link or (2) email + OTP code. OTP is preferred (sent by forgot-password)."""
+) -> ResetPasswordResponse:
+    """Reset password. Use email + code (from forgot-password) + new_password. Then sign in with POST /api/auth/login."""
     user = None
     if payload.token and payload.token.strip():
         user = (
@@ -532,4 +460,4 @@ def reset_password(
         db.query(OTP).filter(OTP.email == email, OTP.purpose == "reset_password").delete()
     db.add(user)
     db.commit()
-    return {"message": "Password has been reset. You can sign in with your new password."}
+    return ResetPasswordResponse()

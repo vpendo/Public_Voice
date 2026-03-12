@@ -21,17 +21,18 @@ class User(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     full_name = Column(String(255), nullable=False)
-    phone = Column(String(50), unique=True, index=True, nullable=True)  # Required for users, optional for admins
-    national_id = Column(String(50), unique=True, index=True, nullable=True)  # National ID for users
-    email = Column(String(255), unique=True, index=True, nullable=True)  # Optional, mainly for admins
-    hashed_password = Column(String(255), nullable=True)  # Optional for phone-based auth
+    phone = Column(String(50), unique=True, index=True, nullable=True)  # Legacy; auth is email-based
+    national_id = Column(String(50), unique=True, index=True, nullable=True)
+    email = Column(String(255), unique=True, index=True, nullable=True)
+    hashed_password = Column(String(255), nullable=True)
 
     # Password reset (for forgot-password flow)
     reset_token = Column(String(255), nullable=True, index=True)
     reset_token_expires = Column(DateTime(timezone=True), nullable=True)
 
-    # Phone verification (OTP sent on register/login)
+    # Legacy; verification is via email OTP
     phone_verified = Column(Boolean, nullable=False, default=False)
+    email_verified = Column(Boolean, nullable=False, default=False)
     role = Column(String(50), nullable=False, default=UserRole.USER.value)
     # When set, this admin only sees and manages reports for this category. Null = all categories.
     admin_category = Column(String(50), nullable=True, index=True)

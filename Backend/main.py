@@ -1,5 +1,5 @@
 """
-PublicVoice API – JWT auth and report endpoints. AI/NLP processes citizen text when OPENAI_API_KEY is set.
+PublicVoice API – JWT auth and report endpoints. AI/NLP processes citizen text via OpenAI.
 """
 from dotenv import load_dotenv
 load_dotenv()  # Load .env before config so OPENAI_API_KEY etc. are available
@@ -27,9 +27,16 @@ async def lifespan(app: FastAPI):
     init_db()
     logger.info("CORS allowed origins: %s", settings.CORS_ORIGINS)
     if getattr(settings, "OPENAI_API_KEY", None) and settings.OPENAI_API_KEY.strip():
-        logger.info("AI/NLP enabled: citizen reports will be translated, rewritten formally, and structured (set OPENAI_API_KEY in .env).")
+        logger.info("AI/NLP enabled (OpenAI): citizen reports will be translated, rewritten formally, and structured.")
     else:
-        logger.info("AI/NLP disabled: set OPENAI_API_KEY in .env to enable (Kinyarwanda → English, formal rewriting, structuring).")
+        logger.info("AI/NLP disabled. Set OPENAI_API_KEY in Backend/.env to enable report translation/structuring.")
+    if settings.email_configured:
+        logger.info("SMTP configured: OTP and password-reset emails will be sent to users.")
+        logger.info("SMTP login as: %s (app password length: %d; use 16-char Gmail App Password if 535)", settings.SMTP_USER, len(settings.SMTP_PASSWORD))
+    else:
+        logger.warning(
+            "SMTP not configured. OTP emails will NOT be sent. Set SMTP_HOST, SMTP_USER, SMTP_PASSWORD in .env to send OTP to email."
+        )
     yield
     # shutdown: nothing to close for SQLite/PSQL with current setup
 

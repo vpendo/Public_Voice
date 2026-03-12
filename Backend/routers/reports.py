@@ -103,22 +103,32 @@ def create_report(
     problem_type = payload.problem_type
     urgency = payload.urgency or "medium"
 
-    # AI: structure/translate description (Kinyarwanda → English), optionally suggest title, institution, category
+    # AI: structure/translate description (Kinyarwanda → English, or informal → formal), suggest title/category etc.
     ai_result = process_issue_text(raw_description, category=category)
-    if ai_result:
+
+    if ai_result is None:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail="AI processing failed. Please try again later.",
+        )
+
+    if ai_result.get("structured_description"):
+        # Use results from the AI response
         structured_description = ai_result.get("structured_description") or structured_description
         title = ai_result.get("suggested_title") or title
         institution = ai_result.get("suggested_institution") or institution
         category = ai_result.get("suggested_category") or category
         if ai_result.get("suggested_problem_type"):
             problem_type = ai_result.get("suggested_problem_type") or problem_type
-        if not structured_description:
-            logging.getLogger(__name__).warning("AI returned no structured_description for report (first 50 chars): %s", raw_description[:50])
+        logging.getLogger(__name__).info("Report structured/translated by AI (structured_description length=%s)", len(structured_description))
     else:
+        # AI failed (e.g. quota, network). Save report with raw text only so submission still succeeds.
         logging.getLogger(__name__).warning(
-            "Report saved WITHOUT AI translation. Check: 1) OPENAI_API_KEY in Backend/.env 2) Backend terminal for 'OPENAI_API_KEY is empty' or 'AI processing failed'. Raw (50 chars): %s",
-            raw_description[:50],
+            "AI translation unavailable; saving report with raw description only. Raw (50 chars): %s",
+            raw_description[:50] if raw_description else "",
         )
+        if not title and raw_description:
+            title = (raw_description[:200] + "…") if len(raw_description) > 200 else raw_description
 
     tracking_id = _generate_tracking_id(db)
     location_str = _build_location_string(
@@ -129,7 +139,7 @@ def create_report(
         user_id=current_user.id,
         tracking_id=tracking_id,
         name=payload.name or "",
-        phone=payload.phone,
+        phone=payload.phone or None,
         gender=payload.gender,
         reporter_village=payload.reporter_village,
         reporter_cell=payload.reporter_cell,

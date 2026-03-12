@@ -27,27 +27,27 @@ interface AuthContextType {
   isAdmin: boolean;
   isLoadingUser: boolean;
 
-  login: (phone: string, fullName: string) => Promise<{
+  login: (email: string, password: string) => Promise<{
     ok: boolean;
     error?: string;
     user?: UserInfo;
     is_admin?: boolean;
     requires_otp?: boolean;
-    phone?: string;
+    email?: string;
     dev_otp?: string;
   }>;
 
-  loginVerifyOtp: (phone: string, code: string) => Promise<{
+  loginVerifyOtp: (email: string, code: string) => Promise<{
     ok: boolean;
     error?: string;
     user?: UserInfo;
     is_admin?: boolean;
   }>;
 
-  register: (fullName: string, phone: string, nationalId: string) => Promise<{
+  register: (fullName: string, email: string, password: string) => Promise<{
     ok: boolean;
     error?: string;
-    phone?: string;
+    email?: string;
     dev_otp?: string;
   }>;
 
@@ -140,65 +140,70 @@ export function AuthProvider({ children }: AuthProviderProps) {
     }
   }, [token, fetchUser]);
 
-  // ✅ LOGIN
+  // ✅ LOGIN (email + password; backend sends OTP to email)
   const login = useCallback(
     async (
-      phone: string,
-      fullName: string
+      email: string,
+      password: string
     ): Promise<{
       ok: boolean;
       error?: string;
       user?: UserInfo;
       is_admin?: boolean;
       requires_otp?: boolean;
-      phone?: string;
+      email?: string;
       dev_otp?: string;
     }> => {
       try {
         const { data } = await apiClient.post<{
           requires_otp?: boolean;
-          phone?: string;
+          email?: string;
           dev_otp?: string;
+          access_token?: string;
+          user?: UserInfo;
+          is_admin?: boolean;
         }>('/api/auth/login', {
-          phone: phone.trim(),
-          full_name: fullName.trim(),
+          email: email.trim().toLowerCase(),
+          password: password,
         });
 
-        // Debug logging
-        console.log('[AuthContext] Login response:', {
-          requires_otp: data.requires_otp,
-          phone: data.phone,
-          dev_otp: data.dev_otp,
-        });
+        if (data.access_token) {
+          persistToken(data.access_token);
+          if (data.user) setUser(data.user);
+          return {
+            ok: true,
+            user: data.user,
+            is_admin: data.is_admin === true,
+          };
+        }
 
-        if (data.requires_otp === true && data.phone) {
+        if (data.requires_otp === true && data.email) {
           return {
             ok: true,
             requires_otp: true,
-            phone: data.phone,
+            email: data.email,
             dev_otp: data.dev_otp,
           };
         }
 
         return { ok: false, error: 'Invalid response' };
       } catch (err) {
-        console.error('[AuthContext] Login error:', err);
         return { ok: false, error: getErrorMessage(err) };
       }
     },
-    []
+    [persistToken]
   );
 
-  // ✅ VERIFY LOGIN OTP
+  // ✅ VERIFY LOGIN OTP (email + code)
   const loginVerifyOtp = useCallback(
-    async (phone: string, code: string) => {
+    async (email: string, code: string) => {
       try {
         const { data } = await apiClient.post<{
           access_token: string;
           user?: UserInfo;
           is_admin?: boolean;
         }>('/api/auth/login/verify-otp', {
-          phone: phone.trim(),
+          email: email.trim().toLowerCase(),
           code: code.trim(),
         });
 
@@ -220,27 +225,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     [persistToken, fetchUser]
   );
 
-  // ✅ REGISTER
+  // ✅ REGISTER (full name, email, password; OTP sent to email)
   const register = useCallback(
     async (
       fullName: string,
-      phone: string,
-      nationalId: string
-    ): Promise<{ ok: boolean; error?: string; phone?: string; dev_otp?: string }> => {
+      email: string,
+      password: string
+    ): Promise<{ ok: boolean; error?: string; email?: string; dev_otp?: string }> => {
       try {
         const { data } = await apiClient.post<{
           message: string;
-          phone: string;
+          email: string;
           dev_otp?: string;
         }>('/api/auth/register', {
           full_name: fullName.trim(),
-          phone: phone.trim(),
-          national_id: nationalId.trim(),
+          email: email.trim().toLowerCase(),
+          password,
         });
 
         return {
           ok: true,
-          phone: data.phone ?? phone.trim(),
+          email: data.email ?? email.trim().toLowerCase(),
           dev_otp: data.dev_otp,
         };
       } catch (err) {

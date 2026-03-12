@@ -8,10 +8,13 @@ Works with SQLite and PostgreSQL. Safe to run multiple times (skips if column/ta
 import os
 import sys
 
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+_backend_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+sys.path.insert(0, _backend_dir)
+os.chdir(_backend_dir)
 
 from dotenv import load_dotenv
 load_dotenv()
+load_dotenv(os.path.join(_backend_dir, ".env"))
 
 from sqlalchemy import create_engine, text
 from core.config import settings

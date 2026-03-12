@@ -15,7 +15,7 @@ import Contact from '../Pages/Contact';
 import Services from '../Pages/Services';
 import Login from '../Pages/Login';
 import Register from '../Pages/Register';
-import VerifyPhone from '../Pages/VerifyEmail';
+import VerifyEmail from '../Pages/VerifyEmail';
 import ResetPassword from '../Pages/ResetPassword';
 import Report from '../Pages/Report';
 import { UserDashboardLayout } from '../Pages/Dashboard/user/UserDashboardLayout';
@@ -49,7 +49,7 @@ function AppLayout({ children, lang, setLang }: { children: React.ReactNode; lan
   const hideNavFooter =
     path === '/login' ||
     path === '/register' ||
-    path === '/verify-phone' ||
+    path === '/verify-email' ||
     path === '/reset-password' ||
     path.startsWith('/user/') ||
     path.startsWith('/admin/');
@@ -89,7 +89,7 @@ export function AppRoute() {
               <Route path="/services" element={<Services />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/verify-phone" element={<VerifyPhone />} />
+              <Route path="/verify-email" element={<VerifyEmail />} />
               <Route path="/reset-password" element={<ResetPassword />} />
               <Route
                 path="/report"

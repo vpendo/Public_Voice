@@ -53,7 +53,7 @@ class ReportCreate(BaseModel):
 
     # Reporter (optional for privacy)
     name: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
-    phone: str = Field(..., min_length=1, max_length=50, strip_whitespace=True)
+    phone: Optional[str] = Field(None, max_length=50, strip_whitespace=True)
     gender: Optional[str] = Field(None, max_length=20, strip_whitespace=True)
     reporter_village: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
     reporter_cell: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
@@ -191,7 +191,7 @@ class ReportResponse(BaseModel):
     user_id: Optional[int] = None
     tracking_id: Optional[str] = None
     name: Optional[str] = None
-    phone: str
+    phone: Optional[str] = None
     gender: Optional[str] = None
     reporter_village: Optional[str] = None
     reporter_cell: Optional[str] = None

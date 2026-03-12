@@ -1,72 +1,49 @@
 """
 Auth request/response schemas with validation.
+Register: name, email, password. Login: email, password; then OTP sent to email for verification.
 """
 from pydantic import BaseModel, EmailStr, Field, field_validator, model_validator
 
-from core.phone import normalize_phone_rwanda
+
+def _password_strength(v: str) -> str:
+    """Ensure password has at least 8 characters, one letter, and one digit."""
+    if len(v) < 8:
+        raise ValueError("Password must be at least 8 characters")
+    if not any(c.isdigit() for c in v):
+        raise ValueError("Password must contain at least one digit")
+    if not any(c.isalpha() for c in v):
+        raise ValueError("Password must contain at least one letter")
+    return v
 
 
 class UserRegister(BaseModel):
-    """User registration – validated input."""
+    """User registration – name, email, password. OTP sent to email for verification."""
 
     full_name: str = Field(..., min_length=1, max_length=255, strip_whitespace=True)
-    phone: str = Field(..., min_length=10, max_length=20, strip_whitespace=True)
-    national_id: str = Field(..., min_length=1, max_length=50, strip_whitespace=True)
+    email: EmailStr
+    password: str = Field(..., min_length=8, max_length=128)
 
-    @field_validator("phone")
+    @field_validator("email")
     @classmethod
-    def normalize_phone(cls, v: str) -> str:
-        """Normalize phone to canonical Rwanda format so login lookup matches."""
-        cleaned = v.strip().replace(" ", "").replace("-", "")
-        if not cleaned:
-            raise ValueError("Phone number cannot be empty")
-        return normalize_phone_rwanda(cleaned)
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
 
-    @field_validator("national_id")
+    @field_validator("password")
     @classmethod
-    def validate_national_id(cls, v: str) -> str:
-        """Validate Rwanda National ID format - must be exactly 16 digits."""
-        cleaned = v.strip().replace(" ", "").replace("-", "")
-        if not cleaned:
-            raise ValueError("National ID cannot be empty")
-        if not cleaned.isdigit():
-            raise ValueError("National ID must contain only digits")
-        if len(cleaned) != 16:
-            raise ValueError("Rwanda National ID must be exactly 16 digits")
-        return cleaned
+    def validate_password(cls, v: str) -> str:
+        return _password_strength(v)
 
 
 class UserLogin(BaseModel):
-    """Login – phone number + full name (users) or email+password (admins). For phone, OTP will be sent."""
+    """Login – email + password. Backend sends OTP to email; then call verify-otp with email + code."""
 
-    phone: str | None = Field(None, min_length=10, max_length=20, strip_whitespace=True)
-    full_name: str | None = Field(None, min_length=1, max_length=255, strip_whitespace=True)
-    email: str | None = Field(None, min_length=1, strip_whitespace=True)
-    password: str | None = Field(None, min_length=1)
+    email: str = Field(..., min_length=1, strip_whitespace=True)
+    password: str = Field(..., min_length=1)
 
-    @field_validator("phone")
+    @field_validator("email")
     @classmethod
-    def normalize_phone(cls, v: str | None) -> str | None:
-        """Normalize phone to canonical Rwanda format so lookup matches registered user."""
-        if v is None:
-            return None
-        cleaned = v.strip().replace(" ", "").replace("-", "")
-        if not cleaned:
-            return None
-        return normalize_phone_rwanda(cleaned)
-
-    @model_validator(mode="after")
-    def require_phone_or_email_password(self):
-        """Require either phone+full_name (for users) or email+password (for admins)."""
-        has_phone = self.phone and self.phone.strip()
-        has_email_password = self.email and self.email.strip() and self.password and self.password.strip()
-        if not has_phone and not has_email_password:
-            raise ValueError("Provide either phone number+full name or email+password")
-        if has_phone and has_email_password:
-            raise ValueError("Provide either phone number+full name or email+password, not both")
-        if has_phone and (not self.full_name or not self.full_name.strip()):
-            raise ValueError("Full name is required when using phone login")
-        return self
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
 
 
 class TokenResponse(BaseModel):
@@ -77,33 +54,27 @@ class TokenResponse(BaseModel):
     expires_in_minutes: int
 
 
-class VerifyPhoneRequest(BaseModel):
-    """Verify phone with OTP sent after registration."""
+class VerifyEmailRequest(BaseModel):
+    """Verify email with OTP sent after registration."""
 
-    phone: str = Field(..., min_length=10, max_length=20, strip_whitespace=True)
+    email: str = Field(..., min_length=1, strip_whitespace=True)
     code: str = Field(..., min_length=6, max_length=6, strip_whitespace=True)
 
-    @field_validator("phone")
+    @field_validator("email")
     @classmethod
-    def normalize_phone(cls, v: str) -> str:
-        cleaned = v.strip().replace(" ", "").replace("-", "")
-        if not cleaned:
-            raise ValueError("Phone number cannot be empty")
-        return normalize_phone_rwanda(cleaned)
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
 
 
 class ResendOtpRequest(BaseModel):
-    """Resend OTP to phone (for verification)."""
+    """Resend verification OTP to email."""
 
-    phone: str = Field(..., min_length=10, max_length=20, strip_whitespace=True)
+    email: str = Field(..., min_length=1, strip_whitespace=True)
 
-    @field_validator("phone")
+    @field_validator("email")
     @classmethod
-    def normalize_phone(cls, v: str) -> str:
-        cleaned = v.strip().replace(" ", "").replace("-", "")
-        if not cleaned:
-            raise ValueError("Phone number cannot be empty")
-        return normalize_phone_rwanda(cleaned)
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
 
 
 class UserResponse(BaseModel):
@@ -116,6 +87,7 @@ class UserResponse(BaseModel):
     email: str | None = None
     role: str
     phone_verified: bool = False
+    email_verified: bool = False
     admin_category: str | None = None  # When set, admin only sees reports for this category
     admin_scope_level: str | None = None  # all | district | sector | cell – geographic scope
     scope_district: str | None = None
@@ -138,61 +110,70 @@ class LoginResponse(BaseModel):
 
 
 class LoginRequiresOtpResponse(BaseModel):
-    """After phone OK, OTP sent to phone."""
+    """After email+password OK, OTP sent to email."""
 
     requires_otp: bool = True
-    phone: str
+    email: str
     dev_otp: str | None = None  # Only set when DEBUG=true for development
 
 
 class LoginVerifyOtpRequest(BaseModel):
-    """Verify login OTP – phone + code."""
+    """Verify login OTP – email + code."""
 
-    phone: str = Field(..., min_length=10, max_length=20, strip_whitespace=True)
+    email: str = Field(..., min_length=1, strip_whitespace=True)
     code: str = Field(..., min_length=6, max_length=6, strip_whitespace=True)
 
-    @field_validator("phone")
+    @field_validator("email")
     @classmethod
-    def normalize_phone(cls, v: str) -> str:
-        cleaned = v.strip().replace(" ", "").replace("-", "")
-        if not cleaned:
-            raise ValueError("Phone number cannot be empty")
-        return normalize_phone_rwanda(cleaned)
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
 
 
 class ForgotPasswordRequest(BaseModel):
-    """Request password reset by email."""
+    """Request password reset by email. Used from login page 'Forgot password?'."""
 
-    email: str = Field(..., min_length=1, strip_whitespace=True)
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str) -> str:
+        return v.lower().strip()
 
 
 class ForgotPasswordResponse(BaseModel):
-    """Response for forgot-password. reset_token only in DEBUG for development."""
+    """Response for forgot-password. OTP sent to email; use email + code + new_password on reset-password."""
 
     message: str
-    reset_token: str | None = None  # Only set when DEBUG=true so dev can build reset link
+    email: str  # Echo so frontend can show reset form with email pre-filled
+    dev_otp: str | None = None  # Only in development or when email not sent (for testing)
 
 
 class RegisterResponse(BaseModel):
-    """After registration we send OTP; frontend should show verify-phone page."""
+    """After registration we send OTP to email; frontend should show verify-email page."""
 
-    message: str = "OTP sent to your phone number."
-    phone: str
-    dev_otp: str | None = None  # Only set when DEBUG=true for development
+    message: str = "OTP sent to your email."
+    email: str
+    email_sent: bool = False  # True if OTP was sent to email (SMTP worked)
+    dev_otp: str | None = None  # Only set when DEBUG or email not sent (fallback)
 
 
 class ResetPasswordRequest(BaseModel):
-    """Reset password: either token (link) or email+code (OTP)."""
+    """Reset password after forgot-password: send email + code (OTP from email) + new_password."""
 
-    token: str | None = None  # from reset link (legacy)
-    email: str | None = None  # for OTP flow
-    code: str | None = None   # 6-digit OTP for reset
+    token: str | None = None  # from reset link (legacy, optional)
+    email: str | None = None  # for OTP flow (from forgot-password)
+    code: str | None = None   # 6-digit OTP sent to email
     new_password: str = Field(..., min_length=8, max_length=128)
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, v: str | None) -> str | None:
+        return v.lower().strip() if v and v.strip() else None
 
     @model_validator(mode="after")
     def require_token_or_otp(self):
         has_token = self.token and self.token.strip()
-        has_otp = self.email and self.email.strip() and self.code and len(self.code.strip()) == 6
+        has_otp = self.email and self.email.strip() and self.code and len((self.code or "").strip()) == 6
         if not has_token and not has_otp:
             raise ValueError("Provide either token or email and code (OTP).")
         if has_token and has_otp:
@@ -209,6 +190,12 @@ class ResetPasswordRequest(BaseModel):
         if not any(c.isalpha() for c in v):
             raise ValueError("Password must contain at least one letter")
         return v
+
+
+class ResetPasswordResponse(BaseModel):
+    """After successful password reset."""
+
+    message: str = "Password has been reset. You can sign in with your new password."
 
 
 class CreateAdminRequest(BaseModel):

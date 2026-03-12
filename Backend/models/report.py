@@ -19,7 +19,7 @@ class Report(Base):
 
     # —— 1. Reporter information (optional for privacy) ——
     name = Column(String(255), nullable=True)
-    phone = Column(String(50), nullable=False)
+    phone = Column(String(50), nullable=True)
     gender = Column(String(20), nullable=True)
     # Reporter's location (for follow-up)
     reporter_village = Column(String(255), nullable=True)

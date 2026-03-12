@@ -1,10 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, Megaphone, Phone, User, Mail, Lock } from 'lucide-react';
+import { ArrowRight, ArrowLeft, Megaphone, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { LanguageSwitcher } from '../Components/LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
-import { apiClient } from '../api/client';
 
 const LOGIN_IMAGE = '/Image/home%203.jpg';
 
@@ -13,17 +12,17 @@ export default function Login() {
   const { login, loginVerifyOtp, refreshUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [isAdminLogin, setIsAdminLogin] = useState(false);
-  const [formData, setFormData] = useState({ phone: '', fullName: '', email: '', password: '' });
+  const [formData, setFormData] = useState({ email: '', password: '' });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showOtpStep, setShowOtpStep] = useState(false);
-  const [otpPhone, setOtpPhone] = useState('');
+  const [otpEmail, setOtpEmail] = useState('');
   const [otpCode, setOtpCode] = useState('');
   const [devOtpFromLogin, setDevOtpFromLogin] = useState<string | null>(null);
   const [otpLoading, setOtpLoading] = useState(false);
   const [otpError, setOtpError] = useState<string | null>(null);
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     if (location.state?.message) {
@@ -44,165 +43,43 @@ export default function Login() {
     e.preventDefault();
     setError(null);
     setSuccess(null);
-    
-    // Admin login with email + password
-    if (isAdminLogin) {
-      const email = formData.email.trim();
-      const password = formData.password.trim();
-      if (!email) {
-        setError('Please enter your email address.');
-        return;
-      }
-      if (!password) {
-        setError('Please enter your password.');
-        return;
-      }
-      setLoading(true);
-      try {
-        const { data } = await apiClient.post<{
-          access_token: string;
-          token_type?: string;
-          expires_in_minutes?: number;
-          user?: {
-            id: number;
-            full_name: string;
-            email?: string;
-            role: string;
-            is_admin?: boolean;
-          };
-          is_admin?: boolean;
-        }>('/api/auth/login', {
-          email: email.toLowerCase(),
-          password: password,
-        });
-        
-        if (data.access_token) {
-          // Store token first
-          localStorage.setItem('publicvoice_token', data.access_token);
-          
-          // Determine if admin from login response (most reliable)
-          // Check data.is_admin first, then data.user?.role
-          const userRoleLower = (data.user?.role ?? '').trim().toLowerCase();
-          const isAdminFromResponse = data.is_admin === true || 
-            userRoleLower === 'admin' || userRoleLower === 'superadmin';
-          
-          // Determine redirect path based on user role from login response
-          const from = location.state?.from?.pathname;
-          let targetPath: string;
-          
-          if (isAdminFromResponse) {
-            // Admin: Always go to admin dashboard (or specific admin page if coming from one)
-            if (from && from.startsWith('/admin')) {
-              targetPath = from;
-            } else {
-              targetPath = '/admin/dashboard';
-            }
-            sessionStorage.setItem('publicvoice_redirect_to_admin', '1');
-            console.log('[Admin Login] Redirecting to:', targetPath, { is_admin: data.is_admin, role: data.user?.role });
-          } else {
-            // Regular users: Go to user dashboard
-            if (from && (from.startsWith('/user') || from === '/report')) {
-              targetPath = from;
-            } else {
-              targetPath = '/user/dashboard';
-            }
-            console.log('[User Login] Redirecting to:', targetPath);
-          }
-          
-          // For admin login, use hard redirect to ensure AuthContext state is fully synced
-          // This ensures ProtectedRoute sees the updated token and user
-          if (isAdminFromResponse) {
-            // Hard redirect for admin to ensure clean state
-            window.location.href = targetPath;
-          } else {
-            // For regular users, refresh user and navigate normally
-            try {
-              await refreshUser();
-            } catch (err) {
-              console.error('Failed to refresh user:', err);
-            }
-            navigate(targetPath, { replace: true });
-          }
-        } else {
-          setError('Invalid response from server');
-        }
-      } catch (err: any) {
-        // Handle network errors (backend not running)
-        if (err?.code === 'ERR_NETWORK' || err?.message?.includes('Network Error') || err?.message?.includes('ERR_CONNECTION_REFUSED')) {
-          setError('Cannot connect to server. Please make sure the backend is running on http://127.0.0.1:8000');
-          return;
-        }
-        
-        // Handle HTTP errors
-        const status = err?.response?.status;
-        const detail = err?.response?.data?.detail || err?.message || 'Login failed';
-        
-        if (status === 401) {
-          // Provide specific error messages for admin login
-          if (detail.includes('No account found')) {
-            setError('No admin account found with this email address. Please check your email.');
-          } else if (detail.includes('no password set')) {
-            setError('This admin account has no password. Please reset it using: python -m scripts.reset_admin_password');
-          } else if (detail.includes('Invalid password')) {
-            setError('Incorrect password. Please try again or reset your password.');
-          } else {
-            setError('Invalid email or password. Please check your credentials.');
-          }
-        } else {
-          setError(detail);
-        }
-      } finally {
-        setLoading(false);
-      }
+    const email = formData.email.trim();
+    const password = formData.password.trim();
+    if (!email) {
+      setError('Please enter your email address.');
       return;
     }
-    
-    // User login with phone + full name
-    const phone = formData.phone.trim();
-    const fullName = formData.fullName.trim();
-    if (!phone) {
-      setError('Please enter your phone number.');
-      return;
-    }
-    if (!fullName) {
-      setError('Please enter your full name.');
+    if (!password) {
+      setError('Please enter your password.');
       return;
     }
     setLoading(true);
-    const result = await login(phone, fullName);
+    const result = await login(email, password);
     setLoading(false);
-    
-    // Debug logging
-    console.log('[Login] Result:', {
-      ok: result.ok,
-      requires_otp: result.requires_otp,
-      phone: result.phone,
-      dev_otp: result.dev_otp,
-      error: result.error,
-    });
-    
+
     if (!result.ok) {
       setError(result.error ?? 'Login failed');
       return;
     }
-    if (result.requires_otp && result.phone) {
-      console.log('[Login] Setting OTP step with dev_otp:', result.dev_otp);
-      // Set OTP state first
-      const otpValue = result.dev_otp ?? null;
-      setDevOtpFromLogin(otpValue);
-      setOtpCode(otpValue ?? '');
-      setOtpPhone(result.phone);
+    // If backend returned token directly (e.g. future use)
+    if (result.user && !result.requires_otp) {
+      try {
+        await refreshUser();
+      } catch (_) {}
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+      const isAdmin = (result.user?.role ?? '').toLowerCase() === 'admin' || (result.user?.role ?? '').toLowerCase() === 'superadmin';
+      const targetPath = from && (from.startsWith('/admin') || from.startsWith('/user')) ? from : isAdmin ? '/admin/dashboard' : '/user/dashboard';
+      if (isAdmin) sessionStorage.setItem('publicvoice_redirect_to_admin', '1');
+      navigate(targetPath, { replace: true });
+      return;
+    }
+    if (result.requires_otp && result.email) {
+      setDevOtpFromLogin(result.dev_otp ?? null);
+      setOtpCode(result.dev_otp ?? '');
+      setOtpEmail(result.email);
       setShowOtpStep(true);
       setOtpError(null);
       setError(null);
-      
-      // Log for debugging
-      if (otpValue) {
-        console.log('[Login] OTP code to display:', otpValue);
-      } else {
-        console.warn('[Login] No OTP received in response');
-      }
-      return;
     }
   };
 
@@ -211,11 +88,11 @@ export default function Login() {
     setOtpError(null);
     const code = otpCode.trim();
     if (!code || code.length !== 6) {
-      setOtpError('Enter the 6-digit code from your phone.');
+      setOtpError('Enter the 6-digit code sent to your email.');
       return;
     }
     setOtpLoading(true);
-    const result = await loginVerifyOtp(otpPhone, code);
+    const result = await loginVerifyOtp(otpEmail, code);
     setOtpLoading(false);
     if (!result.ok) {
       setOtpError(result.error ?? 'Invalid or expired code.');
@@ -232,9 +109,7 @@ export default function Login() {
         : isAdmin
           ? '/admin/dashboard'
           : '/user/dashboard';
-    if (isAdmin) {
-      sessionStorage.setItem('publicvoice_redirect_to_admin', '1');
-    }
+    if (isAdmin) sessionStorage.setItem('publicvoice_redirect_to_admin', '1');
     navigate(targetPath, { replace: true });
   };
 
@@ -278,76 +153,28 @@ export default function Login() {
 
             {/* Headline */}
             <p className="text-sm mt-4 mb-8 text-slate-500">
-              {showOtpStep
-                ? 'Enter verification code'
-                : isAdminLogin
-                  ? 'Admin Login'
-                  : t.login.signInHeadline}
+              {showOtpStep ? 'Enter verification code' : t.login.signInHeadline}
             </p>
-
-            {/* Admin/User Toggle */}
-            {!showOtpStep && (
-              <div className="mb-6 flex items-center justify-center gap-2 p-1 bg-slate-100 rounded-lg">
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsAdminLogin(false);
-                    setError(null);
-                    setFormData({ phone: '', fullName: '', email: '', password: '' });
-                  }}
-                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    !isAdminLogin
-                      ? 'bg-white text-[var(--color-primary)] shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  User Login
-                </button>
-                <button
-                  type="button"
-                  onClick={() => {
-                    setIsAdminLogin(true);
-                    setError(null);
-                    setFormData({ phone: '', fullName: '', email: '', password: '' });
-                  }}
-                  className={`flex-1 px-4 py-2 text-sm font-medium rounded-md transition-colors ${
-                    isAdminLogin
-                      ? 'bg-white text-[var(--color-primary)] shadow-sm'
-                      : 'text-slate-600 hover:text-slate-900'
-                  }`}
-                >
-                  Admin Login
-                </button>
-              </div>
-            )}
 
             {showOtpStep ? (
               <>
-                <p className="text-sm text-slate-500 mb-4">We sent a 6-digit code to your phone. Enter it below.</p>
+                <p className="text-sm text-slate-500 mb-4">We sent a 6-digit code to your email. Check your inbox and enter it below.</p>
                 {devOtpFromLogin ? (
                   <div className="mb-4 p-4 rounded-xl text-sm bg-amber-50 border-2 border-amber-300 text-amber-900">
-                    <div className="flex items-start gap-2">
-                      <Phone className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                      <div className="flex-1">
-                        <p className="font-semibold mb-1">Development Mode - OTP Code:</p>
+                    <p className="font-semibold mb-1">Email could not be sent — use this code:</p>
                         <p className="text-base">
-                          <span className="font-medium">Your verification code is:</span>{' '}
+                          <span className="font-medium">If you didn’t get the email, you can use:</span>{' '}
                           <strong className="font-mono text-2xl tracking-widest text-amber-900 bg-amber-100 px-3 py-1 rounded inline-block">
                             {devOtpFromLogin}
                           </strong>
                         </p>
-                        <p className="text-xs mt-2 text-amber-700">
-                          (Use this code to verify your phone number)
-                        </p>
-                      </div>
-                    </div>
+                    <p className="text-base font-mono text-2xl tracking-widest bg-amber-100 px-3 py-2 rounded inline-block">{devOtpFromLogin}</p>
+                    <p className="text-xs mt-2 text-amber-700">Enter it below to sign in.</p>
                   </div>
                 ) : (
                   <div className="mb-4 p-3 rounded-xl text-sm bg-blue-50 border border-blue-200 text-blue-800">
-                    <p className="font-medium">Check your phone for the 6-digit verification code.</p>
-                    <p className="text-xs mt-1 text-blue-700">
-                      If you don't receive the code, check the browser console or try again.
-                    </p>
+                    <p className="font-medium">Check your email for the 6-digit verification code.</p>
+                    <p className="text-xs mt-1 text-blue-700">If you don’t receive it, try again or check spam.</p>
                   </div>
                 )}
                 {otpError && (
@@ -358,9 +185,9 @@ export default function Login() {
                 <form onSubmit={handleOtpSubmit} className="space-y-5">
                   <div>
                     <label className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                      Phone Number
+                      Email
                     </label>
-                    <p className="text-slate-700 font-medium">{otpPhone}</p>
+                    <p className="text-slate-700 font-medium">{otpEmail}</p>
                   </div>
                   <div>
                     <label htmlFor="login-otp-code" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
@@ -413,11 +240,11 @@ export default function Login() {
             {error && (
               <div className="mb-4 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600">
                 {error}
-                {(error.toLowerCase().includes('not verified') || error.toLowerCase().includes('verification')) && formData.phone.trim() && (
+                {(error.toLowerCase().includes('not verified') || error.toLowerCase().includes('verification')) && formData.email.trim() && (
                   <p className="mt-2">
                     <Link
-                      to="/verify-phone"
-                      state={{ phone: formData.phone.trim() }}
+                      to="/verify-email"
+                      state={{ email: formData.email.trim() }}
                       className="font-semibold text-[var(--color-primary)] hover:underline"
                     >
                       Enter verification code →
@@ -427,101 +254,63 @@ export default function Login() {
               </div>
             )}
 
-            {/* Form */}
+            {/* Form: Email + Password */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {isAdminLogin ? (
-                <>
-                  {/* Admin Login: Email */}
-                  <div>
-                    <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                      Email Address
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                        <Mail size={18} />
-                      </span>
-                      <input
-                        type="email"
-                        id="email"
-                        name="email"
-                        value={formData.email}
-                        onChange={handleChange}
-                        required
-                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                        placeholder="admin@example.com"
-                      />
-                    </div>
-                  </div>
+              <div>
+                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <Mail size={18} />
+                  </span>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
+                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                    placeholder="you@example.com"
+                  />
+                </div>
+              </div>
 
-                  {/* Admin Login: Password */}
-                  <div>
-                    <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                        <Lock size={18} />
-                      </span>
-                      <input
-                        type="password"
-                        id="password"
-                        name="password"
-                        value={formData.password}
-                        onChange={handleChange}
-                        required
-                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                        placeholder="Enter your password"
-                      />
-                    </div>
-                  </div>
-                </>
-              ) : (
-                <>
-                  {/* User Login: Full Name */}
-                  <div>
-                    <label htmlFor="fullName" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                      Full Name
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                        <User size={18} />
-                      </span>
-                      <input
-                        type="text"
-                        id="fullName"
-                        name="fullName"
-                        value={formData.fullName}
-                        onChange={handleChange}
-                        required
-                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                        placeholder="Enter your full name"
-                      />
-                    </div>
-                  </div>
+              <div>
+                <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                  Password
+                </label>
+                <div className="relative">
+                  <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
+                    <Lock size={18} />
+                  </span>
+                  <input
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    value={formData.password}
+                    onChange={handleChange}
+                    required
+                    className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                    placeholder="Enter your password"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((p) => !p)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-[var(--color-primary)]"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
+                </div>
+              </div>
 
-                  {/* User Login: Phone Number */}
-                  <div>
-                    <label htmlFor="phone" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                      Phone Number
-                    </label>
-                    <div className="relative">
-                      <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                        <Phone size={18} />
-                      </span>
-                      <input
-                        type="tel"
-                        id="phone"
-                        name="phone"
-                        value={formData.phone}
-                        onChange={handleChange}
-                        required
-                        className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                        placeholder="+250788123456"
-                      />
-                    </div>
-                  </div>
-                </>
-              )}
+              <p className="text-right -mt-2">
+                <Link to="/reset-password" className="text-sm font-medium text-[var(--color-primary)] hover:underline">
+                  Forgot password?
+                </Link>
+              </p>
 
               {/* Submit */}
               <button

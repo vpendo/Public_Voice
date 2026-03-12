@@ -81,40 +81,38 @@ def test_create_report_unauthorized(client: TestClient) -> None:
 def test_list_my_reports_empty(client: TestClient) -> None:
     """Use a fresh user with no reports so /api/reports/mine returns []."""
     from models.base import SessionLocal
-    from models.user import User
     from models.otp import OTP
 
     client.post(
         "/api/auth/register",
         json={
             "full_name": "Empty Reports User",
-            "phone": "+250788555555",
-            "national_id": "5555555555555555",
+            "email": "emptyreports@example.com",
+            "password": "Pass1234",
         },
     )
     db = SessionLocal()
     try:
-        user = db.query(User).filter(User.phone == "+250788555555").first()
-        assert user is not None
-        user.phone_verified = True
-        db.commit()
+        otp_row = db.query(OTP).filter(OTP.email == "emptyreports@example.com", OTP.purpose == "register").order_by(OTP.created_at.desc()).first()
+        assert otp_row is not None
+        client.post("/api/auth/verify-email", json={"email": "emptyreports@example.com", "code": otp_row.code})
     finally:
         db.close()
 
     login_r = client.post(
         "/api/auth/login",
-        json={"phone": "+250788555555", "full_name": "Empty Reports User"},
+        json={"email": "emptyreports@example.com", "password": "Pass1234"},
     )
     assert login_r.status_code == 200
     data = login_r.json()
     assert data.get("requires_otp") is True
-    phone = data["phone"]
+    email = data["email"]
 
     db = SessionLocal()
     try:
         otp_row = (
             db.query(OTP)
-            .filter(OTP.phone == phone, OTP.purpose == "login")
+            .filter(OTP.email == email, OTP.purpose == "login")
             .order_by(OTP.created_at.desc())
             .first()
         )
@@ -123,7 +121,7 @@ def test_list_my_reports_empty(client: TestClient) -> None:
     finally:
         db.close()
 
-    verify_r = client.post("/api/auth/login/verify-otp", json={"phone": phone, "code": code})
+    verify_r = client.post("/api/auth/login/verify-otp", json={"email": email, "code": code})
     assert verify_r.status_code == 200
     token = verify_r.json()["access_token"]
     headers = {"Authorization": f"Bearer {token}"}
@@ -174,3 +172,14 @@ def test_validation_invalid_institution(client: TestClient, auth_headers: dict) 
         headers=auth_headers,
     )
     assert r.status_code == 422
+
+
+def test_create_report_ai_failure(client: TestClient, auth_headers: dict, monkeypatch) -> None:
+    """If the AI translation/formatting step fails, the report should not be saved."""
+    # make the AI stub return None to simulate an internal error
+    monkeypatch.setattr("services.ai_processor.process_issue_text", lambda text, category=None: None)
+    monkeypatch.setattr("routers.reports.process_issue_text", lambda text, category=None: None)
+    r = client.post("/api/reports", json=_report_payload(), headers=auth_headers)
+    assert r.status_code == 500
+    detail = r.json().get("detail", "")
+    assert "processing failed" in detail.lower()

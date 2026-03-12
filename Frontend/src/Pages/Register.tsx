@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { ArrowRight, ArrowLeft, User, Megaphone, Home, Phone, CreditCard } from 'lucide-react';
+import { ArrowRight, ArrowLeft, User, Megaphone, Home, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { LanguageSwitcher } from '../Components/LanguageSwitcher';
 import { useLanguage } from '../contexts/LanguageContext';
 import { useAuth } from '../contexts/AuthContext';
@@ -13,39 +13,39 @@ export default function Register() {
   const navigate = useNavigate();
   const [formData, setFormData] = useState({
     fullName: '',
-    phone: '',
-    nationalId: '',
+    email: '',
+    password: '',
   });
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
-    if (!formData.phone.trim()) {
-      setError('Phone number is required');
+    if (!formData.fullName.trim()) {
+      setError('Full name is required');
       return;
     }
-    const cleanedNationalId = formData.nationalId.trim().replace(/\s+/g, '').replace(/-/g, '');
-    if (!cleanedNationalId) {
-      setError('National ID is required');
+    if (!formData.email.trim()) {
+      setError('Email is required');
       return;
     }
-    if (!/^\d+$/.test(cleanedNationalId)) {
-      setError('National ID must contain only digits');
+    if (!formData.password || formData.password.length < 8) {
+      setError('Password must be at least 8 characters');
       return;
     }
-    if (cleanedNationalId.length !== 16) {
-      setError('Rwanda National ID must be exactly 16 digits');
+    if (!/[a-zA-Z]/.test(formData.password) || !/\d/.test(formData.password)) {
+      setError('Password must contain at least one letter and one digit');
       return;
     }
     setLoading(true);
-    const result = await registerUser(formData.fullName, formData.phone, cleanedNationalId);
+    const result = await registerUser(formData.fullName, formData.email.trim(), formData.password);
     setLoading(false);
-    if (result.ok && result.phone) {
-      navigate('/verify-phone', { state: { phone: result.phone, dev_otp: result.dev_otp } });
+    if (result.ok && result.email) {
+      navigate('/verify-email', { state: { email: result.email, dev_otp: result.dev_otp } });
     } else if (result.ok) {
-      navigate('/verify-phone', { state: { phone: formData.phone.trim(), dev_otp: result.dev_otp } });
+      navigate('/verify-email', { state: { email: formData.email.trim(), dev_otp: result.dev_otp } });
     } else {
       setError(result.error ?? 'Registration failed');
     }
@@ -71,7 +71,6 @@ export default function Register() {
 
       {/* Right panel - Form */}
       <div className="flex-1 flex flex-col bg-white lg:min-h-screen order-1 lg:order-2 relative">
-        {/* Language + Home - top right */}
         <div className="absolute top-6 right-6 flex items-center gap-3">
           <LanguageSwitcher />
           <Link
@@ -86,26 +85,21 @@ export default function Register() {
 
         <div className="flex-1 flex items-center justify-center py-10 px-6 lg:px-14">
           <div className="w-full max-w-md">
-            {/* Logo - click to go home */}
             <Link to="/" className="inline-block mb-1">
               <span className="text-2xl font-bold text-slate-900">Public</span>
               <span className="text-2xl font-bold text-[var(--color-primary)]">Voice</span>
               <span className="block h-0.5 rounded-full mt-0.5 w-full bg-[var(--color-primary)]" />
             </Link>
 
-            {/* Headline */}
             <p className="text-sm mt-4 mb-8 text-slate-500">{t.register.signUpHeadline}</p>
 
-            {/* Error message */}
             {error && (
               <div className="mb-4 p-3 rounded-xl text-sm bg-red-50 border border-red-200 text-red-600">
                 {error}
               </div>
             )}
 
-            {/* Form */}
             <form onSubmit={handleSubmit} className="space-y-5">
-              {/* Full Name */}
               <div>
                 <label htmlFor="fullName" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
                   {t.register.fullName}
@@ -127,53 +121,57 @@ export default function Register() {
                 </div>
               </div>
 
-              {/* Phone Number */}
               <div>
-                <label htmlFor="phone" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                  Phone Number
+                <label htmlFor="email" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                  Email Address
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <Phone size={18} />
+                    <Mail size={18} />
                   </span>
                   <input
-                    type="tel"
-                    id="phone"
-                    name="phone"
-                    value={formData.phone}
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
                     onChange={handleChange}
                     required
                     className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                    placeholder="+250788123456"
+                    placeholder="you@example.com"
                   />
                 </div>
               </div>
 
-              {/* National ID */}
               <div>
-                <label htmlFor="nationalId" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
-                  National ID
+                <label htmlFor="password" className="block text-xs font-semibold uppercase tracking-wider mb-2 text-slate-500">
+                  Password
                 </label>
                 <div className="relative">
                   <span className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400">
-                    <CreditCard size={18} />
+                    <Lock size={18} />
                   </span>
                   <input
-                    type="text"
-                    id="nationalId"
-                    name="nationalId"
-                    value={formData.nationalId}
+                    type={showPassword ? 'text' : 'password'}
+                    id="password"
+                    name="password"
+                    value={formData.password}
                     onChange={handleChange}
                     required
-                    maxLength={16}
-                    pattern="[0-9]{16}"
-                    className="w-full pl-11 pr-4 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
-                    placeholder="Enter 16-digit National ID"
+                    minLength={8}
+                    className="w-full pl-11 pr-12 py-3.5 rounded-xl border border-slate-200 bg-slate-50/80 transition-colors focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] text-slate-900"
+                    placeholder="At least 8 characters, one letter and one digit"
                   />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword((p) => !p)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 focus:outline-none focus:text-[var(--color-primary)]"
+                    aria-label={showPassword ? 'Hide password' : 'Show password'}
+                  >
+                    {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                  </button>
                 </div>
               </div>
 
-              {/* Submit */}
               <button
                 type="submit"
                 disabled={loading}
@@ -186,7 +184,6 @@ export default function Register() {
               </button>
             </form>
 
-            {/* Sign in link */}
             <p className="mt-8 text-center text-sm text-slate-500">
               {t.register.hasAccount}{' '}
               <Link to="/login" className="font-semibold text-[var(--color-primary)]">
@@ -194,7 +191,6 @@ export default function Register() {
               </Link>
             </p>
 
-            {/* Back to home - second way at bottom */}
             <p className="mt-6 text-center">
               <Link
                 to="/"

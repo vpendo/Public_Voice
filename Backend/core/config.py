@@ -41,7 +41,7 @@ class Settings:
             os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
         )
 
-        # ---------------- AI / NLP (OpenAI SDK v2) ----------------
+        # ---------------- AI / NLP (OpenAI) ----------------
         self.OPENAI_API_KEY: str = os.getenv("OPENAI_API_KEY", "").strip()
         self.OPENAI_API_BASE: Optional[str] = (
             os.getenv("OPENAI_API_BASE", "").strip() or None
@@ -77,7 +77,8 @@ class Settings:
         self.SMTP_HOST: str = os.getenv("SMTP_HOST", "").strip()
         self.SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
         self.SMTP_USER: str = os.getenv("SMTP_USER", "").strip()
-        self.SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "").strip()
+        # Strip all spaces (Gmail app passwords are often pasted with spaces)
+        self.SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "").strip().replace(" ", "")
         self.SMTP_FROM_EMAIL: str = os.getenv(
             "SMTP_FROM_EMAIL", self.SMTP_USER or "noreply@publicvoice.rw"
         ).strip()
@@ -85,32 +86,14 @@ class Settings:
         # Comma-separated emails to notify when a new report is submitted (optional)
         self.ADMIN_NOTIFY_EMAILS: str = os.getenv("ADMIN_NOTIFY_EMAILS", "").strip()
 
-        # ---------------- SMS (OTP sending) ----------------
-        # Twilio configuration
-        self.TWILIO_ACCOUNT_SID: str = os.getenv("TWILIO_ACCOUNT_SID", "").strip()
-        self.TWILIO_AUTH_TOKEN: str = os.getenv("TWILIO_AUTH_TOKEN", "").strip()
-        self.TWILIO_PHONE_NUMBER: str = os.getenv("TWILIO_PHONE_NUMBER", "").strip()
-        self.TWILIO_FROM_NUMBER: str = os.getenv("TWILIO_FROM_NUMBER", "").strip()  # Alternative to TWILIO_PHONE_NUMBER
-        
-        # Africa's Talking configuration
-        self.AFRICAS_TALKING_USERNAME: str = os.getenv("AFRICAS_TALKING_USERNAME", "").strip()
-        self.AFRICAS_TALKING_API_KEY: str = os.getenv("AFRICAS_TALKING_API_KEY", "").strip()
-
     @property
     def email_configured(self) -> bool:
-        """True if SMTP is configured so we can send password-reset emails."""
+        """True if SMTP is configured for OTP and password-reset emails."""
         return bool(self.SMTP_HOST and self.SMTP_USER and self.SMTP_PASSWORD)
 
-    @property
-    def sms_configured(self) -> bool:
-        """True if SMS provider (Twilio or Africa's Talking) is configured."""
-        twilio_configured = bool(self.TWILIO_ACCOUNT_SID and self.TWILIO_AUTH_TOKEN and (self.TWILIO_PHONE_NUMBER or self.TWILIO_FROM_NUMBER))
-        africastalking_configured = bool(self.AFRICAS_TALKING_USERNAME and self.AFRICAS_TALKING_API_KEY)
-        return twilio_configured or africastalking_configured
-
     def _to_bool(self, value: str) -> bool:
-        """Convert string env variable to bool."""
-        return value.lower() in ("true", "1", "yes")
+        """Convert string env variable to bool. Strips whitespace so ' true ' works."""
+        return (value or "").strip().lower() in ("true", "1", "yes")
 
     @property
     def cors_origin_list(self) -> List[str]:

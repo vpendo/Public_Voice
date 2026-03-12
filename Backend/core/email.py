@@ -2,11 +2,14 @@
 Send emails (e.g. password reset link) via SMTP.
 Uses Python standard library only; no extra dependencies.
 """
+import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
 from email.mime.text import MIMEText
 
 from core.config import settings
+
+logger = logging.getLogger(__name__)
 
 
 def send_password_reset_email(to_email: str, reset_link: str) -> None:
@@ -52,6 +55,7 @@ def send_otp_email(to_email: str, code: str, purpose: str = "register") -> None:
     Send an email with a 6-digit OTP.
     purpose: "register" | "login" | "reset_password"
     """
+    logger.info("Sending OTP email to %s (purpose=%s)", to_email, purpose)
     app_name = settings.APP_NAME
     if purpose == "login":
         subject = f"{app_name} – Your login code"
@@ -87,3 +91,4 @@ def send_otp_email(to_email: str, code: str, purpose: str = "register") -> None:
             server.starttls()
         server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
         server.sendmail(settings.SMTP_FROM_EMAIL, [to_email], msg.as_string())
+    logger.info("OTP email sent successfully to %s", to_email)
