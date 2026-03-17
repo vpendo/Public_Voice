@@ -21,6 +21,8 @@ class Report(Base):
     name = Column(String(255), nullable=True)
     phone = Column(String(50), nullable=True)
     gender = Column(String(20), nullable=True)
+    # Rwanda National ID: 16 digits (optional)
+    reporter_national_id = Column(String(16), nullable=True)
     # Reporter's location (for follow-up)
     reporter_village = Column(String(255), nullable=True)
     reporter_cell = Column(String(255), nullable=True)

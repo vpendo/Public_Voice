@@ -11,6 +11,7 @@ interface ReportItem {
   name?: string | null;
   phone: string;
   gender?: string | null;
+  reporter_national_id?: string | null;
   reporter_village?: string | null;
   reporter_cell?: string | null;
   reporter_sector?: string | null;
@@ -202,6 +203,9 @@ export function Respond() {
             <Phone size={14} className="text-slate-400" />
             <span className="text-slate-800">{report.phone}</span>
           </div>
+          {report.reporter_national_id && (
+            <div><span className="text-slate-500">National ID:</span> <span className="text-slate-800">{report.reporter_national_id}</span></div>
+          )}
           {(report.reporter_village || report.reporter_cell || report.reporter_sector || report.reporter_district) && (
             <div className="sm:col-span-2">
               <span className="text-slate-500">Location (reporter):</span>{' '}

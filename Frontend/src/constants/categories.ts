@@ -9,6 +9,7 @@ export const REPORT_CATEGORIES = [
   'infrastructure_utilities',
   'social_community',
   'administrative',
+  'other',
 ] as const;
 
 export type ReportCategoryKey = (typeof REPORT_CATEGORIES)[number];
@@ -46,6 +47,7 @@ export const PROBLEM_TYPES_BY_CATEGORY: Record<ReportCategoryKey, readonly strin
     'delayed_decision',
     'misconduct',
   ],
+  other: [], // User types their own in category_other
 } as const;
 
 export const URGENCY_LEVELS = ['low', 'medium', 'high', 'emergency'] as const;

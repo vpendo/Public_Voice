@@ -14,6 +14,7 @@ ALLOWED_CATEGORIES = {
     "infrastructure_utilities",
     "social_community",
     "administrative",
+    "other",
 }
 
 # —— Problem types per category (dynamic on frontend) ——
@@ -55,6 +56,8 @@ class ReportCreate(BaseModel):
     name: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
     phone: Optional[str] = Field(None, max_length=50, strip_whitespace=True)
     gender: Optional[str] = Field(None, max_length=20, strip_whitespace=True)
+    # Rwanda National ID: exactly 16 digits (optional)
+    reporter_national_id: Optional[str] = Field(None, max_length=16, strip_whitespace=True)
     reporter_village: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
     reporter_cell: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
     reporter_sector: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
@@ -63,6 +66,8 @@ class ReportCreate(BaseModel):
     # Problem classification
     category: str = Field(..., min_length=1, max_length=100, strip_whitespace=True)
     problem_type: Optional[str] = Field(None, max_length=100, strip_whitespace=True)
+    # When category is "other", user can type their own category (stored in problem_type by the router)
+    category_other: Optional[str] = Field(None, max_length=200, strip_whitespace=True)
 
     # Description (main AI input)
     title: Optional[str] = Field(None, max_length=255, strip_whitespace=True)
@@ -125,6 +130,17 @@ class ReportCreate(BaseModel):
         if v_lower not in ALLOWED_URGENCY:
             raise ValueError(f"Urgency must be one of: {', '.join(sorted(ALLOWED_URGENCY))}")
         return v_lower
+
+    @field_validator("reporter_national_id")
+    @classmethod
+    def validate_reporter_national_id(cls, v: Optional[str]) -> Optional[str]:
+        """Rwanda National ID: exactly 16 digits when provided."""
+        if not v:
+            return None
+        digits = "".join(c for c in v.strip() if c.isdigit())
+        if len(digits) != 16:
+            raise ValueError("Rwanda National ID must be exactly 16 digits")
+        return digits
 
 
 class ReportUpdate(BaseModel):
@@ -193,6 +209,7 @@ class ReportResponse(BaseModel):
     name: Optional[str] = None
     phone: Optional[str] = None
     gender: Optional[str] = None
+    reporter_national_id: Optional[str] = None
     reporter_village: Optional[str] = None
     reporter_cell: Optional[str] = None
     reporter_sector: Optional[str] = None

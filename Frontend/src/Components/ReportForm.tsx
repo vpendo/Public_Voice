@@ -10,6 +10,12 @@ import {
   getProblemTypesForCategory,
   type ReportCategoryKey,
 } from '../constants/categories';
+import {
+  PROVINCE,
+  DISTRICTS,
+  getSectorForDistrict,
+  getCellForDistrict,
+} from '../constants/locations';
 
 const inputClass =
   'w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-white focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors';
@@ -32,14 +38,16 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
     name: '',
     phone: '',
     gender: '',
+    reporter_national_id: '',
     reporter_village: '',
     reporter_cell: '',
     reporter_sector: '',
     reporter_district: '',
     category: '' as ReportCategoryKey | '',
     problem_type: '',
+    category_other: '',
     description: '',
-    province: '',
+    province: PROVINCE,
     district: '',
     sector: '',
     cell: '',
@@ -73,6 +81,15 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
       setSubmitError(r.form.consentRequired);
       return;
     }
+    if (formData.category === 'other' && !formData.category_other.trim()) {
+      setSubmitError(r.form.categoryOtherRequired ?? 'Please specify the problem category when you select "Other".');
+      return;
+    }
+    const nationalIdDigits = (formData.reporter_national_id || '').replace(/\D/g, '');
+    if (formData.reporter_national_id.trim() && nationalIdDigits.length !== 16) {
+      setSubmitError(r.form.nationalIdInvalid ?? 'Rwanda National ID must be exactly 16 digits.');
+      return;
+    }
     setSubmitting(true);
     try {
       let evidence_photo: string | undefined;
@@ -96,12 +113,14 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
         name: formData.name.trim() || undefined,
         phone: formData.phone.trim(),
         gender: formData.gender.trim() || undefined,
+        reporter_national_id: nationalIdDigits.length === 16 ? nationalIdDigits : undefined,
         reporter_village: formData.reporter_village.trim() || undefined,
         reporter_cell: formData.reporter_cell.trim() || undefined,
         reporter_sector: formData.reporter_sector.trim() || undefined,
         reporter_district: formData.reporter_district.trim() || undefined,
         category: formData.category,
-        problem_type: formData.problem_type.trim() || undefined,
+        problem_type: formData.category === 'other' ? undefined : (formData.problem_type.trim() || undefined),
+        category_other: formData.category === 'other' ? (formData.category_other.trim() || undefined) : undefined,
         description: formData.description.trim(),
         province: formData.province.trim() || undefined,
         district: formData.district.trim() || undefined,
@@ -122,14 +141,16 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
         name: user?.full_name ?? '',
         phone: '',
         gender: '',
+        reporter_national_id: '',
         reporter_village: '',
         reporter_cell: '',
         reporter_sector: '',
         reporter_district: '',
         category: '' as ReportCategoryKey | '',
         problem_type: '',
+        category_other: '',
         description: '',
-        province: '',
+        province: PROVINCE,
         district: '',
         sector: '',
         cell: '',
@@ -156,10 +177,22 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
   ) => {
     const name = e.target.name;
     const value = e.target.type === 'checkbox' ? (e.target as HTMLInputElement).checked : e.target.value;
-    setFormData((prev) => ({ ...prev, [name]: value }));
-    if (name === 'category') {
-      setFormData((prev) => ({ ...prev, problem_type: '' }));
-    }
+    setFormData((prev) => {
+      const next = { ...prev, [name]: value };
+      if (name === 'category') {
+        next.problem_type = '';
+        if (value !== 'other') next.category_other = '';
+      }
+      if (name === 'district' && typeof value === 'string') {
+        next.sector = getSectorForDistrict(value);
+        next.cell = getCellForDistrict(value);
+      }
+      if (name === 'reporter_district' && typeof value === 'string') {
+        next.reporter_sector = getSectorForDistrict(value);
+        next.reporter_cell = getCellForDistrict(value);
+      }
+      return next;
+    });
   };
 
   return (
@@ -212,6 +245,26 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
             </div>
           </div>
           <div className="mt-4">
+            <label htmlFor="report-form-reporter_national_id" className={labelClass}>
+              {r.form.nationalIdLabel ?? 'National ID (Rwanda)'} <span className="text-slate-400 font-normal">({r.form.nationalIdHint ?? '16 digits, optional'})</span>
+            </label>
+            <input
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              maxLength={16}
+              id="report-form-reporter_national_id"
+              name="reporter_national_id"
+              value={formData.reporter_national_id}
+              onChange={(e) => {
+                const v = e.target.value.replace(/\D/g, '').slice(0, 16);
+                setFormData((prev) => ({ ...prev, reporter_national_id: v }));
+              }}
+              className={inputClass}
+              placeholder={r.form.nationalIdPlaceholder ?? 'e.g. 1234567890123456'}
+            />
+          </div>
+          <div className="mt-4">
             <label htmlFor="report-form-gender" className={labelClass}>
               {r.form.gender} <span className="text-slate-400 font-normal">{r.form.genderOptional}</span>
             </label>
@@ -228,7 +281,55 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
               <option value="other">{r.form.genderOther}</option>
             </select>
           </div>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-4">
+          <p className="text-slate-500 text-sm mt-2 mb-3">{r.form.reporterLocationHint ?? 'Your area (same options: Kigali, 3 districts, 3 sectors, 3 cells).'}</p>
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label htmlFor="report-form-reporter_district" className={labelClass}>{r.form.district}</label>
+              <select
+                id="report-form-reporter_district"
+                name="reporter_district"
+                value={formData.reporter_district}
+                onChange={handleChange}
+                className={inputClass}
+              >
+                <option value="">{r.form.selectDistrict ?? 'Select district'}</option>
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="report-form-reporter_sector" className={labelClass}>{r.form.sector}</label>
+              <select
+                id="report-form-reporter_sector"
+                name="reporter_sector"
+                value={formData.reporter_sector}
+                onChange={handleChange}
+                className={inputClass}
+                disabled={!formData.reporter_district}
+              >
+                <option value="">{r.form.selectSector ?? 'Select district first'}</option>
+                {formData.reporter_district && (
+                  <option value={getSectorForDistrict(formData.reporter_district)}>{getSectorForDistrict(formData.reporter_district)}</option>
+                )}
+              </select>
+            </div>
+            <div>
+              <label htmlFor="report-form-reporter_cell" className={labelClass}>{r.form.cell}</label>
+              <select
+                id="report-form-reporter_cell"
+                name="reporter_cell"
+                value={formData.reporter_cell}
+                onChange={handleChange}
+                className={inputClass}
+                disabled={!formData.reporter_district}
+              >
+                <option value="">{r.form.selectCell ?? 'Select district first'}</option>
+                {formData.reporter_district && (
+                  <option value={getCellForDistrict(formData.reporter_district)}>{getCellForDistrict(formData.reporter_district)}</option>
+                )}
+              </select>
+            </div>
             <div>
               <label htmlFor="report-form-reporter_village" className={labelClass}>{r.form.village}</label>
               <input
@@ -238,112 +339,13 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
                 value={formData.reporter_village}
                 onChange={handleChange}
                 className={inputClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="report-form-reporter_cell" className={labelClass}>{r.form.cell}</label>
-              <input
-                type="text"
-                id="report-form-reporter_cell"
-                name="reporter_cell"
-                value={formData.reporter_cell}
-                onChange={handleChange}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="report-form-reporter_sector" className={labelClass}>{r.form.sector}</label>
-              <input
-                type="text"
-                id="report-form-reporter_sector"
-                name="reporter_sector"
-                value={formData.reporter_sector}
-                onChange={handleChange}
-                className={inputClass}
-              />
-            </div>
-            <div>
-              <label htmlFor="report-form-reporter_district" className={labelClass}>{r.form.district}</label>
-              <input
-                type="text"
-                id="report-form-reporter_district"
-                name="reporter_district"
-                value={formData.reporter_district}
-                onChange={handleChange}
-                className={inputClass}
+                placeholder={r.form.villagePlaceholder ?? 'e.g. Village name'}
               />
             </div>
           </div>
         </div>
 
-        {/* 2. Problem Category */}
-        <div>
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <span className="w-1 h-5 rounded-full bg-[var(--color-primary)]" />
-            {r.sections.category}
-          </h3>
-          <p className="text-slate-500 text-sm mb-4">{r.sections.categoryHint}</p>
-          <select
-            id="report-form-category"
-            name="category"
-            value={formData.category}
-            onChange={handleChange}
-            required
-            className={inputClass}
-          >
-            <option value="">{r.categories.select}</option>
-            {REPORT_CATEGORIES.map((key) => (
-              <option key={key} value={key}>
-                {(r.categories as Record<string, string>)[key] ?? key}
-              </option>
-            ))}
-          </select>
-        </div>
-
-        {/* 3. Problem Type (dynamic) */}
-        {formData.category && (
-          <div>
-            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-              <span className="w-1 h-5 rounded-full bg-[var(--color-primary)]" />
-              {r.sections.problemType}
-            </h3>
-            <select
-              id="report-form-problem_type"
-              name="problem_type"
-              value={formData.problem_type}
-              onChange={handleChange}
-              className={inputClass}
-            >
-              <option value="">{r.form.problemTypePlaceholder}</option>
-              {problemTypeOptions.map((key) => (
-                <option key={key} value={key}>
-                  {(r.problemTypes as Record<string, Record<string, string>>)?.[formData.category]?.[key] ?? key}
-                </option>
-              ))}
-            </select>
-          </div>
-        )}
-
-        {/* 4. Problem Description */}
-        <div>
-          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
-            <span className="w-1 h-5 rounded-full bg-[var(--color-primary)]" />
-            {r.sections.description}
-          </h3>
-          <p className="text-slate-500 text-sm mb-4">{r.sections.descriptionHint}</p>
-          <textarea
-            id="report-form-description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            rows={5}
-            className={`${inputClass} resize-none`}
-            placeholder={r.form.descriptionPlaceholder}
-          />
-        </div>
-
-        {/* 5. Location of Problem */}
+        {/* 2. Location of Problem (Kigali: 3 districts → 3 sectors → 3 cells) - shown early so visible in dashboard */}
         <div>
           <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
             <MapPin className="w-5 h-5 text-[var(--color-primary)]" />
@@ -353,47 +355,63 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label htmlFor="report-form-province" className={labelClass}>{r.form.province}</label>
-              <input
-                type="text"
+              <select
                 id="report-form-province"
                 name="province"
                 value={formData.province}
                 onChange={handleChange}
                 className={inputClass}
-              />
+              >
+                <option value={PROVINCE}>{PROVINCE}</option>
+              </select>
             </div>
             <div>
               <label htmlFor="report-form-district" className={labelClass}>{r.form.district}</label>
-              <input
-                type="text"
+              <select
                 id="report-form-district"
                 name="district"
                 value={formData.district}
                 onChange={handleChange}
+                required
                 className={inputClass}
-              />
+              >
+                <option value="">{r.form.selectDistrict ?? 'Select district'}</option>
+                {DISTRICTS.map((d) => (
+                  <option key={d} value={d}>{d}</option>
+                ))}
+              </select>
             </div>
             <div>
               <label htmlFor="report-form-sector" className={labelClass}>{r.form.sector}</label>
-              <input
-                type="text"
+              <select
                 id="report-form-sector"
                 name="sector"
                 value={formData.sector}
                 onChange={handleChange}
                 className={inputClass}
-              />
+                disabled={!formData.district}
+              >
+                <option value="">{r.form.selectSector ?? 'Select district first'}</option>
+                {formData.district && (
+                  <option value={getSectorForDistrict(formData.district)}>{getSectorForDistrict(formData.district)}</option>
+                )}
+              </select>
             </div>
             <div>
               <label htmlFor="report-form-cell" className={labelClass}>{r.form.cell}</label>
-              <input
-                type="text"
+              <select
                 id="report-form-cell"
                 name="cell"
                 value={formData.cell}
                 onChange={handleChange}
                 className={inputClass}
-              />
+                disabled={!formData.district}
+              >
+                <option value="">{r.form.selectCell ?? 'Select district first'}</option>
+                {formData.district && (
+                  <option value={getCellForDistrict(formData.district)}>{getCellForDistrict(formData.district)}</option>
+                )}
+              </select>
             </div>
             <div className="sm:col-span-2">
               <label htmlFor="report-form-village" className={labelClass}>{r.form.village}</label>
@@ -421,6 +439,90 @@ export function ReportForm({ onSuccess, className = '' }: ReportFormProps) {
               />
             </div>
           </div>
+        </div>
+
+        {/* 3. Problem Category */}
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <span className="w-1 h-5 rounded-full bg-[var(--color-primary)]" />
+            {r.sections.category}
+          </h3>
+          <p className="text-slate-500 text-sm mb-4">{r.sections.categoryHint}</p>
+          <select
+            id="report-form-category"
+            name="category"
+            value={formData.category}
+            onChange={handleChange}
+            required
+            className={inputClass}
+          >
+            <option value="">{r.categories.select}</option>
+            {REPORT_CATEGORIES.map((key) => (
+              <option key={key} value={key}>
+                {(r.categories as Record<string, string>)[key] ?? key}
+              </option>
+            ))}
+          </select>
+          {formData.category === 'other' && (
+            <div className="mt-4">
+              <label htmlFor="report-form-category_other" className={labelClass}>
+                {r.form.categoryOtherLabel ?? 'Please specify the problem category'}
+              </label>
+              <input
+                type="text"
+                id="report-form-category_other"
+                name="category_other"
+                value={formData.category_other}
+                onChange={handleChange}
+                required={formData.category === 'other'}
+                className={inputClass}
+                placeholder={r.form.categoryOtherPlaceholder ?? 'Type the problem category not listed above'}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* 4. Problem Type (dynamic) - hidden when category is "other" */}
+        {formData.category && formData.category !== 'other' && (
+          <div>
+            <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+              <span className="w-1 h-5 rounded-full bg-[var(--color-primary)]" />
+              {r.sections.problemType}
+            </h3>
+            <select
+              id="report-form-problem_type"
+              name="problem_type"
+              value={formData.problem_type}
+              onChange={handleChange}
+              className={inputClass}
+            >
+              <option value="">{r.form.problemTypePlaceholder}</option>
+              {problemTypeOptions.map((key) => (
+                <option key={key} value={key}>
+                  {(r.problemTypes as Record<string, Record<string, string>>)?.[formData.category]?.[key] ?? key}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
+
+        {/* 5. Problem Description */}
+        <div>
+          <h3 className="text-lg font-semibold text-slate-800 mb-4 flex items-center gap-2">
+            <span className="w-1 h-5 rounded-full bg-[var(--color-primary)]" />
+            {r.sections.description}
+          </h3>
+          <p className="text-slate-500 text-sm mb-4">{r.sections.descriptionHint}</p>
+          <textarea
+            id="report-form-description"
+            name="description"
+            value={formData.description}
+            onChange={handleChange}
+            required
+            rows={5}
+            className={`${inputClass} resize-none`}
+            placeholder={r.form.descriptionPlaceholder}
+          />
         </div>
 
         {/* 6. Urgency */}

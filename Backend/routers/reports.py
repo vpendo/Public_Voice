@@ -101,19 +101,22 @@ def create_report(
     institution = payload.institution
     category = payload.category
     problem_type = payload.problem_type
+    if category == "other" and getattr(payload, "category_other", None):
+        problem_type = (payload.category_other or "").strip() or problem_type
     urgency = payload.urgency or "medium"
 
     # AI: structure/translate description (Kinyarwanda → English, or informal → formal), suggest title/category etc.
     ai_result = process_issue_text(raw_description, category=category)
 
     if ai_result and ai_result.get("structured_description"):
-        # Use results from the AI response
+        # Use results from the AI response (keep user's "other" category and custom text if they chose that)
         structured_description = ai_result.get("structured_description") or structured_description
         title = ai_result.get("suggested_title") or title
         institution = ai_result.get("suggested_institution") or institution
-        category = ai_result.get("suggested_category") or category
-        if ai_result.get("suggested_problem_type"):
-            problem_type = ai_result.get("suggested_problem_type") or problem_type
+        if payload.category != "other":
+            category = ai_result.get("suggested_category") or category
+            if ai_result.get("suggested_problem_type"):
+                problem_type = ai_result.get("suggested_problem_type") or problem_type
         logging.getLogger(__name__).info("Report structured/translated by AI (structured_description length=%s)", len(structured_description))
     else:
         # AI failed (e.g. quota, network). Save report with raw text only so submission still succeeds.
@@ -135,6 +138,7 @@ def create_report(
         name=payload.name or "",
         phone=payload.phone or None,
         gender=payload.gender,
+        reporter_national_id=payload.reporter_national_id,
         reporter_village=payload.reporter_village,
         reporter_cell=payload.reporter_cell,
         reporter_sector=payload.reporter_sector,

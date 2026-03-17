@@ -80,46 +80,55 @@ def test_create_report_unauthorized(client: TestClient) -> None:
 
 def test_list_my_reports_empty(client: TestClient) -> None:
     """Use a fresh user with no reports so /api/reports/mine returns []."""
+    import uuid
     from models.base import SessionLocal
     from models.otp import OTP
 
-    client.post(
+    email = f"emptyreports-{uuid.uuid4().hex[:8]}@example.com"
+    reg = client.post(
         "/api/auth/register",
         json={
             "full_name": "Empty Reports User",
-            "email": "emptyreports@example.com",
+            "email": email,
             "password": "Pass1234",
         },
     )
-    db = SessionLocal()
-    try:
-        otp_row = db.query(OTP).filter(OTP.email == "emptyreports@example.com", OTP.purpose == "register").order_by(OTP.created_at.desc()).first()
-        assert otp_row is not None
-        client.post("/api/auth/verify-email", json={"email": "emptyreports@example.com", "code": otp_row.code})
-    finally:
-        db.close()
+    assert reg.status_code == 200
+    reg_data = reg.json()
+    code = reg_data.get("dev_otp")
+    if not code:
+        db = SessionLocal()
+        try:
+            otp_row = db.query(OTP).filter(OTP.email == email, OTP.purpose == "register").order_by(OTP.created_at.desc()).first()
+            assert otp_row is not None
+            code = otp_row.code
+        finally:
+            db.close()
+    client.post("/api/auth/verify-email", json={"email": email, "code": code})
 
     login_r = client.post(
         "/api/auth/login",
-        json={"email": "emptyreports@example.com", "password": "Pass1234"},
+        json={"email": email, "password": "Pass1234"},
     )
     assert login_r.status_code == 200
     data = login_r.json()
     assert data.get("requires_otp") is True
     email = data["email"]
 
-    db = SessionLocal()
-    try:
-        otp_row = (
-            db.query(OTP)
-            .filter(OTP.email == email, OTP.purpose == "login")
-            .order_by(OTP.created_at.desc())
-            .first()
-        )
-        assert otp_row is not None
-        code = otp_row.code
-    finally:
-        db.close()
+    code = data.get("dev_otp")
+    if not code:
+        db = SessionLocal()
+        try:
+            otp_row = (
+                db.query(OTP)
+                .filter(OTP.email == email, OTP.purpose == "login")
+                .order_by(OTP.created_at.desc())
+                .first()
+            )
+            assert otp_row is not None
+            code = otp_row.code
+        finally:
+            db.close()
 
     verify_r = client.post("/api/auth/login/verify-otp", json={"email": email, "code": code})
     assert verify_r.status_code == 200
