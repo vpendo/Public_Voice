@@ -1,6 +1,6 @@
 # Public Voice — Backend
 
-FastAPI backend for the **Public Voice** civic engagement platform. Handles authentication (email/password + OTP), citizen reports, AI-powered translation and structuring (OpenAI), and admin responses.
+FastAPI backend for the **Public Voice** civic engagement platform. Handles authentication (email/password + OTP), citizen reports, AI-powered translation and structuring, and admin responses.
 
 ---
 
@@ -11,7 +11,7 @@ FastAPI backend for the **Public Voice** civic engagement platform. Handles auth
 - [Configuration (.env)](#configuration-env)
 - [Authentication Flow](#authentication-flow)
 - [API Endpoints](#api-endpoints)
-- [Report AI (OpenAI)](#report-ai-openai)
+- [Report AI](#report-ai)
 - [Testing](#testing)
 - [Deployment (Render)](#deployment-render)
 - [Project Structure](#project-structure)
@@ -91,11 +91,13 @@ Copy `.env.example` to `.env` and adjust as needed.
 
 | Variable | Description |
 |----------|-------------|
-| `OPENAI_API_KEY` | OpenAI API key. If set, report text is sent to OpenAI for translation and structuring. |
-| `OPENAI_MODEL` | Model to use (default `gpt-4o-mini`). |
-| `OPENAI_API_BASE` | Optional; override base URL (e.g. for Azure). |
+| `OPENAI_API_KEY` | OpenAI API key (if your deployment uses OpenAI-based translation path). |
+| `OPENAI_MODEL` | OpenAI model to use (default `gpt-4o-mini`). |
+| `OPENAI_API_BASE` | Optional OpenAI base URL override (e.g. Azure OpenAI). |
+| `ANTHROPIC_API_KEY` | Claude API key (if your deployment uses Claude-based translation path). |
+| `CLAUDE_MODEL` | Claude model ID (e.g. `claude-sonnet-4-5`). |
 
-If `OPENAI_API_KEY` is missing or the request fails (e.g. quota), reports are still saved with the raw description only.
+If AI credentials are missing or request fails (e.g. quota), reports are still saved with the raw description only.
 
 ### Email (OTP & password reset)
 
@@ -107,6 +109,29 @@ If `OPENAI_API_KEY` is missing or the request fails (e.g. quota), reports are st
 | `SMTP_PASSWORD` | SMTP password. |
 | `SMTP_FROM_EMAIL` | From address for outgoing email. |
 | `FRONTEND_URL` | Base URL of frontend (e.g. for reset-password links). |
+| `EMAIL_SMTP_SERVER` | Alternative SMTP host variable name (supported). |
+| `EMAIL_SMTP_PORT` | Alternative SMTP port variable name (supported). |
+| `EMAIL_LOGIN` | Alternative SMTP login username (supported). |
+| `EMAIL_SENDER_EMAIL` | Alternative sender email variable name (supported). |
+| `EMAIL_SENDER_PASSWORD` | Alternative SMTP password variable name (supported). |
+
+Recommended `.env` example (Dynadot mail):
+
+```env
+EMAIL_SMTP_SERVER=webhost.dynadot.com
+EMAIL_SMTP_PORT=587
+EMAIL_LOGIN=security@nexventures.net
+EMAIL_SENDER_EMAIL=security@nexventures.net
+EMAIL_SENDER_PASSWORD=<YOUR_EMAIL_PASSWORD>
+```
+
+OpenAI `.env` example (if using OpenAI translation path):
+
+```env
+OPENAI_API_KEY=<YOUR_OPENAI_API_KEY>
+OPENAI_MODEL=gpt-4o-mini
+# OPENAI_API_BASE=https://api.openai.com/v1
+```
 
 If SMTP is not configured, OTP codes are still generated; in development they may be returned in the API response or logged.
 
@@ -203,24 +228,24 @@ All users (citizens and admins) use **email and password**, with **email OTP** f
 
 ---
 
-## Report AI (OpenAI)
+## Report AI
 
 When a citizen **submits a report**:
 
-1. The backend sends the report text to **OpenAI** (if `OPENAI_API_KEY` is set).
+1. The backend sends report text to the configured AI provider (OpenAI or Claude, depending on your code path and env setup).
 2. The model returns a structured version: translated/formal English summary, suggested category, institution, urgency, etc.
 3. The report is stored with both **raw_description** (original text) and **structured_description** (AI output).
 
-**If OpenAI is not configured or the request fails** (e.g. quota, network), the report is still created with the raw description only; no 500 is returned for quota/configuration issues.
+**If AI provider is not configured or the request fails** (e.g. quota, network), the report is still created with the raw description only; no 500 is returned for quota/configuration issues.
 
 **As admin:** In the report detail view you see the original text and, when available, the “Structured report (AI)” section.
 
 **Checklist if AI summary is missing:**
 
-1. Set `OPENAI_API_KEY` in `.env`.
+1. Set the required AI key(s) in `.env` (`OPENAI_API_KEY` or `ANTHROPIC_API_KEY`, depending on your active path).
 2. Restart the backend.
 3. Submit a **new** report (AI runs only on create).
-4. Check logs for “Calling OpenAI for report translation” or “AI translation unavailable”.
+4. Check logs for the active provider call message and for “AI translation unavailable”.
 
 ---
 
@@ -242,7 +267,7 @@ Tests cover auth (register, verify-email, login, verify-otp), reports, and API b
 3. Set **Root directory** to `Backend`.
 4. **Build command:** `pip install -r requirements.txt`
 5. **Start command:** `uvicorn main:app --host 0.0.0.0 --port $PORT`
-6. Add **environment variables** (e.g. `SECRET_KEY`, `DATABASE_URL`, `OPENAI_API_KEY`, `CORS_ORIGINS`, SMTP, etc.). Do not commit `.env`; use Render’s UI or secrets.
+6. Add **environment variables** (e.g. `SECRET_KEY`, `DATABASE_URL`, AI key(s), `CORS_ORIGINS`, SMTP, etc.). Do not commit `.env`; use Render’s UI or secrets.
 
 Ensure `CORS_ORIGINS` includes your production frontend URL (e.g. `https://publicvoice1.netlify.app`).
 
@@ -272,7 +297,7 @@ Backend/
 │   ├── auth.py          # Request/response models for auth
 │   └── report.py        # Report request/response
 ├── services/
-│   ├── ai_processor.py  # OpenAI translation/structuring
+│   ├── ai_processor.py  # AI translation/structuring
 │   └── notify.py       # Notifications
 ├── scripts/
 │   └── create_admin.py  # Create admin user

@@ -1,141 +1,54 @@
 # Public Voice
 
-**Public Voice** is a civic engagement platform for Rwanda. Citizens report community issues in English or Kinyarwanda; the system translates and structures reports with AI so administrators can review and respond efficiently.
+Public Voice is a civic engagement platform where citizens submit community issues and administrators review and respond in a dashboard.
 
----
+## What This README Covers
 
-## Table of Contents
+- How to install and run the project locally
+- How citizens and admins use the platform
+- Important project files and where features live
 
-- [What is Public Voice?](#what-is-public-voice)
-- [Quick Start](#quick-start)
-- [How to Use the Platform](#how-to-use-the-platform)
-- [Installation (Step by Step)](#installation-step-by-step)
-- [Technology Stack](#technology-stack)
-- [Deployment](#deployment)
-- [Testing & Screenshots](#testing--screenshots)
-- [Project Structure](#project-structure)
-- [License](#license)
+## Run The Project (Step By Step)
 
----
+### 1. Prerequisites
 
-## What is Public Voice?
+- `Python` 3.10+
+- `Node.js` 18+
+- `pnpm`
+- `PostgreSQL`
 
-| Feature | Description |
-|--------|-------------|
-| **Citizen reporting** | Citizens register with **name, email, and password**, verify their email via OTP, then log in and submit community issues (e.g. water, roads, land, administration). |
-| **AI-powered reports** | Report text (including Kinyarwanda) is sent to **OpenAI** for translation and structuring. Admins see both the original text and a clear English summary with suggested category and urgency. |
-| **Admin dashboard** | Administrators log in with **email and password** (and email OTP), view all reports, filter by status, and respond with updates. |
-| **Multi-language UI** | Frontend supports English and Kinyarwanda for a broader reach. |
-
-**Live links**
-
-- **App:** [publicvoice1.netlify.app](https://publicvoice1.netlify.app)
-- **API docs:** [public-voice1.onrender.com/docs](https://public-voice1.onrender.com/docs)
-- **Demo video:** [Google Drive](https://drive.google.com/file/d/1pxpAqEp2TsBnOkESI6ZwRrnRnn7_e3JC/view?usp=sharing)
-
----
-
-## Quick Start
-
-1. **Clone and open the project**
-   ```bash
-   git clone https://github.com/vpendo/Public_Voice.git
-   cd Public_Voice
-   ```
-
-2. **Backend** (from repo root)
-   ```bash
-   cd Backend
-   python -m venv venv
-   # Windows: venv\Scripts\activate
-   # macOS/Linux: source venv/bin/activate
-   pip install -r requirements.txt
-   copy .env.example .env   # then edit .env (see Backend/README.md)
-   python -m scripts.create_admin   # create an admin account
-   uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-   API: **http://localhost:8000** · Docs: **http://localhost:8000/docs**
-
-3. **Frontend** (new terminal)
-   ```bash
-   cd Frontend
-   pnpm install
-   pnpm dev
-   ```
-   App: **http://localhost:5173**
-
-4. **Try it**
-   - Register as a citizen (name, email, password) → verify email → log in → submit a report.
-   - Log in as admin (email + password from `create_admin`) → verify OTP → open dashboard and respond to reports.
-
----
-
-## How to Use the Platform
-
-### For Citizens
-
-| Step | Action |
-|------|--------|
-| 1. **Register** | Click **Register** → enter **full name**, **email**, and **password** (min 8 characters, one letter and one digit). |
-| 2. **Verify email** | Check your email for a 6-digit code (or use the code shown in dev mode). Enter it on the verify-email page. |
-| 3. **Log in** | Use your **email** and **password**. A second code is sent to your email; enter it to complete login. |
-| 4. **Submit an issue** | Go to **Submit Issue** (or **Report**). Fill in the form (description can be in English or Kinyarwanda). Submit. |
-| 5. **Track reports** | Open **My Issues** to see your reports, their status, and any admin responses. |
-
-**Forgot password?** On the login page, click **Forgot password?** → enter your email → use the code sent by email and set a new password on the reset page.
-
-### For Administrators
-
-| Step | Action |
-|------|--------|
-| 1. **Log in** | Use the **email** and **password** created via `python -m scripts.create_admin`. |
-| 2. **Verify OTP** | Enter the 6-digit code sent to your admin email. |
-| 3. **Dashboard** | View statistics and recent reports. |
-| 4. **All issues** | Browse, filter, and search all citizen reports. |
-| 5. **Respond** | Open a report → add a response and update status (e.g. pending → in progress → resolved). |
-| 6. **Users** | View registered users if the feature is enabled. |
-
-Admins see both the **raw** citizen text and the **AI-structured** summary (when OpenAI is configured).
-
----
-
-## Installation (Step by Step)
-
-### Prerequisites
-
-- **Node.js** 18+ and **pnpm** (or npm)
-- **Python** 3.10+ and **pip**
-- **PostgreSQL** (required for backend database)
-
-### Step 1: Clone
+### 2. Clone The Repository
 
 ```bash
 git clone https://github.com/vpendo/Public_Voice.git
 cd Public_Voice
 ```
 
-### Step 2: Backend
+### 3. Start Backend API
 
 ```bash
 cd Backend
 python -m venv venv
 ```
 
-Activate the virtual environment:
+Activate virtual environment:
 
-- **Windows:** `venv\Scripts\activate`
-- **macOS/Linux:** `source venv/bin/activate`
+- Windows: `venv\Scripts\activate`
+- macOS/Linux: `source venv/bin/activate`
+
+Install dependencies and create `.env`:
 
 ```bash
 pip install -r requirements.txt
-copy .env.example .env   # Windows
-# cp .env.example .env   # macOS/Linux
+copy .env.example .env
 ```
 
-Edit **`.env`** (see [Backend/README.md](Backend/README.md) for full list):
+Edit `Backend/.env` and set at minimum:
 
-- **Required:** `SECRET_KEY` (e.g. `openssl rand -hex 32`)
-- **Optional:** `DATABASE_URL`, `CORS_ORIGINS`, `OPENAI_API_KEY`, SMTP for email OTP
+- `DATABASE_URL`
+- `SECRET_KEY`
+- AI key(s): `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` (based on your active AI flow)
+- OTP email variables: either `SMTP_*` or `EMAIL_*`
 
 Create an admin user:
 
@@ -143,107 +56,100 @@ Create an admin user:
 python -m scripts.create_admin
 ```
 
-Start the backend:
+Run backend:
 
 ```bash
 uvicorn main:app --reload --host 0.0.0.0 --port 8000
 ```
 
-- API: **http://localhost:8000**
-- Interactive docs: **http://localhost:8000/docs**
+Backend URLs:
 
-### Step 3: Frontend
+- API base: `http://127.0.0.1:8000`
+- Swagger docs: `http://127.0.0.1:8000/docs`
 
-Open a **new** terminal:
+### 4. Start Frontend App
+
+Open a new terminal:
 
 ```bash
-cd Public_Voice/Frontend
+cd Frontend
 pnpm install
 ```
 
-Optional: create **`.env`**:
+Create `Frontend/.env`:
 
 ```env
 VITE_API_URL=http://127.0.0.1:8000
 ```
 
-Start the frontend:
+Run frontend:
 
 ```bash
 pnpm dev
 ```
 
-App: **http://localhost:5173**
+Frontend URL:
 
-### Step 4: Verify
+- App: `http://localhost:5173`
 
-1. Open http://localhost:5173.
-2. Register (name, email, password) → verify email → log in with email + password + OTP.
-3. Submit a report.
-4. Log in as admin (email + password from `create_admin`) → OTP → dashboard.
-5. Open a report and add a response.
+### 5. Confirm Everything Works
 
----
+1. Open `http://localhost:5173`
+2. Register/login as a citizen
+3. Submit a report
+4. Login as admin
+5. Check report appears in admin dashboard
 
-## Technology Stack
+## How To Use The Platform
 
-| Layer | Technologies |
-|-------|--------------|
-| **Frontend** | React 19, TypeScript, Vite, Tailwind CSS, React Router, Axios |
-| **Backend** | FastAPI, Python 3.10+, JWT, bcrypt |
-| **Database** | PostgreSQL (production) |
-| **AI** | OpenAI API (translation and structuring of report text) |
-| **Email** | SMTP (OTP for registration, login, and password reset) |
+### Citizen Flow
 
----
+1. Register with name, email, and password
+2. Verify account using email OTP
+3. Login and submit a community issue
+4. Track report status in user dashboard
 
-## Deployment
+### Admin Flow
 
-| Component | Service | URL |
-|------------|---------|-----|
-| **Frontend** | Netlify | [publicvoice1.netlify.app](https://publicvoice1.netlify.app) |
-| **Backend** | Render | [public-voice1.onrender.com](https://public-voice1.onrender.com) |
-| **API docs** | Render | [public-voice1.onrender.com/docs](https://public-voice1.onrender.com/docs) |
+1. Login with admin account
+2. Verify OTP
+3. Open dashboard and review submitted reports
+4. Respond to reports and update status
 
-**Frontend (Netlify):** Connect repo → base directory `Frontend` → build `pnpm install && pnpm build` → publish `Frontend/dist` → set `VITE_API_URL` to backend URL.
+## Related Project Files
 
-**Backend (Render):** Web Service → root `Backend` → build `pip install -r requirements.txt` → start `uvicorn main:app --host 0.0.0.0 --port $PORT` → set env vars (`SECRET_KEY`, `DATABASE_URL`, `OPENAI_API_KEY`, `CORS_ORIGINS`, etc.).
+### Backend
 
----
+- `Backend/main.py` - FastAPI entry point
+- `Backend/routers/auth.py` - login/register/OTP/reset endpoints
+- `Backend/routers/reports.py` - report submit/list/respond endpoints
+- `Backend/services/ai_processor.py` - translation/AI structuring
+- `Backend/core/config.py` - environment/config loader
+- `Backend/core/email.py` - SMTP email sender (OTP/password reset)
+- `Backend/models/` - SQLAlchemy models
+- `Backend/schemas/` - Pydantic schemas
+- `Backend/tests/` - backend tests
 
-## Testing & Screenshots
+### Frontend
 
-Backend tests (pytest):
+- `Frontend/src/main.tsx` - React entry point
+- `Frontend/src/Components/ReportForm.tsx` - report submission form
+- `Frontend/src/Pages/Dashboard/user/` - user dashboard pages
+- `Frontend/src/Pages/Dashboard/admin/` - admin dashboard pages
+- `Frontend/src/contexts/AuthContext.tsx` - auth/session logic
+- `Frontend/src/api/client.ts` - API client
+- `Frontend/src/api/config.ts` - API base URL
+- `Frontend/src/i18n/content.ts` - language content
 
-```bash
-cd Backend && pytest tests/ -v
-```
+### Configuration and Documentation
 
-Manual testing: use the [API docs](http://localhost:8000/docs) (Swagger) for registration, login, and reports.
+- `Backend/.env.example` - backend env template
+- `Backend/README.md` - backend-specific setup and API notes
+- `Frontend/README.md` - frontend-specific setup notes
+- `README.md` - this main guide
 
-Screenshots and testing notes are in the repository (e.g. Tests, Register API, OTP, report creation, admin views, mobile responsiveness). The app is responsive and works on mobile viewports.
+## Helpful Commands
 
----
-
-## Project Structure
-
-| Purpose | Location |
-|---------|----------|
-| **Main docs** | This file (`README.md`) |
-| **Backend API** | `Backend/main.py`, `Backend/routers/` |
-| **Auth (email/password + OTP)** | `Backend/routers/auth.py` |
-| **Reports & AI** | `Backend/routers/reports.py`, `Backend/services/ai_processor.py` |
-| **Database models** | `Backend/models/` |
-| **Backend config** | `Backend/.env`, `Backend/.env.example` |
-| **Frontend app** | `Frontend/src/` |
-| **Pages (Login, Register, Dashboards)** | `Frontend/src/Pages/` |
-| **API client & auth context** | `Frontend/src/api/`, `Frontend/src/contexts/AuthContext.tsx` |
-| **Frontend config** | `Frontend/.env` |
-
-For more detail, see [Backend/README.md](Backend/README.md) and [Frontend/README.md](Frontend/README.md).
-
----
-
-## License
-
-MIT License
+- Backend tests: `cd Backend && pytest tests/ -v`
+- Frontend tests: `cd Frontend && pnpm test:run`
+- Frontend lint: `cd Frontend && pnpm lint`
