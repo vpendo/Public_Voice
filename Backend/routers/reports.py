@@ -7,6 +7,8 @@ from fastapi import APIRouter, Depends, HTTPException, status, Query
 from fastapi.responses import StreamingResponse
 from sqlalchemy import func
 from sqlalchemy.orm import Session
+from reportlab.lib.pagesizes import A4, landscape
+from reportlab.pdfgen import canvas
 
 from core.deps import get_current_user, get_current_admin, CurrentUser, CurrentAdmin
 from models.base import get_db
@@ -330,13 +332,13 @@ def get_pending_reports_count(
 def export_reports(
     db: Annotated[Session, Depends(get_db)],
     current_admin: CurrentAdmin,
-    format: str = Query("csv", description="Export format: csv"),
+    format: str = Query("csv", description="Export format: csv or pdf"),
     status_filter: Optional[str] = Query(None),
     category_filter: Optional[str] = Query(None),
     date_from: Optional[str] = Query(None),
     date_to: Optional[str] = Query(None),
 ):
-    """Export reports as CSV. Admin only. Same filters as list_reports."""
+    """Export reports as CSV or PDF. Admin only. Same filters as list_reports."""
     query = db.query(Report)
     if getattr(current_admin, "admin_category", None):
         query = query.filter(Report.category == current_admin.admin_category)
@@ -358,16 +360,16 @@ def export_reports(
         except ValueError:
             pass
     reports = query.order_by(Report.created_at.desc()).limit(5000).all()
-    if format != "csv":
-        raise HTTPException(status_code=400, detail="Only format=csv is supported")
-    buf = io.StringIO()
-    w = csv.writer(buf)
-    w.writerow([
+    export_format = (format or "csv").strip().lower()
+    if export_format not in {"csv", "pdf"}:
+        raise HTTPException(status_code=400, detail="Only format=csv or format=pdf is supported")
+
+    rows = [[
         "id", "tracking_id", "name", "phone", "category", "problem_type", "urgency",
         "status", "district", "sector", "cell", "village", "created_at", "institution",
-    ])
+    ]]
     for r in reports:
-        w.writerow([
+        rows.append([
             r.id,
             r.tracking_id or "",
             r.name or "",
@@ -383,11 +385,66 @@ def export_reports(
             r.created_at.isoformat() if r.created_at else "",
             r.institution or "",
         ])
-    buf.seek(0)
+
+    if export_format == "csv":
+        buf = io.StringIO()
+        w = csv.writer(buf)
+        for row in rows:
+            w.writerow(row)
+        buf.seek(0)
+        return StreamingResponse(
+            iter([buf.getvalue()]),
+            media_type="text/csv",
+            headers={"Content-Disposition": "attachment; filename=publicvoice_reports.csv"},
+        )
+
+    # PDF export
+    pdf_buf = io.BytesIO()
+    page_width, page_height = landscape(A4)
+    pdf = canvas.Canvas(pdf_buf, pagesize=landscape(A4))
+    left_margin = 24
+    right_margin = 24
+    top_margin = 28
+    bottom_margin = 24
+    y = page_height - top_margin
+    line_height = 12
+    col_width = (page_width - left_margin - right_margin) / len(rows[0])
+
+    pdf.setFont("Helvetica-Bold", 10)
+    pdf.drawString(left_margin, y, "PublicVoice Reports Export")
+    y -= 16
+    pdf.setFont("Helvetica", 8)
+    pdf.drawString(left_margin, y, f"Generated: {datetime.utcnow().isoformat()}Z")
+    y -= 18
+
+    def _draw_table_header(y_pos: float) -> float:
+        pdf.setFont("Helvetica-Bold", 6)
+        x = left_margin
+        for header in rows[0]:
+            pdf.drawString(x, y_pos, str(header)[:18])
+            x += col_width
+        return y_pos - line_height
+
+    y = _draw_table_header(y)
+    pdf.setFont("Helvetica", 6)
+    for row in rows[1:]:
+        if y <= bottom_margin:
+            pdf.showPage()
+            y = page_height - top_margin
+            y = _draw_table_header(y)
+            pdf.setFont("Helvetica", 6)
+        x = left_margin
+        for cell in row:
+            pdf.drawString(x, y, str(cell)[:18])
+            x += col_width
+        y -= line_height
+
+    pdf.save()
+    pdf_buf.seek(0)
     return StreamingResponse(
-        iter([buf.getvalue()]),
-        media_type="text/csv",
-        headers={"Content-Disposition": "attachment; filename=publicvoice_reports.csv"},
+        pdf_buf,
+        media_type="application/pdf",
+        headers={"Content-Disposition": "attachment; filename=publicvoice_reports.pdf"},
     )
 
 

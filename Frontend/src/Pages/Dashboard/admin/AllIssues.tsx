@@ -145,9 +145,9 @@ export function AllIssues() {
     return list;
   }, [reports, sortKey, sortDir]);
 
-  const handleExport = () => {
+  const handleExport = (format: 'csv' | 'pdf') => {
     const q = new URLSearchParams(params);
-    q.set('format', 'csv');
+    q.set('format', format);
     const url = apiUrl(`/api/reports/export?${q.toString()}`);
     const token = typeof localStorage !== 'undefined' ? localStorage.getItem('publicvoice_token') : null;
     const headers: RequestInit['headers'] = token ? { Authorization: `Bearer ${token}` } : {};
@@ -156,7 +156,7 @@ export function AllIssues() {
       .then((blob) => {
         const a = document.createElement('a');
         a.href = URL.createObjectURL(blob);
-        a.download = 'publicvoice_reports.csv';
+        a.download = format === 'pdf' ? 'publicvoice_reports.pdf' : 'publicvoice_reports.csv';
         a.click();
         URL.revokeObjectURL(a.href);
       })
@@ -193,13 +193,24 @@ export function AllIssues() {
                 {pendingCount} {t.admin.pendingCount}
               </span>
             )}
+            <span className="text-sm text-slate-500 font-medium">
+              {(t.admin as { exportReportsLabel?: string }).exportReportsLabel ?? 'Export (CSV/PDF)'}
+            </span>
             <button
               type="button"
-              onClick={handleExport}
+              onClick={() => handleExport('csv')}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50"
             >
               <Download size={16} />
               {(t.admin as { exportReports?: string }).exportReports ?? 'Export CSV'}
+            </button>
+            <button
+              type="button"
+              onClick={() => handleExport('pdf')}
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl border border-slate-200 bg-white text-slate-700 text-sm font-medium hover:bg-slate-50"
+            >
+              <Download size={16} />
+              {(t.admin as { exportReportsPdf?: string }).exportReportsPdf ?? 'Export PDF'}
             </button>
           </div>
         </div>
