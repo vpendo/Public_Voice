@@ -55,11 +55,6 @@ export type UrgencyKey = (typeof URGENCY_LEVELS)[number];
 
 export const RESPONSIBLE_INSTITUTIONS = [
   'cell_office',
-  'sector_office',
-  'district_authority',
-  'social_affairs_officer',
-  'land_bureau',
-  'other',
 ] as const;
 
 export function isReportCategory(value: string): value is ReportCategoryKey {

@@ -272,7 +272,7 @@ export const content: Record<Language, any> = {
         evidence: "Evidence (Optional)",
         evidenceHint: "Photo, video or voice recording helps validation.",
         institution: "Responsible Institution",
-        institutionHint: "Auto-suggested; you can change if needed.",
+        institutionHint: "Fixed to Cell Office.",
         consent: "Consent & Privacy",
       },
       form: {
@@ -325,13 +325,7 @@ export const content: Record<Language, any> = {
         button: "Submit Report",
       },
       institutions: {
-        select: "Select institution",
         cell_office: "Cell Office",
-        sector_office: "Sector Office",
-        district_authority: "District Authority",
-        social_affairs_officer: "Social Affairs Officer",
-        land_bureau: "Land Bureau",
-        other: "Other",
       },
       categories: {
         select: "Select a category",
@@ -932,7 +926,7 @@ export const content: Record<Language, any> = {
         evidence: "Icyemezo (Bihitamo)",
         evidenceHint: "Ifoto, video cyangwa ijwi bifasha abategetsi guha icyemezo.",
         institution: "Ikigo Giteganijwe",
-        institutionHint: "Sistemu ishyiraho; urashobora guhindura niba bikenewe.",
+        institutionHint: "Gihamye kuri Biro by'Akagari.",
         consent: "Icyemezo n'Ibanga",
       },
       form: {
@@ -985,13 +979,7 @@ export const content: Record<Language, any> = {
         button: "Ohereza Raporo",
       },
       institutions: {
-        select: "Hitamo ikigo",
         cell_office: "Biro by'Akagari",
-        sector_office: "Biro by'Umurenge",
-        district_authority: "Akarere",
-        social_affairs_officer: "Umunyamabanga w'Imibereho",
-        land_bureau: "Ikigo cy'Ibutaka",
-        other: "Ikindi",
       },
       categories: {
         select: "Hitamo icyiciro",

@@ -29,11 +29,6 @@ ALLOWED_PROBLEM_TYPES = {
 # —— Responsible institutions (Cell level) ——
 ALLOWED_INSTITUTIONS = {
     "cell_office",
-    "sector_office",
-    "district_authority",
-    "social_affairs_officer",
-    "land_bureau",
-    "other",
 }
 
 ALLOWED_URGENCY = {"low", "medium", "high", "emergency"}
