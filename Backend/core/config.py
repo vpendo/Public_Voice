@@ -74,13 +74,14 @@ class Settings:
 
         # ---------------- Email (Forgot-password / reset) ----------------
         self.FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
-        self.SMTP_HOST: str = os.getenv("SMTP_HOST", "").strip()
-        self.SMTP_PORT: int = int(os.getenv("SMTP_PORT", "587"))
-        self.SMTP_USER: str = os.getenv("SMTP_USER", "").strip()
+        # Support both legacy SMTP_* and EMAIL_* variable names.
+        self.SMTP_HOST: str = (os.getenv("SMTP_HOST") or os.getenv("EMAIL_SMTP_SERVER") or "").strip()
+        self.SMTP_PORT: int = int((os.getenv("SMTP_PORT") or os.getenv("EMAIL_SMTP_PORT") or "587"))
+        self.SMTP_USER: str = (os.getenv("SMTP_USER") or os.getenv("EMAIL_LOGIN") or "").strip()
         # Strip all spaces (Gmail app passwords are often pasted with spaces)
-        self.SMTP_PASSWORD: str = os.getenv("SMTP_PASSWORD", "").strip().replace(" ", "")
+        self.SMTP_PASSWORD: str = (os.getenv("SMTP_PASSWORD") or os.getenv("EMAIL_SENDER_PASSWORD") or "").strip().replace(" ", "")
         self.SMTP_FROM_EMAIL: str = os.getenv(
-            "SMTP_FROM_EMAIL", self.SMTP_USER or "noreply@publicvoice.rw"
+            "SMTP_FROM_EMAIL", (os.getenv("EMAIL_SENDER_EMAIL") or self.SMTP_USER or "noreply@publicvoice.rw")
         ).strip()
         self.SMTP_USE_TLS: bool = self._to_bool(os.getenv("SMTP_USE_TLS", "true"))
         # Comma-separated emails to notify when a new report is submitted (optional)
