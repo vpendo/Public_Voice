@@ -1,14 +1,14 @@
 """
 AI/NLP smart processing for citizen issue reports (cell-level).
-Uses OpenAI Chat Completions API for translation and structuring.
-Aligned with Report schema categories/institutions.
+Uses Claude API for translation and lightweight structuring.
 """
 
 import json
 import logging
+import os
+import re
 from typing import Any, Optional
-
-from core.config import settings
+import httpx
 
 logger = logging.getLogger(__name__)
 
@@ -66,74 +66,17 @@ RULES:
 """
 
 
-def process_issue_text(
-    raw_text: str,
-    category: Optional[str] = None,
-) -> Optional[dict[str, Any]]:
+def process_issue_text(raw_text: str, category: Optional[str] = None) -> Optional[dict[str, Any]]:
     """
-    Process raw citizen text via OpenAI.
+    Process raw citizen text via Claude.
     Returns structured dict for Report creation.
     """
-    key = (settings.OPENAI_API_KEY or "").strip()
+    key = (os.getenv("ANTHROPIC_API_KEY") or "").strip()
     if not key:
-        logger.warning("OPENAI_API_KEY is not set. Set OPENAI_API_KEY in .env to enable report translation/structuring.")
+        logger.warning("ANTHROPIC_API_KEY is not set. Set it in .env to enable translation.")
         return None
 
-    try:
-        logger.info("Calling OpenAI for report translation (description length=%s)", len(raw_text or ""))
-        return _call_openai(raw_text, category=category)
-    except Exception as e:
-        # 429 / quota: report will still be saved with raw description by the router
-        err_msg = str(e).lower()
-        if "429" in err_msg or "quota" in err_msg or "rate" in err_msg:
-            logger.warning("OpenAI quota/rate limit: %s. Report will be saved with raw description.", e)
-        else:
-            logger.exception("AI processing failed: %s", e)
-        return None
-
-
-def _call_openai(
-    raw_text: str,
-    category: Optional[str] = None,
-) -> Optional[dict[str, Any]]:
-    from openai import OpenAI
-    import os
-
-    # The OpenAI Python library uses httpx under the hood.  Certain versions of
-    # httpx will automatically read `HTTP_PROXY`/`HTTPS_PROXY` environment
-    # variables and pass a `proxies` argument to the client constructor.  Older
-    # httpx releases (and thus some versions bundled with openai) do **not**
-    # accept a `proxies` keyword, which leads to the TypeError shown in the
-    # logs.  We proactively clear any proxy env vars here so the client is
-    # created cleanly, and log when we do so for debugging.
-    for var in ("HTTP_PROXY", "HTTPS_PROXY", "http_proxy", "https_proxy"):
-        if os.environ.pop(var, None) is not None:
-            logger.info("Cleared environment proxy variable %s to avoid httpx issue", var)
-
-    # Construct keyword args for the OpenAI client. We avoid passing any
-    # proxy configuration since some httpx versions (bundled with older
-    # openai packages) do not support a `proxies` keyword and will raise the
-    # TypeError seen in the logs.  The easiest way to sidestep this is to build
-    # our own httpx client with `trust_env=False`, which stops httpx from
-    # reading proxy settings from the environment, and supply that client
-    # explicitly.  This also protects us in case the OpenAI library itself
-    # tries to inject a proxies kwarg internally.
-    client_kwargs: dict[str, Any] = {
-        "api_key": settings.OPENAI_API_KEY,
-        "timeout": 30.0,
-    }
-    if getattr(settings, "OPENAI_API_BASE", None) and str(settings.OPENAI_API_BASE).strip():
-        client_kwargs["base_url"] = settings.OPENAI_API_BASE.strip()
-
-    # create an httpx client we control; trust_env=False prevents it from
-    # picking up any proxy settings (so no `proxies` kwarg will ever be passed).
-    from httpx import Client as HttpxClient
-    httpx_client = HttpxClient(timeout=30.0, trust_env=False)
-    client_kwargs["http_client"] = httpx_client
-
-    client = OpenAI(**client_kwargs)
-
-    model = settings.OPENAI_MODEL or "gpt-4o-mini"
+    model = (os.getenv("CLAUDE_MODEL") or "claude-sonnet-4-5").strip()
 
     user_content = f"""
 Translate and restructure the following citizen issue into a formal, professional English summary. If the text is in Kinyarwanda, translate it to English. If it is in informal English, rewrite it in a formal, descriptive way. Then return ONLY the JSON object with structured_description (the formal summary) and the other suggested fields.
@@ -145,39 +88,97 @@ Citizen's text:
 ---
 """
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {"role": "system", "content": SYSTEM_PROMPT},
-            {"role": "user", "content": user_content},
-        ],
-        temperature=0.2,
-        max_tokens=1000,
-        response_format={"type": "json_object"},
-    )
-
-    if not response.choices:
-        logger.warning("AI returned no choices")
-        return None
-
-    content = response.choices[0].message.content
-    if not content:
-        logger.warning("AI returned empty content")
-        return None
+    headers = {
+        "x-api-key": key,
+        "anthropic-version": "2023-06-01",
+        "content-type": "application/json",
+    }
+    body = {
+        "model": model,
+        "max_tokens": 1000,
+        "temperature": 0.2,
+        "system": SYSTEM_PROMPT,
+        "messages": [{"role": "user", "content": user_content}],
+    }
 
     try:
-        data = json.loads(content)
-    except json.JSONDecodeError:
-        logger.warning("AI response not valid JSON")
+        with httpx.Client(timeout=30.0) as client:
+            response = client.post(
+                "https://api.anthropic.com/v1/messages",
+                headers=headers,
+                json=body,
+            )
+            response.raise_for_status()
+            payload = response.json()
+    except httpx.HTTPStatusError as e:
+        logger.warning("Claude HTTP error: %s", e.response.text if e.response is not None else str(e))
+        return None
+    except Exception as e:
+        logger.exception("Claude call failed: %s", e)
         return None
 
-    if not isinstance(data, dict):
-        logger.warning("AI response JSON not an object")
+    content = ""
+    for block in payload.get("content", []):
+        if isinstance(block, dict) and block.get("type") == "text":
+            content = (block.get("text") or "").strip()
+            if content:
+                break
+    if not content:
+        logger.warning("Claude returned empty content")
         return None
 
-    logger.info("Raw AI response: %s", data)
+    data = _parse_json_content(content)
+    if data is None:
+        logger.warning("Claude response not valid JSON; using plain-text translation fallback.")
+        data = {
+            "structured_description": content[:10000],
+            "suggested_title": _make_title_from_text(content),
+        }
+
+    logger.info("Raw Claude response: %s", data)
 
     return _validate_and_normalize(data, category)
+
+
+def _parse_json_content(content: str) -> Optional[dict[str, Any]]:
+    text = (content or "").strip()
+    if not text:
+        return None
+
+    # direct JSON
+    try:
+        obj = json.loads(text)
+        return obj if isinstance(obj, dict) else None
+    except json.JSONDecodeError:
+        pass
+
+    # fenced JSON
+    fenced = re.search(r"```(?:json)?\s*(\{[\s\S]*?\})\s*```", text, flags=re.IGNORECASE)
+    if fenced:
+        try:
+            obj = json.loads(fenced.group(1))
+            return obj if isinstance(obj, dict) else None
+        except json.JSONDecodeError:
+            pass
+
+    # first JSON object within text
+    start = text.find("{")
+    end = text.rfind("}")
+    if start != -1 and end != -1 and end > start:
+        try:
+            obj = json.loads(text[start : end + 1])
+            return obj if isinstance(obj, dict) else None
+        except json.JSONDecodeError:
+            return None
+
+    return None
+
+
+def _make_title_from_text(text: str) -> str:
+    words = [w for w in re.split(r"\s+", (text or "").strip()) if w]
+    if not words:
+        return "Community issue report"
+    return " ".join(words[:10])[:255]
 
 
 def _validate_and_normalize(
