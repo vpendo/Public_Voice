@@ -12,9 +12,13 @@ export default function Login() {
   const { login, loginVerifyOtp, refreshUser } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
+  const locationState = location.state as { message?: string; from?: { pathname: string } } | null;
+  const hasExpiredSession = new URLSearchParams(location.search).get('session') === 'expired';
   const [formData, setFormData] = useState({ email: '', password: '' });
-  const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(() =>
+    hasExpiredSession ? 'Your session expired. Please log in again.' : null
+  );
+  const [success, setSuccess] = useState<string | null>(() => locationState?.message ?? null);
   const [loading, setLoading] = useState(false);
   const [showOtpStep, setShowOtpStep] = useState(false);
   const [otpEmail, setOtpEmail] = useState('');
@@ -25,19 +29,13 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    if (location.state?.message) {
-      setSuccess(location.state.message);
+    if (locationState?.message) {
       window.history.replaceState({}, document.title);
     }
-  }, [location.state]);
-
-  useEffect(() => {
-    const params = new URLSearchParams(location.search);
-    if (params.get('session') === 'expired') {
-      setError('Your session expired. Please log in again.');
+    if (hasExpiredSession) {
       window.history.replaceState({}, document.title, '/login');
     }
-  }, [location.search]);
+  }, [locationState?.message, hasExpiredSession]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -65,8 +63,10 @@ export default function Login() {
     if (result.user && !result.requires_otp) {
       try {
         await refreshUser();
-      } catch (_) {}
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+      } catch {
+        // Ignore refresh failure; fallback to login result below.
+      }
+      const from = locationState?.from?.pathname;
       const isAdmin = (result.user?.role ?? '').toLowerCase() === 'admin' || (result.user?.role ?? '').toLowerCase() === 'superadmin';
       const targetPath = from && (from.startsWith('/admin') || from.startsWith('/user')) ? from : isAdmin ? '/admin/dashboard' : '/user/dashboard';
       if (isAdmin) sessionStorage.setItem('publicvoice_redirect_to_admin', '1');
@@ -100,7 +100,7 @@ export default function Login() {
     }
     const me = await refreshUser();
     const user = me ?? result.user;
-    const from = (location.state as { from?: { pathname: string } })?.from?.pathname;
+    const from = locationState?.from?.pathname;
     const roleLower = (user?.role ?? '').trim().toLowerCase();
     const isAdmin = result.is_admin === true || roleLower === 'admin' || roleLower === 'superadmin';
     const targetPath =

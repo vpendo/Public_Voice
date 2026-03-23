@@ -33,14 +33,9 @@ import { Respond } from '../Pages/Dashboard/admin/Respond';
 import { Users } from '../Pages/Dashboard/admin/Users';
 
 function DashboardRedirect() {
-  try {
-    const { isAdmin, isLoadingUser } = useAuth();
-    if (isLoadingUser) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-slate-500">Loading...</p></div>;
-    return <Navigate to={isAdmin ? '/admin/dashboard' : '/user/dashboard'} replace />;
-  } catch (error) {
-    // Fallback if AuthProvider is not available
-    return <Navigate to="/login" replace />;
-  }
+  const { isAdmin, isLoadingUser } = useAuth();
+  if (isLoadingUser) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-slate-500">Loading...</p></div>;
+  return <Navigate to={isAdmin ? '/admin/dashboard' : '/user/dashboard'} replace />;
 }
 
 function AppLayout({ children, lang, setLang }: { children: React.ReactNode; lang: Language; setLang: (lang: Language) => void }) {

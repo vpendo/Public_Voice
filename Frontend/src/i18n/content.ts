@@ -1,6 +1,6 @@
 export type Language = 'English' | 'Kinyarwanda';
 
-// Use Record<Language, any> to tell TS that 'English' and 'Kinyarwanda' are valid keys
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const content: Record<Language, any> = {
   English: {
     nav: { 

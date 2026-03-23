@@ -128,24 +128,6 @@ export default function VerifyEmail() {
             <h1 className="text-xl font-bold text-slate-900 mt-6 mb-2">Verify Email</h1>
             <p className="text-slate-500 text-sm mb-6">Enter the verification code sent to your email. Check your inbox (and spam folder).</p>
 
-            {false && (
-              <div className="mb-4 p-4 rounded-xl text-sm bg-amber-50 border-2 border-amber-300 text-amber-900 hidden">
-                <div className="flex items-start gap-2">
-                  <Mail className="w-5 h-5 text-amber-600 mt-0.5 flex-shrink-0" />
-                  <div className="flex-1">
-                    <p className="font-semibold mb-1">Development / fallback – OTP Code:</p>
-                    <p className="text-base">
-                      <span className="font-medium">If you didn’t get the email, you can use:</span>{' '}
-                      <strong className="font-mono text-2xl tracking-widest text-amber-900 bg-amber-100 px-3 py-1 rounded inline-block">
-                        {' (code only in email)'}
-                      </strong>
-                    </p>
-                    <p className="text-xs mt-2 text-amber-700">Otherwise, use the code from your email.</p>
-                  </div>
-                </div>
-              </div>
-            )}
-
             {displayOtp ? (
               <div className="mb-4 p-4 rounded-xl text-sm bg-amber-50 border-2 border-amber-300 text-amber-900">
                 <p className="font-semibold mb-1">Email could not be sent — use this code:</p>

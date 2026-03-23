@@ -15,11 +15,6 @@ ALLOWED_CATEGORIES = (
 )
 ALLOWED_INSTITUTIONS = (
     "cell_office",
-    "sector_office",
-    "district_authority",
-    "social_affairs_officer",
-    "land_bureau",
-    "other",
 )
 
 
@@ -29,7 +24,7 @@ def _report_payload(**overrides) -> dict:
         "phone": "+250788123456",
         "district": "Gasabo",
         "sector": "Remera",
-        "institution": "district_authority",
+        "institution": "cell_office",
         "category": "infrastructure_utilities",
         "description": "Potholes on the main road near the market.",
         "consent": True,
@@ -58,7 +53,7 @@ def test_create_report_different_data(client: TestClient, auth_headers: dict) ->
         "/api/reports",
         json=_report_payload(
             category="infrastructure_utilities",
-            institution="sector_office",
+            institution="cell_office",
             district="Musanze",
             sector="Nyabihu",
             description="No water supply in the village for two weeks.",
@@ -68,7 +63,7 @@ def test_create_report_different_data(client: TestClient, auth_headers: dict) ->
     assert r.status_code == 201
     data = r.json()
     assert data["category"] == "infrastructure_utilities"
-    assert data["institution"] == "sector_office"
+    assert data["institution"] == "cell_office"
     assert data.get("district") == "Musanze"
     assert data.get("sector") == "Nyabihu"
 

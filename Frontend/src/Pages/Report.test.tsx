@@ -57,6 +57,26 @@ vi.mock('../contexts/AuthContext', () => ({
   useAuth: () => ({ user: null }),
 }));
 
+vi.mock('../Components/ReportForm', () => ({
+  ReportForm: () => (
+    <form>
+      <label htmlFor="full-name">Full Name</label>
+      <input id="full-name" />
+      <label htmlFor="phone">Phone</label>
+      <input id="phone" />
+      <label htmlFor="location">Location</label>
+      <input id="location" />
+      <label htmlFor="institution">Institution</label>
+      <select id="institution" />
+      <label htmlFor="category">Category</label>
+      <select id="category" />
+      <label htmlFor="description">Description</label>
+      <textarea id="description" />
+      <button type="submit">Submit Report</button>
+    </form>
+  ),
+}));
+
 describe('Report page', () => {
   it('renders report form with required fields', () => {
     render(<Report />);

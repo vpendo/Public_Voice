@@ -26,6 +26,26 @@ interface CreateAdminForm {
   scope_cell: string;
 }
 
+interface ApiErrorPayload {
+  detail?: string;
+}
+
+type ApiError = {
+  response?: {
+    data?: ApiErrorPayload;
+  };
+};
+
+interface CreateAdminPayload {
+  full_name: string;
+  email: string;
+  password: string;
+  admin_scope_level: 'all' | 'district' | 'sector' | 'cell';
+  scope_district?: string;
+  scope_sector?: string;
+  scope_cell?: string;
+}
+
 export function Users() {
   const { t } = useLanguage();
   const { user: currentUser } = useAuth();
@@ -89,8 +109,9 @@ export function Users() {
     try {
       await apiClient.delete(`/api/users/admin/${userId}`);
       setUsers(users.filter((u) => u.id !== userId));
-    } catch (err: any) {
-      alert(err.response?.data?.detail || 'Failed to delete admin');
+    } catch (err: unknown) {
+      const apiError = err as ApiError;
+      alert(apiError.response?.data?.detail || 'Failed to delete admin');
     } finally {
       setDeletingId(null);
     }
@@ -112,7 +133,7 @@ export function Users() {
 
     setCreateLoading(true);
     try {
-      const payload: any = {
+      const payload: CreateAdminPayload = {
         full_name: formData.full_name,
         email: formData.email,
         password: formData.password,
@@ -138,8 +159,9 @@ export function Users() {
         scope_sector: '',
         scope_cell: '',
       });
-    } catch (err: any) {
-      setCreateError(err.response?.data?.detail || 'Failed to create admin');
+    } catch (err: unknown) {
+      const apiError = err as ApiError;
+      setCreateError(apiError.response?.data?.detail || 'Failed to create admin');
     } finally {
       setCreateLoading(false);
     }

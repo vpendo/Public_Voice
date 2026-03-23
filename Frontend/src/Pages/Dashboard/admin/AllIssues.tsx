@@ -117,7 +117,7 @@ export function AllIssues() {
     }
     fetchReports();
     return () => { cancelled = true; };
-  }, [categoryFilter, statusFilter, urgencyFilter, dateFrom, dateTo, searchQ]);
+  }, [params]);
 
   const statusLabels = {
     pending: t.admin.statusPending,
@@ -160,7 +160,9 @@ export function AllIssues() {
         a.click();
         URL.revokeObjectURL(a.href);
       })
-      .catch(() => {});
+      .catch(() => {
+        setError('Could not export reports.');
+      });
   };
 
   const toggleSort = (key: 'date' | 'status' | 'urgency') => {

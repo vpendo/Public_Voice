@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect, type FormEvent, type ChangeEvent } from 'react';
+import { useState, useRef, type FormEvent, type ChangeEvent } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { assetUrl } from '../../../api/config';
@@ -15,10 +15,6 @@ export function Profile() {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-
-  useEffect(() => {
-    setFullName(user?.full_name ?? '');
-  }, [user?.full_name]);
 
   const handleChangePassword = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();

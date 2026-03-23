@@ -81,7 +81,7 @@ export function AdminDashboard() {
     let cancelled = false;
     async function fetchData() {
       try {
-        const params: Record<string, any> = { limit: 10 };
+        const params: Record<string, string | number> = { limit: 10 };
         if (timePeriod === 'today') {
           const today = new Date().toISOString().split('T')[0];
           params.date_from = today;

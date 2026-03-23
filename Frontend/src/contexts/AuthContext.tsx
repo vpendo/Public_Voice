@@ -1,3 +1,4 @@
+/* eslint-disable react-refresh/only-export-components */
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { isAxiosError } from 'axios';
 import { apiClient } from '../api/client';
@@ -109,7 +110,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     try {
       if (t) localStorage.setItem(TOKEN_KEY, t);
       else localStorage.removeItem(TOKEN_KEY);
-    } catch {}
+    } catch {
+      // Ignore localStorage write errors (private mode, disabled storage).
+    }
   }, []);
 
   const fetchUser = useCallback(async (): Promise<UserInfo | null> => {
