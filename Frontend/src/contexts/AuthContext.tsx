@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+/** Global auth: JWT in localStorage, login/OTP/logout, user from /me */
 import { createContext, useContext, useState, useCallback, useEffect, type ReactNode } from 'react';
 import { isAxiosError } from 'axios';
 import { apiClient } from '../api/client';

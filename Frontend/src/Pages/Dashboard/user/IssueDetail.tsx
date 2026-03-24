@@ -1,3 +1,4 @@
+/** Single report view + edit/delete actions */
 import { useEffect, useState } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';

@@ -1,3 +1,4 @@
+/** Landing: hero, how-it-works, CTAs */
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '../contexts/LanguageContext';

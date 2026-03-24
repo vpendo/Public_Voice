@@ -1,3 +1,4 @@
+/** Wrapper page: renders ReportForm inside dashboard chrome */
 import { useNavigate } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';
 import { FileText } from 'lucide-react';

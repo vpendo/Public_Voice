@@ -1,3 +1,4 @@
+/** Dashboard nav: fixed on desktop, drawer + backdrop on small screens */
 import { Link, useLocation } from 'react-router-dom';
 import type { LucideIcon } from 'lucide-react';
 import { LogOut, X } from 'lucide-react';

@@ -1,3 +1,4 @@
+/** All routes, providers, and when to show public navbar/footer */
 import { BrowserRouter as Router, Routes, Route, useLocation, Navigate } from 'react-router-dom';
 import { useState } from 'react';
 import { useAuth } from '../contexts/AuthContext';
@@ -32,12 +33,14 @@ import { RespondList } from '../Pages/Dashboard/admin/RespondList';
 import { Respond } from '../Pages/Dashboard/admin/Respond';
 import { Users } from '../Pages/Dashboard/admin/Users';
 
+/** Old shortcut: `/dashboard` → correct area by role */
 function DashboardRedirect() {
   const { isAdmin, isLoadingUser } = useAuth();
   if (isLoadingUser) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><p className="text-slate-500">Loading...</p></div>;
   return <Navigate to={isAdmin ? '/admin/dashboard' : '/user/dashboard'} replace />;
 }
 
+/** Public pages: navbar + footer. Auth & dashboards use their own layout. */
 function AppLayout({ children, lang, setLang }: { children: React.ReactNode; lang: Language; setLang: (lang: Language) => void }) {
   const location = useLocation();
   const path = location.pathname;
@@ -78,10 +81,12 @@ export function AppRoute() {
         <AuthProvider>
           <AppLayout lang={lang} setLang={setLang}>
             <Routes>
+              {/* Marketing */}
               <Route path="/" element={<Home />} />
               <Route path="/about" element={<About />} />
               <Route path="/contact" element={<Contact />} />
               <Route path="/services" element={<Services />} />
+              {/* Auth (no site chrome) */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/verify-email" element={<VerifyEmail />} />

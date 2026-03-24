@@ -22,7 +22,7 @@ from fastapi.responses import JSONResponse
 
 from core.config import settings
 from models.base import init_db
-from routers import auth, reports, users, upload
+from routers import auth, contact, reports, users, upload
 
 
 @asynccontextmanager
@@ -35,6 +35,7 @@ async def lifespan(app: FastAPI):
     else:
         logger.info("AI/NLP disabled. Set ANTHROPIC_API_KEY in Backend/.env to enable report translation/structuring.")
     if settings.email_configured:
+        logger.info("Contact form inbox: %s", settings.CONTACT_INBOX_EMAIL)
         logger.info("SMTP configured: OTP and password-reset emails will be sent to users.")
         logger.info("SMTP login as: %s (app password length: %d; use 16-char Gmail App Password if 535)", settings.SMTP_USER, len(settings.SMTP_PASSWORD))
     else:
@@ -120,6 +121,7 @@ async def global_exception_handler(request: Request, exc: Exception):
 
 
 app.include_router(auth.router)
+app.include_router(contact.router)
 app.include_router(reports.router)
 app.include_router(users.router)
 app.include_router(upload.router)

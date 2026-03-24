@@ -1,3 +1,4 @@
+/** Profile + avatar upload */
 import { useState, useRef, type FormEvent, type ChangeEvent } from 'react';
 import { useAuth } from '../../../contexts/AuthContext';
 import { useLanguage } from '../../../contexts/LanguageContext';

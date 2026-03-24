@@ -2,6 +2,7 @@
 Send emails (e.g. password reset link) via SMTP.
 Uses Python standard library only; no extra dependencies.
 """
+import html
 import logging
 import smtplib
 from email.mime.multipart import MIMEMultipart
@@ -92,3 +93,38 @@ def send_otp_email(to_email: str, code: str, purpose: str = "register") -> None:
         server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
         server.sendmail(settings.SMTP_FROM_EMAIL, [to_email], msg.as_string())
     logger.info("OTP email sent successfully to %s", to_email)
+
+
+def send_contact_form_email(*, sender_name: str, sender_email: str, message: str) -> None:
+    """Forward website contact form to CONTACT_INBOX_EMAIL; Reply-To = visitor email."""
+    to_addr = settings.CONTACT_INBOX_EMAIL
+    if not to_addr:
+        raise ValueError("CONTACT_INBOX_EMAIL is not set")
+    app_name = settings.APP_NAME
+    subject = f"{app_name} – Website message from {sender_name[:80]}"
+    safe_name = html.escape(sender_name)
+    safe_email = html.escape(sender_email)
+    safe_msg = html.escape(message)
+    html_body = f"""
+    <p><strong>From:</strong> {safe_name}</p>
+    <p><strong>Email:</strong> {safe_email}</p>
+    <p><strong>Message:</strong></p>
+    <pre style="white-space:pre-wrap;font-family:sans-serif;">{safe_msg}</pre>
+    <p>— Sent via {app_name} contact form</p>
+    """
+    text_body = f"From: {sender_name}\nEmail: {sender_email}\n\n{message}\n\n— {app_name} contact form"
+    msg = MIMEMultipart("alternative")
+    msg["Subject"] = subject
+    msg["From"] = settings.SMTP_FROM_EMAIL
+    msg["To"] = to_addr
+    msg["Reply-To"] = sender_email
+    msg.attach(MIMEText(text_body.strip(), "plain", "utf-8"))
+    msg.attach(MIMEText(html_body.strip(), "html", "utf-8"))
+    use_tls = settings.SMTP_USE_TLS
+    port = settings.SMTP_PORT
+    with smtplib.SMTP(settings.SMTP_HOST, port) as server:
+        if use_tls:
+            server.starttls()
+        server.login(settings.SMTP_USER, settings.SMTP_PASSWORD)
+        server.sendmail(settings.SMTP_FROM_EMAIL, [to_addr], msg.as_string())
+    logger.info("Contact form email sent to inbox %s (from %s)", to_addr, sender_email)

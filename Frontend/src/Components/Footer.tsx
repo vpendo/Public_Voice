@@ -1,3 +1,4 @@
+/** Site footer: links, contact blurb, social icons */
 import { Link } from 'react-router-dom';
 import { Mail, MapPin, Facebook, Twitter, Linkedin } from 'lucide-react';
 import type { Language } from '../i18n/content';

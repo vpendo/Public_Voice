@@ -1,3 +1,4 @@
+/** Forgot-password flow + legacy token reset URL */
 import { useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Lock, Eye, EyeOff, ArrowRight, ArrowLeft, Mail, ShieldCheck } from 'lucide-react';

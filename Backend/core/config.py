@@ -86,6 +86,10 @@ class Settings:
         self.SMTP_USE_TLS: bool = self._to_bool(os.getenv("SMTP_USE_TLS", "true"))
         # Comma-separated emails to notify when a new report is submitted (optional)
         self.ADMIN_NOTIFY_EMAILS: str = os.getenv("ADMIN_NOTIFY_EMAILS", "").strip()
+        # Inbox for public website contact form (override via .env if needed)
+        self.CONTACT_INBOX_EMAIL: str = os.getenv(
+            "CONTACT_INBOX_EMAIL", "publicvoicerwanda@gmail.com"
+        ).strip()
 
     @property
     def email_configured(self) -> bool:

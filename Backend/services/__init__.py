@@ -1,1 +1,1 @@
-# Services layer: AI/NLP, external APIs, etc.
+"""Business helpers: AI report text, SMTP-side notifications."""

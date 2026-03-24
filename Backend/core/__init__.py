@@ -1,1 +1,1 @@
-# Core module: config, security, dependencies
+"""Shared infra: settings, JWT/password, DB deps, email."""

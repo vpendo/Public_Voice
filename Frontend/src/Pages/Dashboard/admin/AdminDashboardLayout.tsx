@@ -1,3 +1,4 @@
+/** Admin shell: sidebar, scope line in header, outlet */
 import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Sidebar } from '../../../Components/Sidebar';

@@ -1,3 +1,4 @@
+/** EN/RW toggle using LanguageContext (used in dashboard headers) */
 import { useState } from 'react';
 import { Globe, ChevronDown } from 'lucide-react';
 import { useLanguage } from '../contexts/LanguageContext';

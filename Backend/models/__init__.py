@@ -1,3 +1,4 @@
+"""ORM models exported for Alembic/metadata and routers."""
 from models.base import Base, get_db, init_db
 from models.user import User
 from models.report import Report

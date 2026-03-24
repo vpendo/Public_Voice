@@ -1,3 +1,4 @@
+/** Site header: links, lang, auth; mobile hamburger menu */
 import { Globe, ChevronDown, UserPlus, LogIn, Menu, X, LayoutDashboard } from 'lucide-react';
 import { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';

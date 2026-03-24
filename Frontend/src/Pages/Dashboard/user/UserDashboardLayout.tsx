@@ -1,3 +1,4 @@
+/** Citizen shell: sidebar drawer + outlet for /user/* */
 import { useState } from 'react';
 import { Outlet, useNavigate } from 'react-router-dom';
 import { Sidebar } from '../../../Components/Sidebar';

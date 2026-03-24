@@ -1,7 +1,12 @@
+/** Contact form → POST /api/contact; team reads messages at publicvoicerwanda@gmail.com */
 import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Mail, MapPin, Send, ArrowRight } from 'lucide-react';
+import { isAxiosError } from 'axios';
 import { useLanguage } from '../contexts/LanguageContext';
+import { apiClient } from '../api/client';
+
+const TEAM_INBOX = 'publicvoicerwanda@gmail.com';
 
 const IMG = {
   hero: '/Image/home4.jpg',
@@ -15,11 +20,31 @@ export default function Contact() {
     email: '',
     message: '',
   });
+  const [sending, setSending] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [sent, setSent] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    alert(t.contact.successMessage);
-    setFormData({ name: '', email: '', message: '' });
+    setError(null);
+    setSending(true);
+    try {
+      await apiClient.post('/api/contact', {
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim(),
+      });
+      setSent(true);
+      setFormData({ name: '', email: '', message: '' });
+    } catch (err) {
+      const msg =
+        isAxiosError(err) && typeof err.response?.data?.detail === 'string'
+          ? err.response.data.detail
+          : t.contact.formError;
+      setError(msg);
+    } finally {
+      setSending(false);
+    }
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -27,6 +52,12 @@ export default function Contact() {
       ...formData,
       [e.target.name]: e.target.value,
     });
+  };
+
+  const c = t.contact as typeof t.contact & {
+    formSending?: string;
+    formError?: string;
+    info?: { inboxLine?: string };
   };
 
   return (
@@ -66,6 +97,16 @@ export default function Contact() {
               <h2 className="text-2xl font-bold mb-8 text-slate-900">
                 {t.contact.form.title}
               </h2>
+              {sent && (
+                <div className="mb-6 p-4 rounded-xl bg-emerald-50 border border-emerald-200 text-emerald-800 text-sm">
+                  {t.contact.successMessage}
+                </div>
+              )}
+              {error && (
+                <div className="mb-6 p-4 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+                  {error}
+                </div>
+              )}
               <form onSubmit={handleSubmit} className="space-y-6">
                 <div>
                   <label htmlFor="name" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -78,7 +119,8 @@ export default function Contact() {
                     value={formData.name}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors"
+                    disabled={sending}
+                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors disabled:opacity-60"
                     placeholder={t.contact.form.namePlaceholder}
                   />
                 </div>
@@ -93,7 +135,8 @@ export default function Contact() {
                     value={formData.email}
                     onChange={handleChange}
                     required
-                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors"
+                    disabled={sending}
+                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors disabled:opacity-60"
                     placeholder={t.contact.form.emailPlaceholder}
                   />
                 </div>
@@ -107,17 +150,20 @@ export default function Contact() {
                     value={formData.message}
                     onChange={handleChange}
                     required
+                    disabled={sending}
                     rows={5}
-                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors resize-none"
+                    minLength={3}
+                    className="w-full px-4 py-3.5 border border-slate-200 rounded-xl bg-slate-50/50 focus:outline-none focus:ring-2 focus:ring-[var(--color-primary)]/30 focus:border-[var(--color-primary)] transition-colors resize-none disabled:opacity-60"
                     placeholder={t.contact.form.messagePlaceholder}
                   />
                 </div>
                 <button
                   type="submit"
-                  className="w-full px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 shadow-lg"
+                  disabled={sending}
+                  className="w-full px-8 py-4 bg-[var(--color-primary)] text-white font-semibold rounded-xl transition-all duration-300 flex items-center justify-center gap-2 hover:opacity-95 shadow-lg disabled:opacity-60"
                 >
                   <Send size={20} />
-                  {t.contact.form.button}
+                  {sending ? (c.formSending ?? 'Sending…') : t.contact.form.button}
                 </button>
               </form>
             </div>
@@ -135,19 +181,13 @@ export default function Contact() {
                     </div>
                     <div>
                       <h3 className="text-lg font-semibold mb-1 text-slate-900">
-                        {t.contact.info.email}
+                        {c.info?.inboxLine ?? t.contact.info.email}
                       </h3>
                       <a
-                        href="mailto:contact@publicvoice.org"
-                        className="text-slate-600 hover:text-[var(--color-primary)] transition-colors block"
+                        href={`mailto:${TEAM_INBOX}`}
+                        className="text-[var(--color-primary)] font-medium hover:underline break-all"
                       >
-                        contact@publicvoice.org
-                      </a>
-                      <a
-                        href="mailto:support@publicvoice.org"
-                        className="text-slate-600 hover:text-[var(--color-primary)] transition-colors block"
-                      >
-                        support@publicvoice.org
+                        {TEAM_INBOX}
                       </a>
                     </div>
                   </div>

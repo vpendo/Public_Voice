@@ -1,3 +1,4 @@
+/** Simple stat card (title, value, optional icon) for dashboards */
 import { type ReactNode } from 'react';
 
 interface CardProps {

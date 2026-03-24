@@ -1,3 +1,4 @@
+/** Admin: list citizens / create scoped admins */
 import { useEffect, useState, type FormEvent } from 'react';
 import { apiClient } from '../../../api/client';
 import { useLanguage } from '../../../contexts/LanguageContext';

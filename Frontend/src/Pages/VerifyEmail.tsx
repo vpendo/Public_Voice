@@ -1,3 +1,4 @@
+/** Post-register or login: enter 6-digit email OTP */
 import { useState } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Mail, ArrowRight, ArrowLeft, Home } from 'lucide-react';

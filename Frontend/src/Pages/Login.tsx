@@ -1,3 +1,4 @@
+/** Email + password + OTP step; redirects to user or admin dashboard */
 import { useState, useEffect } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, Megaphone, Mail, Lock, Eye, EyeOff } from 'lucide-react';

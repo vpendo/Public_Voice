@@ -1,3 +1,4 @@
+/** Logged-in report page: wraps ReportForm or shows tracking ID after submit */
 import { useState } from 'react';
 import { useLanguage } from '../contexts/LanguageContext';
 import { CheckCircle2, FileText, MapPin } from 'lucide-react';

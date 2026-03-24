@@ -1,3 +1,4 @@
+/** Admin: inbox-style list of reports to respond to */
 import { useEffect, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { apiClient } from '../../../api/client';

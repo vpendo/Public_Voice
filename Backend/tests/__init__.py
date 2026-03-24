@@ -1,1 +1,1 @@
-# Backend tests for PublicVoice API (run locally with pytest).
+"""API tests; run from Backend: pytest tests/ -v"""

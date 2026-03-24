@@ -1,3 +1,4 @@
+/** All UI strings (English + Kinyarwanda). Large file — navigate by key path. */
 export type Language = 'English' | 'Kinyarwanda';
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -146,9 +147,12 @@ export const content: Record<Language, any> = {
         title: "Contact Information",
         email: "Email",
         location: "Location",
-        locationText: "Serving communities in Rwanda"
+        locationText: "Serving communities in Rwanda",
+        inboxLine: "Team inbox (we read every message)",
       },
-      successMessage: "Thank you for your message! We will get back to you soon. "
+      successMessage: "Thank you! Your message was sent. Our team will reply soon.",
+      formSending: "Sending…",
+      formError: "Could not send. Try again or email us directly.",
     },
     login: {
       welcomeBack: "Welcome Back.",
@@ -802,9 +806,12 @@ export const content: Record<Language, any> = {
         title: "Amakuru yo Kuvugana",
         email: "Imeyili",
         location: "Ahantu",
-        locationText: "Gufasha imiryango mu Rwanda"
+        locationText: "Gufasha imiryango mu Rwanda",
+        inboxLine: "Imeyili y'itsinda (dusoma ubutumwa bwose)",
       },
-      successMessage: "Murakoze ku butumwa bwawe! Tuzasubiza vuba. (Icyitonderwa: Gukomeza guhuza na backend bizakorwa mu mihindagurikire y'igihe kizaza.)"
+      successMessage: "Murakoze! Ubutumwa bwoherejwe. Tuzasubiza vuba.",
+      formSending: "Kohereza…",
+      formError: "Ntibyashobotse kohereza. Ongera ugerageze cyangwa wandikire mu imeyili.",
     },
     login: {
       welcomeBack: "Murakaze neza.",

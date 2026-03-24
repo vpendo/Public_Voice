@@ -1,3 +1,4 @@
+"""Report API: submit (AI), list/export, admin updates — scoped by category & geography."""
 import logging
 from collections import defaultdict
 from datetime import datetime, timedelta

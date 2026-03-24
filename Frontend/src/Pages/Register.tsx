@@ -1,3 +1,4 @@
+/** Citizen self-signup (admins are created via backend script) */
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { ArrowRight, ArrowLeft, User, Megaphone, Home, Mail, Lock, Eye, EyeOff } from 'lucide-react';

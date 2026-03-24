@@ -1,3 +1,4 @@
+/** Admin: open one report, set status/response/notes */
 import { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { apiClient } from '../../../api/client';

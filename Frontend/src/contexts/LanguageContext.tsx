@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+/** i18n: exposes `t` from content.ts for current EN/RW language */
 import { createContext, useContext, type ReactNode } from 'react';
 import type { Language } from '../i18n/content';
 import { content } from '../i18n/content';

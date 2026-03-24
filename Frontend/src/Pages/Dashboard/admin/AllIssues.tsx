@@ -1,3 +1,4 @@
+/** Full report list, filters, CSV/PDF export */
 import { useEffect, useState, useMemo } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { apiClient } from '../../../api/client';

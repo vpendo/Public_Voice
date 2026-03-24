@@ -1,3 +1,4 @@
+/** Edit pending report (user-owned) */
 import { useEffect, useState, type FormEvent, type ChangeEvent } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { useLanguage } from '../../../contexts/LanguageContext';

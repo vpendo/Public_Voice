@@ -1,1 +1,1 @@
-# Pydantic schemas for request/response validation
+"""Pydantic models: validate JSON in/out of FastAPI endpoints."""

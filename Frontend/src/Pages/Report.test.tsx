@@ -1,3 +1,4 @@
+/** Report page smoke tests with mocked i18n + auth */
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import Report from './Report';
