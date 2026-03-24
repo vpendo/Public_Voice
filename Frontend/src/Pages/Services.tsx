@@ -35,6 +35,7 @@ export default function Services() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
+      {/* Inner sections: w-11/12 + mx-auto (see hero and blocks below) */}
       {/* Hero - full background image (Rwanda citizen-focused) */}
       <section className="relative min-h-[70vh] flex items-center justify-center overflow-hidden">
         <div className="absolute inset-0">
@@ -46,7 +47,7 @@ export default function Services() {
           />
           <div className="absolute inset-0 bg-slate-900/70" aria-hidden />
         </div>
-        <div className="relative z-10 max-w-4xl mx-auto px-4 sm:px-6 py-20 text-center">
+        <div className="relative z-10 w-11/12 mx-auto px-4 sm:px-6 py-20 text-center">
           <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90 mb-4">
             {t.services.hero.badge}
           </p>
@@ -77,7 +78,7 @@ export default function Services() {
 
       {/* What we offer - clear section header */}
       <section className="py-16 md:py-24 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <header className="text-center max-w-2xl mx-auto mb-14">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)] mb-3">
               {t.services.whatWeOffer}
@@ -133,7 +134,7 @@ export default function Services() {
 
       {/* Trust / benefits - visual strip with icons */}
       <section className="py-16 md:py-20 bg-slate-50 border-y border-slate-200/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <div>
               <h2 className="text-2xl md:text-3xl font-bold text-slate-800 tracking-tight">
@@ -166,7 +167,7 @@ export default function Services() {
 
       {/* CTA - report area with image (like Home) */}
       <section className="py-20 md:py-28 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)] mb-3">

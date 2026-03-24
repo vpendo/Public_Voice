@@ -25,7 +25,8 @@ export function SubmitIssue() {
         </div>
       </div>
 
-      <div className="max-w-3xl rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
+      {/* Card: 11/12 of main area; max-w-3xl caps form width on huge monitors */}
+      <div className="w-11/12 max-w-3xl mx-auto rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
         <div className="h-1 bg-[var(--color-primary)]" />
         <div className="px-6 py-4 border-b border-slate-100 bg-slate-50/80">
           <h2 className="text-sm font-semibold text-slate-600 uppercase tracking-wider flex items-center gap-2">

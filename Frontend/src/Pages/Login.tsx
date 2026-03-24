@@ -142,8 +142,9 @@ export default function Login() {
         <div className="absolute top-6 right-6 z-10">
           <LanguageSwitcher />
         </div>
-        <div className="flex-1 flex items-center justify-center py-10 px-6 lg:px-14">
-          <div className="w-full max-w-md">
+        <div className="flex-1 flex items-center justify-center py-10 px-4 sm:px-6 lg:px-14">
+          {/* Auth card: 11/12 on small screens, max-w-md caps width */}
+          <div className="w-11/12 max-w-md mx-auto">
             {/* Logo */}
             <Link to="/" className="inline-block mb-1">
               <span className="text-2xl font-bold text-slate-900">Public</span>

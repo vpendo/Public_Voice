@@ -31,10 +31,11 @@ export default function Contact() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
+      {/* Section shells: 11/12 + centered */}
       {/* Hero - RGB blue */}
       <section className="relative bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary-hover)] to-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28">
+        <div className="relative z-10 w-11/12 mx-auto px-4 sm:px-6 py-20 md:py-28">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75 mb-4">
             Rwanda · Get in touch
           </p>
@@ -49,7 +50,7 @@ export default function Contact() {
 
       {/* Hero image */}
       <section className="relative bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 -mt-1">
+        <div className="w-11/12 mx-auto px-4 sm:px-6 -mt-1">
           <div className="rounded-2xl overflow-hidden shadow-xl ring-2 ring-slate-200/50">
             <img src={IMG.hero} alt="" className="w-full aspect-[21/9] object-cover" />
           </div>
@@ -58,10 +59,10 @@ export default function Contact() {
 
       {/* Form + info */}
       <section className="py-20 md:py-28 bg-slate-50/50">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16">
             {/* Form */}
-            <div className="bg-white p-8 md:p-10 rounded-2xl shadow-md border border-slate-200/80">
+            <div className="bg-white p-6 sm:p-8 md:p-10 rounded-2xl shadow-md border border-slate-200/80">
               <h2 className="text-2xl font-bold mb-8 text-slate-900">
                 {t.contact.form.title}
               </h2>

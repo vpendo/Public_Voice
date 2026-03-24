@@ -80,7 +80,8 @@ export function Profile() {
         <p className="text-slate-500 mt-0.5">{p.subtitle}</p>
       </div>
 
-      <div className="max-w-xl space-y-6">
+      {/* Form column: 11/12 wide; max-w keeps line length readable */}
+      <div className="w-11/12 max-w-2xl mx-auto space-y-6">
         <div className="rounded-2xl border border-slate-200/80 bg-white shadow-sm overflow-hidden">
           <div className="h-1 bg-[var(--color-primary)]" />
           <div className="px-6 py-5 border-b border-slate-100 bg-slate-50/80">

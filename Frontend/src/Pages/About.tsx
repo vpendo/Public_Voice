@@ -13,10 +13,11 @@ export default function About() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
+      {/* Content blocks: 11/12 width, centered (no fixed max-* tokens) */}
       {/* Hero - RGB blue */}
       <section className="relative bg-gradient-to-br from-[var(--color-primary)] via-[var(--color-primary-hover)] to-slate-900 text-white overflow-hidden">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\'60\' height=\'60\' viewBox=\'0 0 60 60\' xmlns=\'http://www.w3.org/2000/svg\'%3E%3Cg fill=\'%23ffffff\' fill-opacity=\'0.05\' fill-rule=\'evenodd\'%3E%3Cpath d=\'M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z\'/%3E%3C/g%3E%3C/svg%3E')]" aria-hidden />
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 py-20 md:py-28">
+        <div className="relative z-10 w-11/12 mx-auto px-4 sm:px-6 py-20 md:py-28">
           <p className="text-sm font-semibold uppercase tracking-[0.2em] text-white/75 mb-4">
             Rwanda · Civic-tech
           </p>
@@ -31,7 +32,7 @@ export default function About() {
 
       {/* Hero image strip */}
       <section className="relative -mt-1 bg-white">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <div className="rounded-2xl overflow-hidden shadow-xl -translate-y-0 ring-2 ring-slate-200/50">
             <img src={IMG.hero} alt="" className="w-full aspect-[21/9] object-cover" />
           </div>
@@ -40,7 +41,7 @@ export default function About() {
 
       {/* Serving all of Rwanda */}
       <section className="py-16 md:py-20 bg-[var(--color-primary)]/5 border-y border-slate-200/80">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        <div className="w-11/12 mx-auto px-4 sm:px-6 text-center">
           <div className="inline-flex items-center gap-2 text-[var(--color-primary)] font-semibold text-sm uppercase tracking-wider mb-4">
             <MapPin className="w-4 h-4" />
             <span>Nationwide</span>
@@ -56,7 +57,7 @@ export default function About() {
 
       {/* Who we are + image */}
       <section className="py-20 md:py-28 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="relative rounded-2xl overflow-hidden shadow-xl aspect-[4/3] lg:aspect-auto lg:min-h-[360px]">
               <img src={IMG.whoWeAre} alt="" className="w-full h-full object-cover" />
@@ -79,7 +80,7 @@ export default function About() {
 
       {/* The problem we solve + image - white background */}
       <section className="py-20 md:py-28 bg-white relative overflow-hidden">
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="relative z-10 w-11/12 mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div>
               <p className="text-sm font-semibold uppercase tracking-widest text-[var(--color-primary)] mb-3">
@@ -111,7 +112,7 @@ export default function About() {
 
       {/* Mission & Vision - light background, blue accent */}
       <section className="py-20 md:py-28 bg-slate-50/80">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10">
             <div className="bg-white p-8 md:p-10 rounded-2xl shadow-md border-l-4 border-l-[var(--color-primary)] hover:shadow-lg transition-shadow">
               <div className="inline-flex p-3 rounded-xl mb-5 bg-[var(--color-primary-light)] text-[var(--color-primary)]">
@@ -141,7 +142,7 @@ export default function About() {
 
       {/* CTA - white background, blue button */}
       <section className="py-20 md:py-28 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 text-center">
+        <div className="w-11/12 mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-4 text-slate-900">
             Ready to make an impact?
           </h2>

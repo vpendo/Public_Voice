@@ -83,8 +83,9 @@ export default function Register() {
           </Link>
         </div>
 
-        <div className="flex-1 flex items-center justify-center py-10 px-6 lg:px-14">
-          <div className="w-full max-w-md">
+        <div className="flex-1 flex items-center justify-center py-10 px-4 sm:px-6 lg:px-14">
+          <div className="w-11/12 max-w-md mx-auto">
+            {/* 11/12 + max-w-md for sign-up form */}
             <Link to="/" className="inline-block mb-1">
               <span className="text-2xl font-bold text-slate-900">Public</span>
               <span className="text-2xl font-bold text-[var(--color-primary)]">Voice</span>

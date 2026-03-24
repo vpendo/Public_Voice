@@ -51,28 +51,33 @@ export function AdminDashboardLayout() {
         <div className="h-1 flex shrink-0">
           <div className="flex-1 h-full bg-[var(--color-primary)]" />
         </div>
-        <header className="flex items-center justify-between gap-3 px-4 py-3 bg-white border-b border-slate-200 shrink-0">
-          <div className="flex items-center gap-3">
+        <header className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between sm:gap-3 px-4 py-3 bg-white border-b border-slate-200 shrink-0">
+          <div className="flex items-start gap-3 min-w-0 flex-1">
             <button
               type="button"
               onClick={() => setSidebarOpen(true)}
-              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100"
+              className="lg:hidden p-2 rounded-lg text-slate-600 hover:bg-slate-100 shrink-0 mt-0.5"
               aria-label="Open menu"
             >
               <Menu size={24} />
             </button>
-            <span className="text-sm font-semibold text-slate-700">
+            <span className="text-sm font-semibold text-slate-700 break-words min-w-0 leading-snug">
               PublicVoice Admin
-              <span className="ml-2 font-normal text-slate-500">· {adminCategoryLabel}</span>
+              <span className="font-normal text-slate-500"> · {adminCategoryLabel}</span>
               {headerScopeText && (
-                <span className="ml-2 font-normal text-slate-500">· {headerScopeText}</span>
+                <span className="font-normal text-slate-500"> · {headerScopeText}</span>
               )}
             </span>
           </div>
-          <LanguageSwitcher />
+          <div className="shrink-0 self-end sm:self-auto">
+            <LanguageSwitcher />
+          </div>
         </header>
         <main className="flex-1 overflow-auto p-4 sm:p-6 md:p-8">
-          <Outlet />
+          {/* 11/12 width: consistent side margins, scales with any screen size */}
+          <div className="w-11/12 mx-auto min-w-0">
+            <Outlet />
+          </div>
         </main>
       </div>
     </div>

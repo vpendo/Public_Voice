@@ -49,6 +49,7 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-white font-sans">
+      {/* Section inners use w-11/12 + mx-auto for equal side gutters on all breakpoints */}
       {/* Hero with sliding background images */}
       <section
         className="relative min-h-[85vh] flex items-center justify-center overflow-hidden"
@@ -67,7 +68,7 @@ export default function Home() {
           />
         ))}
         <div className="absolute inset-0 z-[1] bg-gradient-to-b from-black/45 via-black/35 to-black/55" aria-hidden />
-        <div className="relative z-10 w-11/12 max-w-6xl mx-auto px-4 py-24 text-center">
+        <div className="relative z-10 w-11/12 mx-auto px-4 sm:px-6 py-20 sm:py-24 text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/15 backdrop-blur-sm text-white/95 text-sm font-medium mb-8 animate-fade-up">
             <Megaphone className="w-4 h-4" />
             <span>Rwanda · Civic engagement</span>
@@ -116,7 +117,7 @@ export default function Home() {
 
       {/* For Rwandan citizens - image + text */}
       <section className="py-20 md:py-28 bg-white">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20 items-center">
             <div className="relative rounded-2xl overflow-hidden shadow-lg border border-slate-200/60 aspect-[4/3] lg:aspect-auto lg:min-h-[380px]">
               <img
@@ -159,7 +160,7 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-slate-900/75" aria-hidden />
         </div>
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="relative z-10 w-11/12 mx-auto px-4 sm:px-6">
           <header className="text-center mb-14">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90 mb-3">
               Process
@@ -209,7 +210,7 @@ export default function Home() {
           />
           <div className="absolute inset-0 bg-slate-900/75" aria-hidden />
         </div>
-        <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="relative z-10 w-11/12 mx-auto px-4 sm:px-6">
           <header className="text-center mb-14">
             <p className="text-xs font-semibold uppercase tracking-[0.2em] text-white/90 mb-3">
               For citizens & government
@@ -241,7 +242,7 @@ export default function Home() {
 
       {/* Report area / CTA - image + call to action */}
       <section className="py-20 md:py-28 bg-slate-50 border-t border-slate-200/60">
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
+        <div className="w-11/12 mx-auto px-4 sm:px-6">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-16 items-center">
             <div className="order-2 lg:order-1">
               <p className="text-xs font-semibold uppercase tracking-[0.2em] text-[var(--color-primary)] mb-3">

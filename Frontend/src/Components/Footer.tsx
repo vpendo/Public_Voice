@@ -22,7 +22,8 @@ export const Footer = ({ currentLang }: FooterProps) => {
       className="text-white mt-auto border-t-4 border-white/20"
       style={{ backgroundColor: 'var(--color-primary)' }}
     >
-      <div className="w-full max-w-7xl mx-auto px-4 sm:px-6 py-10 sm:py-12">
+      {/* Footer inner: same 11/12 width as navbar */}
+      <div className="w-11/12 mx-auto px-4 sm:px-6 py-10 sm:py-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Brand Section */}
           <div className="space-y-4">

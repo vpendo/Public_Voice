@@ -109,8 +109,9 @@ export default function ResetPassword() {
           <div className="absolute top-6 right-6 z-10">
             <LanguageSwitcher />
           </div>
-          <div className="flex-1 flex items-center justify-center py-10 px-6 lg:px-14">
-            <div className="w-full max-w-md">
+          <div className="flex-1 flex items-center justify-center py-10 px-4 sm:px-6 lg:px-14">
+            {/* 11/12 + max-w-md: token reset form */}
+            <div className="w-11/12 max-w-md mx-auto">
               <Link to="/login" className="inline-flex items-center gap-2 text-slate-600 hover:text-[var(--color-primary)] text-sm font-medium mb-4">
                 <ArrowLeft size={18} />
                 {t.resetPassword?.backToLogin ?? 'Back to sign in'}
@@ -194,8 +195,9 @@ export default function ResetPassword() {
         <div className="absolute top-6 right-6 z-10">
           <LanguageSwitcher />
         </div>
-        <div className="flex-1 flex items-center justify-center py-10 px-6 lg:px-14">
-          <div className="w-full max-w-md space-y-4">
+        <div className="flex-1 flex items-center justify-center py-10 px-4 sm:px-6 lg:px-14">
+          {/* 11/12 + max-w-md: forgot-password steps */}
+          <div className="w-11/12 max-w-md mx-auto space-y-4">
             <Link to="/login" className="inline-flex items-center gap-2 text-slate-600 hover:text-[var(--color-primary)] text-sm font-medium">
               <ArrowLeft size={18} />
               {t.resetPassword?.backToLogin ?? 'Back to sign in'}
