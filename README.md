@@ -2,6 +2,8 @@
 
 Public Voice is a civic engagement platform where citizens submit community issues and administrators review and respond in a dashboard.
 
+Final demo video: [Watch on Google Drive](https://drive.google.com/file/d/1pnf19ncDDqMCTbKWDSqXHuouRdFsT1Vb/view?usp=sharing)
+
 ## What This README Covers
 
 - How to install and run the project locally
@@ -47,7 +49,7 @@ Edit `Backend/.env` and set at minimum:
 
 - `DATABASE_URL`
 - `SECRET_KEY`
-- AI key(s): `OPENAI_API_KEY` and/or `ANTHROPIC_API_KEY` (based on your active AI flow)
+- `ANTHROPIC_API_KEY` (optional but recommended): enables report translation/structuring with Claude
 - OTP email variables: either `SMTP_*` or `EMAIL_*`
 
 Create an admin user:
@@ -100,6 +102,21 @@ Frontend URL:
 4. Login as admin
 5. Check report appears in admin dashboard
 
+## How The Project Works (Report Lifecycle)
+
+Public Voice connects citizens and administrators using a simple flow:
+
+1. Citizen creates an account and verifies it using email OTP.
+2. Citizen logs in and receives access (JWT) to submit reports.
+3. Citizen opens the report form, fills in issue details, location fields, and uploads evidence (optional).
+4. Backend (FastAPI) creates a report, generates a tracking ID, saves the report in PostgreSQL, and stores uploaded evidence on the server.
+5. If `ANTHROPIC_API_KEY` is configured, the backend sends the citizen’s description to Claude to translate/formalize and produce structured suggestions (summary/title/category/institution/urgency). If AI is not available, the report is still saved using the raw description.
+6. Admin logs in and views reports in the admin dashboard (with role and scope control).
+7. Admin updates the report status and adds an official response.
+8. Citizen checks their dashboard to track the status and read the admin response.
+
+Optional notifications: when SMTP is configured, the backend can send OTP emails (login/verify/reset) and may send an email alert to admins when a new report is submitted.
+
 ## How To Use The Platform
 
 ### Citizen Flow
@@ -123,7 +140,10 @@ Frontend URL:
 - `Backend/main.py` - FastAPI entry point
 - `Backend/routers/auth.py` - login/register/OTP/reset endpoints
 - `Backend/routers/reports.py` - report submit/list/respond endpoints
+- `Backend/routers/users.py` - admin/user management endpoints
+- `Backend/routers/upload.py` - upload/evidence handling endpoints
 - `Backend/services/ai_processor.py` - translation/AI structuring
+- `Backend/services/notify.py` - notification email when new reports are submitted
 - `Backend/core/config.py` - environment/config loader
 - `Backend/core/email.py` - SMTP email sender (OTP/password reset)
 - `Backend/models/` - SQLAlchemy models
@@ -147,6 +167,47 @@ Frontend URL:
 - `Backend/README.md` - backend-specific setup and API notes
 - `Frontend/README.md` - frontend-specific setup notes
 - `README.md` - this main guide
+
+## Demo / Seed Admin Accounts (for testing)
+
+Administrators are created using backend scripts (the app does not register admins by itself).
+
+Cell admins are scoped by district/sector/cell so they only manage reports from their area. SuperAdmin can manage all reports.
+
+### Cell Admins
+
+1. `rwimbogocell1@gmail.com`
+   - Scope: `Kicukiro` district, `Nyarugunga` sector, `Rwimbogo` cell
+2. `nyarutaramacell1@gmail.com`
+   - Scope: `Gasabo` district, `Remera` sector, `Nyarutarama` cell
+3. `rugaramacell@gmail.com`
+   - Scope: `Nyarugenge` district, `Nyamirambo` sector, `Rugarama` cell
+
+### SuperAdmin
+
+1. `publicvoicerwanda@gmail.com`
+   - Scope: all districts/sectors/cells (system manager)
+
+### How to show / manage these admins
+
+Because admins are seeded directly in the database, you can view what exists (emails, roles, and scopes) using:
+
+```bash
+cd Backend
+python -m scripts.show_admin
+```
+
+If you forget an admin password, you can reset it using:
+
+```bash
+python -m scripts.reset_admin_password EMAIL "NEW_PASSWORD"
+```
+
+To check whether an admin currently has a password set:
+
+```bash
+python -m scripts.check_admin_password EMAIL
+```
 
 ## Helpful Commands
 
