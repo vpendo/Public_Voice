@@ -230,11 +230,26 @@ export const Footer = ({ currentLang }: FooterProps) => {
         </div>
 
         {/* Bottom Bar */}
-        <div className="mt-8 pt-8" style={{ borderTop: '1px solid rgba(255,255,255,0.2)' }}>
-          <div className="text-center">
-            <p className="text-sm" style={{ color: '#E0F2F1' }}>
-              {t.footer.copyright}
-            </p>
+        <div
+          className="mt-8 pt-8 border-t border-white/20 text-center"
+        >
+          <p className="text-sm text-[#E0F2F1] mb-3">{t.footer.copyright}</p>
+          <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+            <Link
+              to="/privacy"
+              className="text-[#E0F2F1] hover:text-white hover:underline transition-colors"
+            >
+              Privacy Policy
+            </Link>
+            <span className="text-white/40 hidden sm:inline" aria-hidden>
+              |
+            </span>
+            <Link
+              to="/terms"
+              className="text-[#E0F2F1] hover:text-white hover:underline transition-colors"
+            >
+              Terms of Use
+            </Link>
           </div>
         </div>
       </div>

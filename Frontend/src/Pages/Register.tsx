@@ -20,6 +20,7 @@ export default function Register() {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,6 +39,10 @@ export default function Register() {
     }
     if (!/[a-zA-Z]/.test(formData.password) || !/\d/.test(formData.password)) {
       setError('Password must contain at least one letter and one digit');
+      return;
+    }
+    if (!acceptedTerms) {
+      setError(t.register.legalAcceptRequired);
       return;
     }
     setLoading(true);
@@ -173,6 +178,47 @@ export default function Register() {
                   </button>
                 </div>
               </div>
+
+              <p className="text-sm text-slate-600 leading-relaxed">
+                {t.register.legalNoticeStart}{' '}
+                <Link to="/terms" className="font-medium text-[var(--color-primary)] hover:underline">
+                  {t.register.termsLink}
+                </Link>{' '}
+                {t.register.legalNoticeMiddle}{' '}
+                <Link to="/privacy" className="font-medium text-[var(--color-primary)] hover:underline">
+                  {t.register.privacyLink}
+                </Link>
+                {t.register.legalNoticeEnd}
+              </p>
+
+              <label className="flex items-start gap-3 cursor-pointer text-sm text-slate-700">
+                <input
+                  type="checkbox"
+                  name="acceptedTerms"
+                  checked={acceptedTerms}
+                  onChange={(e) => setAcceptedTerms(e.target.checked)}
+                  className="mt-1 h-4 w-4 rounded border-slate-300 text-[var(--color-primary)] focus:ring-[var(--color-primary)]"
+                />
+                <span className="leading-relaxed">
+                  {t.register.legalCheckboxStart}{' '}
+                  <Link
+                    to="/terms"
+                    className="font-medium text-[var(--color-primary)] hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {t.register.termsLink}
+                  </Link>{' '}
+                  {t.register.legalCheckboxMiddle}{' '}
+                  <Link
+                    to="/privacy"
+                    className="font-medium text-[var(--color-primary)] hover:underline"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    {t.register.privacyLink}
+                  </Link>
+                  {t.register.legalCheckboxEnd}
+                </span>
+              </label>
 
               <button
                 type="submit"
