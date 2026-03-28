@@ -8,6 +8,7 @@ Final demo video: [Watch on Google Drive](https://drive.google.com/file/d/1pnf19
 
 - How to install and run the project locally
 - How citizens and admins use the platform
+- Privacy Policy, Terms of Use, and registration acceptance
 - Important project files and where features live
 
 ## Run The Project (Step By Step)
@@ -52,7 +53,7 @@ Edit `Backend/.env` and set at minimum:
 - `ANTHROPIC_API_KEY` (optional but recommended): enables report translation/structuring with Claude
 - OTP email variables: either `SMTP_*` or `EMAIL_*`
 
-Create an admin user:
+If you need a new admin account (admins are not self-registered in the app):
 
 ```bash
 python -m scripts.create_admin
@@ -101,6 +102,14 @@ Frontend URL:
 3. Submit a report
 4. Login as admin
 5. Check report appears in admin dashboard
+6. From the home page footer, open **Privacy Policy** (`/privacy`) and **Terms of Use** (`/terms`) — they use the same public navbar and footer as the rest of the marketing site.
+
+## Privacy Policy & Terms of Use
+
+- **Public pages:** `http://localhost:5173/privacy` (PublicVoice Privacy Policy) and `http://localhost:5173/terms` (PublicVoice Terms of Use).
+- **Footer:** Every public page with the site footer includes links to both documents.
+- **Registration:** New citizens must read the notice, check the box to confirm they agree to the **Terms of Use** and **Privacy Policy**, and use the in-form links to open those pages before they can complete sign-up.
+- **Disclaimer:** The legal text is provided for **academic / capstone demonstration** and is not a substitute for professional legal advice for production use.
 
 ## How The Project Works (Report Lifecycle)
 
@@ -121,7 +130,7 @@ Optional notifications: when SMTP is configured, the backend can send OTP emails
 
 ### Citizen Flow
 
-1. Register with name, email, and password
+1. Register with name, email, and password — accept the **Terms of Use** and **Privacy Policy** (required checkbox).
 2. Verify account using email OTP
 3. Login and submit a community issue
 4. Track report status in user dashboard
@@ -153,13 +162,18 @@ Optional notifications: when SMTP is configured, the backend can send OTP emails
 ### Frontend
 
 - `Frontend/src/main.tsx` - React entry point
+- `Frontend/src/Routes/approute.tsx` - routes (includes `/privacy`, `/terms`)
+- `Frontend/src/Components/Footer.tsx` - footer with Privacy Policy & Terms of Use links
+- `Frontend/src/Pages/PrivacyPolicy.tsx` - Privacy Policy page
+- `Frontend/src/Pages/Terms.tsx` - Terms of Use page
+- `Frontend/src/Pages/Register.tsx` - citizen sign-up (terms & privacy acceptance)
 - `Frontend/src/Components/ReportForm.tsx` - report submission form
 - `Frontend/src/Pages/Dashboard/user/` - user dashboard pages
 - `Frontend/src/Pages/Dashboard/admin/` - admin dashboard pages
 - `Frontend/src/contexts/AuthContext.tsx` - auth/session logic
 - `Frontend/src/api/client.ts` - API client
 - `Frontend/src/api/config.ts` - API base URL
-- `Frontend/src/i18n/content.ts` - language content
+- `Frontend/src/i18n/content.ts` - language content (includes registration legal strings)
 
 ### Configuration and Documentation
 
@@ -214,3 +228,4 @@ python -m scripts.check_admin_password EMAIL
 - Backend tests: `cd Backend && pytest tests/ -v`
 - Frontend tests: `cd Frontend && pnpm test:run`
 - Frontend lint: `cd Frontend && pnpm lint`
+- Frontend production build: `cd Frontend && pnpm run build`
