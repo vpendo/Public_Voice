@@ -350,6 +350,18 @@ export default function Login() {
                 </p>
               </>
             )}
+
+            <div className="mt-8 pt-6 border-t border-slate-200 flex flex-wrap items-center justify-center gap-x-3 gap-y-1 text-xs text-slate-500">
+              <Link to="/privacy" className="hover:text-[var(--color-primary)] hover:underline">
+                Privacy Policy
+              </Link>
+              <span className="text-slate-300" aria-hidden>
+                |
+              </span>
+              <Link to="/terms" className="hover:text-[var(--color-primary)] hover:underline">
+                Terms of Use
+              </Link>
+            </div>
           </div>
         </div>
       </div>

@@ -29,8 +29,8 @@ export default function PrivacyPolicy() {
 
         <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">4. Data Protection and Security</h2>
         <p className="text-slate-700 mb-6">
-          User data is protected through secure storage, controlled access, and role-based permissions to prevent
-          unauthorised access.
+          User data is protected through secure storage, controlled access, and role-based permissions. Sensitive
+          information is available only to authorised personnel within the appropriate governance scope.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">5. User Rights</h2>
@@ -39,15 +39,28 @@ export default function PrivacyPolicy() {
           data.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">6. AI Processing and Transparency</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">6. Consent</h2>
+        <p className="text-slate-700 mb-6">
+          By submitting information through PublicVoice, users confirm that participation is voluntary and based on
+          informed consent.
+        </p>
+
+        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">7. AI Processing and Transparency</h2>
         <p className="text-slate-700 mb-6">
           PublicVoice uses AI to structure and classify reports. AI outputs are reviewed by human administrators to reduce
           bias and ensure fairness.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">7. Updates and Contact</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">8. Updates and Contact</h2>
         <p className="text-slate-700 mb-6">
           This policy may be updated as the system evolves. Users may contact the administrator for any concerns.
+        </p>
+        <p className="text-slate-700 mb-6">
+          For privacy-related questions, users may contact the project administrator through the platform{' '}
+          <Link to="/contact" className="font-medium text-[var(--color-primary)] hover:underline">
+            Contact
+          </Link>{' '}
+          page or the contact details shown in the site footer.
         </p>
 
         <p className="text-slate-600 italic mt-10 mb-6">

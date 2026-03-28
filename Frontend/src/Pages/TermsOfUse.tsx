@@ -1,7 +1,7 @@
 /** Terms of Use — PublicVoice civic reporting platform */
 import { Link } from 'react-router-dom';
 
-export default function Terms() {
+export default function TermsOfUse() {
   return (
     <div className="min-h-screen bg-white font-sans text-slate-800">
       <div className="w-11/12 max-w-[900px] mx-auto px-6 py-6 md:py-8 leading-[1.7]">
@@ -28,7 +28,8 @@ export default function Terms() {
 
         <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">4. Prohibited Use</h2>
         <p className="text-slate-700 mb-6">
-          Users must not submit false reports, harmful content, or attempt to misuse or disrupt the system.
+          Users must not submit false reports, unlawful content, abusive material, or attempt to misuse or disrupt the
+          system.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">5. AI-Assisted Processing</h2>

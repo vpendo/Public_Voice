@@ -108,6 +108,7 @@ Frontend URL:
 
 - **Public pages:** `http://localhost:5173/privacy` (PublicVoice Privacy Policy) and `http://localhost:5173/terms` (PublicVoice Terms of Use).
 - **Footer:** Every public page with the site footer includes links to both documents.
+- **Login & Register:** The sign-in and sign-up screens (no main footer) include a bottom row with **Privacy Policy** and **Terms of Use** for the same rubric visibility.
 - **Registration:** New citizens must read the notice, check the box to confirm they agree to the **Terms of Use** and **Privacy Policy**, and use the in-form links to open those pages before they can complete sign-up.
 - **Disclaimer:** The legal text is provided for **academic / capstone demonstration** and is not a substitute for professional legal advice for production use.
 
@@ -165,8 +166,9 @@ Optional notifications: when SMTP is configured, the backend can send OTP emails
 - `Frontend/src/Routes/approute.tsx` - routes (includes `/privacy`, `/terms`)
 - `Frontend/src/Components/Footer.tsx` - footer with Privacy Policy & Terms of Use links
 - `Frontend/src/Pages/PrivacyPolicy.tsx` - Privacy Policy page
-- `Frontend/src/Pages/Terms.tsx` - Terms of Use page
-- `Frontend/src/Pages/Register.tsx` - citizen sign-up (terms & privacy acceptance)
+- `Frontend/src/Pages/TermsOfUse.tsx` - Terms of Use page (`TermsOfUse` component)
+- `Frontend/src/Pages/Register.tsx` - citizen sign-up (terms & privacy acceptance; footer legal links)
+- `Frontend/src/Pages/Login.tsx` - sign-in (footer legal links on auth layout)
 - `Frontend/src/Components/ReportForm.tsx` - report submission form
 - `Frontend/src/Pages/Dashboard/user/` - user dashboard pages
 - `Frontend/src/Pages/Dashboard/admin/` - admin dashboard pages

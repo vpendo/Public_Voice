@@ -33,7 +33,7 @@ import { RespondList } from '../Pages/Dashboard/admin/RespondList';
 import { Respond } from '../Pages/Dashboard/admin/Respond';
 import { Users } from '../Pages/Dashboard/admin/Users';
 import PrivacyPolicy from '../Pages/PrivacyPolicy';
-import Terms from '../Pages/Terms';
+import TermsOfUse from '../Pages/TermsOfUse';
 
 /** Old shortcut: `/dashboard` → correct area by role */
 function DashboardRedirect() {
@@ -89,7 +89,7 @@ export function AppRoute() {
               <Route path="/contact" element={<Contact />} />
               <Route path="/services" element={<Services />} />
               <Route path="/privacy" element={<PrivacyPolicy />} />
-              <Route path="/terms" element={<Terms />} />
+              <Route path="/terms" element={<TermsOfUse />} />
               {/* Auth (no site chrome) */}
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
