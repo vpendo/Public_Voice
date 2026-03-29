@@ -12,8 +12,8 @@ export default function PrivacyPolicy() {
 
         <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">1. Data Collection</h2>
         <p className="text-slate-700 mb-6">
-          PublicVoice collects personal information such as user account details, report content, and optional location
-          data. This is necessary to support system functionality and civic reporting.
+          PublicVoice collects only the minimum necessary personal information such as user account details, report
+          content, and optional location data to support system functionality and civic reporting.
         </p>
 
         <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">2. Purpose of Data Use</h2>
@@ -33,25 +33,31 @@ export default function PrivacyPolicy() {
           information is available only to authorised personnel within the appropriate governance scope.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">5. User Rights</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">5. Data Retention</h2>
+        <p className="text-slate-700 mb-6">
+          Personal data is stored only for as long as necessary to support system functionality and evaluation. Data may
+          be deleted upon user request or when no longer required.
+        </p>
+
+        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">6. User Rights</h2>
         <p className="text-slate-700 mb-6">
           Users have the right to provide consent, withdraw participation, and request correction or deletion of their
           data.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">6. Consent</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">7. Consent</h2>
         <p className="text-slate-700 mb-6">
           By submitting information through PublicVoice, users confirm that participation is voluntary and based on
           informed consent.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">7. AI Processing and Transparency</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">8. AI Processing and Transparency</h2>
         <p className="text-slate-700 mb-6">
-          PublicVoice uses AI to structure and classify reports. AI outputs are reviewed by human administrators to reduce
-          bias and ensure fairness.
+          PublicVoice uses AI to structure and classify reports. AI outputs are reviewed by authorised human administrators
+          before use to reduce bias, improve accuracy, and ensure responsible decision-making.
         </p>
 
-        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">8. Updates and Contact</h2>
+        <h2 className="text-xl font-semibold text-slate-900 mt-8 mb-3">9. Updates and Contact</h2>
         <p className="text-slate-700 mb-6">
           This policy may be updated as the system evolves. Users may contact the administrator for any concerns.
         </p>
@@ -61,6 +67,11 @@ export default function PrivacyPolicy() {
             Contact
           </Link>{' '}
           page or the contact details shown in the site footer.
+        </p>
+
+        <p className="text-slate-700 mb-6">
+          These measures ensure that PublicVoice operates in a transparent, secure, and ethically responsible manner,
+          protecting user rights while supporting civic engagement.
         </p>
 
         <p className="text-slate-600 italic mt-10 mb-6">
