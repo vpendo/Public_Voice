@@ -4,6 +4,12 @@ Public Voice is a civic engagement platform where citizens submit community issu
 
 Final demo video: [Watch on Google Drive](https://drive.google.com/file/d/1pnf19ncDDqMCTbKWDSqXHuouRdFsT1Vb/view?usp=sharing)
 
+## Deployed Links (Live Demo)
+
+- Frontend (Web App): https://publicvoice1.netlify.app/
+- Backend API (FastAPI): https://public-voice1.onrender.com/
+- Backend Swagger Docs: https://public-voice1.onrender.com/docs
+
 ## What This README Covers
 
 - How to install and run the project locally
