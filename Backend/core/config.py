@@ -60,7 +60,7 @@ class Settings:
 
         # ---------------- CORS ----------------
         # Default includes both local development and deployed frontend URLs
-        _cors_default = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,https://publicvoice1.netlify.app"
+        _cors_default = "http://localhost:5173,http://127.0.0.1:5173,http://localhost:3000,http://127.0.0.1:3000,https://publicvoice1.netlify.app,https://publicvoice.rw,https://www.publicvoice.rw"
         _cors_raw = os.getenv("CORS_ORIGINS", _cors_default)
         self.CORS_ORIGINS = [o.strip() for o in _cors_raw.split(",") if o.strip()]
         if not self.CORS_ORIGINS:
@@ -74,9 +74,14 @@ class Settings:
                 self.CORS_ORIGINS.append(origin)
         
         # Always ensure deployed frontend URL is included
-        _prod_frontend = "https://publicvoice1.netlify.app"
-        if _prod_frontend not in self.CORS_ORIGINS:
-            self.CORS_ORIGINS.append(_prod_frontend)
+        _prod_frontends = [
+            "https://publicvoice1.netlify.app",
+            "https://publicvoice.rw",
+            "https://www.publicvoice.rw",
+        ]
+        for origin in _prod_frontends:
+            if origin not in self.CORS_ORIGINS:
+                self.CORS_ORIGINS.append(origin)
 
         # ---------------- Email (Forgot-password / reset) ----------------
         self.FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
