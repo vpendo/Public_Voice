@@ -82,7 +82,10 @@ class Settings:
         self.FRONTEND_URL: str = os.getenv("FRONTEND_URL", "http://localhost:5173").rstrip("/")
         # Support both legacy SMTP_* and EMAIL_* variable names.
         self.SMTP_HOST: str = (os.getenv("SMTP_HOST") or os.getenv("EMAIL_SMTP_SERVER") or "").strip()
-        self.SMTP_PORT: int = int((os.getenv("SMTP_PORT") or os.getenv("EMAIL_SMTP_PORT") or "587"))
+        self.SMTP_PORT: int = self._to_int(
+            os.getenv("SMTP_PORT") or os.getenv("EMAIL_SMTP_PORT"),
+            default=587,
+        )
         self.SMTP_USER: str = (os.getenv("SMTP_USER") or os.getenv("EMAIL_LOGIN") or "").strip()
         # Strip all spaces (Gmail app passwords are often pasted with spaces)
         self.SMTP_PASSWORD: str = (os.getenv("SMTP_PASSWORD") or os.getenv("EMAIL_SENDER_PASSWORD") or "").strip().replace(" ", "")
@@ -105,6 +108,13 @@ class Settings:
     def _to_bool(self, value: str) -> bool:
         """Convert string env variable to bool. Strips whitespace so ' true ' works."""
         return (value or "").strip().lower() in ("true", "1", "yes")
+
+    def _to_int(self, value: Optional[str], default: int) -> int:
+        """Convert env variable to int safely; fallback to default on invalid input."""
+        try:
+            return int((value or "").strip())
+        except (TypeError, ValueError):
+            return default
 
     @property
     def cors_origin_list(self) -> List[str]:
