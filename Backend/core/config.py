@@ -5,6 +5,7 @@ Never commit .env; use env.example as template.
 import os
 from pathlib import Path
 from typing import List, Optional
+from urllib.parse import urlparse
 from dotenv import load_dotenv
 
 # Load .env: first from cwd (when you run from Backend/), then from Backend folder explicitly
@@ -23,6 +24,11 @@ class Settings:
         self.APP_VERSION: str = os.getenv("APP_VERSION", "1.0.0")
         self.ENVIRONMENT: str = os.getenv("ENVIRONMENT", "development")
         self.DEBUG: bool = self._to_bool(os.getenv("DEBUG", "false"))
+        # Demo/support toggle: when true, OTP endpoints may include dev_otp in responses.
+        # Keep false in real production.
+        self.ALLOW_DEV_OTP_RESPONSE: bool = self._to_bool(
+            os.getenv("ALLOW_DEV_OTP_RESPONSE", "false")
+        )
 
         # ---------------- Database ----------------
         # PostgreSQL only. Set DATABASE_URL in .env (e.g. postgresql://user:pass@host:5432/dbname).
@@ -104,6 +110,23 @@ class Settings:
     def cors_origin_list(self) -> List[str]:
         """Used by FastAPI main.py to configure CORS middleware."""
         return self.CORS_ORIGINS
+
+    def is_allowed_origin(self, origin: str) -> bool:
+        """Check whether an Origin header should be allowed for CORS."""
+        value = (origin or "").strip()
+        if not value:
+            return False
+        if value in self.CORS_ORIGINS:
+            return True
+        try:
+            parsed = urlparse(value)
+            host = (parsed.hostname or "").lower()
+        except Exception:
+            return False
+        # Allow Netlify subdomains for previews and custom branch deploy URLs.
+        if host.endswith(".netlify.app"):
+            return True
+        return False
 
 
 # Singleton instance

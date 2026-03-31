@@ -19,6 +19,7 @@ logger = logging.getLogger(__name__)
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
+from starlette.middleware.base import BaseHTTPMiddleware
 
 from core.config import settings
 from models.base import init_db
@@ -56,11 +57,28 @@ app = FastAPI(
 app.add_middleware(
     CORSMiddleware,
     allow_origins=settings.cors_origin_list,
+    allow_origin_regex=r"^https://([a-z0-9-]+\.)*netlify\.app$",
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
     expose_headers=["*"],
 )
+
+
+class EnsureCorsHeadersMiddleware(BaseHTTPMiddleware):
+    """Guarantee CORS headers on app-generated responses for allowed origins."""
+
+    async def dispatch(self, request: Request, call_next):
+        response = await call_next(request)
+        origin = request.headers.get("origin", "").strip()
+        if settings.is_allowed_origin(origin):
+            response.headers.setdefault("Access-Control-Allow-Origin", origin)
+            response.headers.setdefault("Access-Control-Allow-Credentials", "true")
+            response.headers.setdefault("Vary", "Origin")
+        return response
+
+
+app.add_middleware(EnsureCorsHeadersMiddleware)
 
 
 def _first_validation_message(detail: list) -> str:
@@ -81,7 +99,7 @@ def _get_validation_errors(exc: RequestValidationError) -> list:
 def _cors_headers(request: Request):
     """Return CORS headers for the request origin if allowed (so errors still have CORS)."""
     origin = request.headers.get("origin", "").strip()
-    if origin and origin in settings.cors_origin_list:
+    if settings.is_allowed_origin(origin):
         return {"Access-Control-Allow-Origin": origin, "Access-Control-Allow-Credentials": "true"}
     return {}
 

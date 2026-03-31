@@ -196,13 +196,14 @@ def login(
             logger.info("Login OTP email sent to %s", email)
         except Exception as e:
             logger.exception("Failed to send login OTP email to %s: %s", email, e)
-    if settings.ENVIRONMENT == "development" or settings.DEBUG:
+    include_dev_otp = settings.ALLOW_DEV_OTP_RESPONSE or settings.ENVIRONMENT == "development" or settings.DEBUG
+    if include_dev_otp:
         logger.info("DEBUG: Login OTP for %s is: %s (email_sent=%s)", email, code, email_sent)
-    # When email fails, return OTP so user can still complete login.
+    # When explicitly enabled (demo mode), include fallback dev_otp if email fails.
     return LoginRequiresOtpResponse(
         requires_otp=True,
         email=email,
-        dev_otp=code if not email_sent else None,
+        dev_otp=code if (include_dev_otp and not email_sent) else None,
     )
 
 
