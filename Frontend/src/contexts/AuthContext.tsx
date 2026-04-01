@@ -6,6 +6,13 @@ import { apiClient } from '../api/client';
 
 const TOKEN_KEY = 'publicvoice_token';
 
+/** Normalize API dev_otp for UI (handles string/number edge cases from JSON). */
+function normalizeLoginDevOtp(raw: unknown): string | undefined {
+  if (raw == null) return undefined;
+  const s = String(raw).trim();
+  return s.length > 0 ? s : undefined;
+}
+
 export interface UserInfo {
   id: number;
   full_name: string;
@@ -186,7 +193,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
             ok: true,
             requires_otp: true,
             email: data.email,
-            dev_otp: data.dev_otp,
+            dev_otp: normalizeLoginDevOtp(data.dev_otp),
           };
         }
 

@@ -29,6 +29,9 @@ export default function Login() {
   const [otpError, setOtpError] = useState<string | null>(null);
   const [showPassword, setShowPassword] = useState(false);
 
+  /** Set VITE_HIDE_LOGIN_DEV_OTP=true on Netlify only if you want to hide fallback codes in production. */
+  const showLoginDevOtpBanner = import.meta.env.VITE_HIDE_LOGIN_DEV_OTP !== 'true';
+
   useEffect(() => {
     if (locationState?.message) {
       window.history.replaceState({}, document.title);
@@ -161,17 +164,25 @@ export default function Login() {
             {showOtpStep ? (
               <>
                 <p className="text-sm text-slate-500 mb-4">We sent a 6-digit code to your email. Check your inbox and enter it below.</p>
-                {devOtpFromLogin ? (
-                  <div className="mb-4 p-4 rounded-xl text-sm bg-amber-50 border-2 border-amber-300 text-amber-900">
-                    <p className="font-semibold mb-1">Email could not be sent — use this code:</p>
-                        <p className="text-base">
-                          <span className="font-medium">If you didn’t get the email, you can use:</span>{' '}
-                          <strong className="font-mono text-2xl tracking-widest text-amber-900 bg-amber-100 px-3 py-1 rounded inline-block">
-                            {devOtpFromLogin}
-                          </strong>
-                        </p>
-                    <p className="text-base font-mono text-2xl tracking-widest bg-amber-100 px-3 py-2 rounded inline-block">{devOtpFromLogin}</p>
-                    <p className="text-xs mt-2 text-amber-700">Enter it below to sign in.</p>
+                {showLoginDevOtpBanner && devOtpFromLogin ? (
+                  <div
+                    className="mb-4 p-4 rounded-xl text-sm bg-amber-50 border-2 border-amber-300 text-amber-900"
+                    role="status"
+                    aria-live="polite"
+                  >
+                    <p className="font-semibold mb-2">Fallback sign-in code (when email is unavailable)</p>
+                    <p className="text-xs text-amber-800 mb-3">
+                      To hide this box on Netlify, set <code className="bg-amber-100 px-1 rounded">VITE_HIDE_LOGIN_DEV_OTP=true</code>.
+                    </p>
+                    <p className="font-mono text-3xl tracking-[0.35em] font-bold text-center bg-amber-100 py-3 px-4 rounded-lg border border-amber-200">
+                      {devOtpFromLogin}
+                    </p>
+                    <p className="text-xs mt-3 text-amber-700 text-center">Same value is pre-filled in the field below.</p>
+                  </div>
+                ) : !showLoginDevOtpBanner && devOtpFromLogin ? (
+                  <div className="mb-4 p-3 rounded-xl text-sm bg-slate-50 border border-slate-200 text-slate-600">
+                    <p className="font-medium">Check your email for the 6-digit code.</p>
+                    <p className="text-xs mt-1">Fallback code display is hidden by site configuration.</p>
                   </div>
                 ) : (
                   <div className="mb-4 p-3 rounded-xl text-sm bg-blue-50 border border-blue-200 text-blue-800">
