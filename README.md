@@ -23,8 +23,8 @@ Final demo video: [Watch on Google Drive](https://drive.google.com/file/d/1pnf19
 
 - `Python` 3.10+
 - `Node.js` 18+
-- `pnpm`
-- `PostgreSQL`
+- `pnpm` (install if needed: `npm install -g pnpm`)
+- `PostgreSQL` (local or hosted; set `DATABASE_URL` in `Backend/.env` — see `Backend/.env.example`)
 
 ### 2. Clone The Repository
 
@@ -51,6 +51,8 @@ Install dependencies and create `.env`:
 pip install -r requirements.txt
 copy .env.example .env
 ```
+
+On macOS/Linux use `cp .env.example .env` instead of `copy`.
 
 Edit `Backend/.env` and set at minimum:
 
@@ -106,7 +108,7 @@ Frontend URL:
 1. Open `http://localhost:5173`
 2. Register/login as a citizen
 3. Submit a report
-4. Login as admin
+4. Login as admin (use `python -m scripts.create_admin` from step 3, or seeded accounts under [Demo / Seed Admin Accounts](#demo--seed-admin-accounts-for-testing) if your database has them)
 5. Check report appears in admin dashboard
 6. From the home page footer, open **Privacy Policy** (`/privacy`) and **Terms of Use** (`/terms`) — they use the same public navbar and footer as the rest of the marketing site.
 
